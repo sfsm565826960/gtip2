@@ -1,0 +1,51 @@
+#!/usr/bin/env node
+
+/**
+ * MongoDB Config
+ */
+var dbPath = 'localdb/data/';
+var logFile = 'localdb/log/db.log';
+var port = 27077;
+var fork = true; // 启动后台守护模式
+var auth = false; // 启动认证模式
+
+var spawn = require('child_process').spawn;
+var path = require('path');
+var fs = require('fs');
+
+var args = [
+  '--dbpath=' + path.resolve(dbPath), // 数据库数据存放目录
+  '--logpath=' + path.resolve(logFile), // 数据库日志存放文件
+  '--port=' + port, // 端口号，默认为27017
+  '--nohttpinterface', // 关闭http接口
+  '--bind_ip=127.0.0.1', // 仅绑定IP允许访问数据库
+  '--journal', // 启动日志功能
+  '--quiet', // 这个选项可以过滤掉一些无用的日志信息，若需要调试使用请设置为false
+  '--directoryperdb' // 每个DB存放在独立的目录中
+];
+if (auth) args.push('--auth');
+if (fork) {
+  if (process.platform === 'win32') {
+    console.warn('Win环境下不支持fork选项，若需要请配置install选项');
+  } else {
+    args.push('--fork');
+  }
+}
+try{
+  fs.accessSync(path.resolve(logFile));
+  console.info('存在日志文件，将使用追加的模式添加日志');
+  args.push('--logappend');
+} catch (e) {
+  console.info('日志文件不存在，将重新创建日志文件');
+}
+
+var mongod = spawn('mongod', args);
+mongod.stdout.on('data', function(data) {
+  console.log('stdout: ' + data);
+});
+mongod.stderr.on('data', function(data) {
+  console.error('stderr: ' + data);
+});
+mongod.on('close', function(code) {
+  console.log('退出码: ' + code);
+});

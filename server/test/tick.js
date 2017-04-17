@@ -6,17 +6,6 @@ var MongoClient = require('mongodb').MongoClient;
 var Server = require('mongodb').Server;
 var CONF_DB = require('../config.js').DB;
 
-var client = new MongoClient(new Server(CONF_DB.host, CONF_DB.port, {
-  socketOptions: {
-    connectTimeoutMS: 500
-  },
-  poolSize: 5,
-  auto_reconnect: true
-}), {
-  numberOfRetries: 3,
-  retryMillSeconds: 500
-});
-
 var collectionTickTest = null;
 var setIntervalIndex = 0;
 var setTimeoutIndex = 0;
@@ -51,7 +40,8 @@ function runTest() {
   setTimeout(timeoutInsert, 1000);
 }
 
-client.open(function(err, con) {
+var constr = 'mongodb://' + CONF_DB.user + ':' + CONF_DB.password + '@' + CONF_DB.host + ':' + CONF_DB.port + '/' + CONF_DB.db;
+MongoClient.connect(constr, function(err, con) {
   if (err) {
     console.error('Connect fail: ' + err, err)
   } else {
