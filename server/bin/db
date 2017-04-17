@@ -29,7 +29,7 @@ if (fork) {
   }
 }
 try{
-  fs.accessSync(path.resolve(logFile));
+  fs.accessSync(CONF_DB.logPath);
   console.info('存在日志文件，将使用追加的模式添加日志');
   args.push('--logappend');
 } catch (e) {

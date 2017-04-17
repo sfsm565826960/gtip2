@@ -20,5 +20,3 @@ exports.DB = {
   user: 'gtip',
   password: '8a3a2a7e'
 }
-
-console.log(JSON.stringify(exports.DB));
