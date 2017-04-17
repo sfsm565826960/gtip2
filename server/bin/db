@@ -3,20 +3,17 @@
 /**
  * MongoDB Config
  */
-var dbPath = 'localdb/data/';
-var logFile = 'localdb/log/db.log';
-var port = 27077;
+var CONF_DB = require('../config.js').DB;
 var fork = true; // 启动后台守护模式
 var auth = false; // 启动认证模式
 
 var spawn = require('child_process').spawn;
-var path = require('path');
 var fs = require('fs');
 
 var args = [
-  '--dbpath=' + path.resolve(dbPath), // 数据库数据存放目录
-  '--logpath=' + path.resolve(logFile), // 数据库日志存放文件
-  '--port=' + port, // 端口号，默认为27017
+  '--dbpath=' + CONF_DB.dbPath, // 数据库数据存放目录
+  '--logpath=' + CONF_DB.logPath, // 数据库日志存放文件
+  '--port=' + CONF_DB.port, // 端口号，默认为27017
   '--nohttpinterface', // 关闭http接口
   '--bind_ip=127.0.0.1', // 仅绑定IP允许访问数据库
   '--journal', // 启动日志功能
@@ -38,6 +35,8 @@ try{
 } catch (e) {
   console.info('日志文件不存在，将重新创建日志文件');
 }
+
+// console.log(JSON.stringify(args));
 
 var mongod = spawn('mongod', args);
 mongod.stdout.on('data', function(data) {
