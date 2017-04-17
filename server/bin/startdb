@@ -8,7 +8,7 @@ logappend=true
 port=27077
 #以后台方式运行进程
 fork=true
- #开启用户认证，用户名gtip，密码gtip.sfsm.me|gtip|8
+ #开启用户认证，用户名gtip，密码gtip.sfsm.me|gtip|8；用户名root,密码mongodb.sfsm.me|root|10
 auth=true
 #关闭http接口，默认关闭http端口访问
 nohttpinterface=true
