@@ -8,5 +8,6 @@ test/unit/coverage
 test/e2e/reports
 selenium-debug.log
 server/node_modules/
+!server/localdb/data/
 server/localdb/data/*
 server/localdb/log/*
