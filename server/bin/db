@@ -36,7 +36,7 @@ try{
   console.info('日志文件不存在，将重新创建日志文件');
 }
 
-// console.log(JSON.stringify(args));
+console.log('启动参数：' + JSON.stringify(args));
 
 var mongod = spawn('mongod', args);
 mongod.stdout.on('data', function(data) {
