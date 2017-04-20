@@ -7,5 +7,6 @@ router.get('/', function(req, res, next) {
 });
 
 router.use('/fetch', require('./fetch.js'));
+router.use('/user', require('./user.js'));
 
 module.exports = router;
