@@ -20,13 +20,21 @@ var args = [
   '--quiet', // 这个选项可以过滤掉一些无用的日志信息，若需要调试使用请设置为false
   '--directoryperdb' // 每个DB存放在独立的目录中
 ];
-if (auth) args.push('--auth');
+if (auth) {
+  console.info('开启用户认证模式');
+  args.push('--auth');
+} else {
+  console.warn('未开启用户认证模式');
+}
 if (fork) {
   if (process.platform === 'win32') {
     console.warn('Win环境下不支持fork选项，若需要请配置install选项');
   } else {
+    console.info('启动后台守护模式');
     args.push('--fork');
   }
+} else {
+  console.warn('未启动后台守护模式');
 }
 try{
   fs.accessSync(CONF_DB.logPath);
@@ -36,7 +44,7 @@ try{
   console.info('日志文件不存在，将重新创建日志文件');
 }
 
-console.log('启动参数：' + JSON.stringify(args));
+// console.log('启动参数：' + JSON.stringify(args));
 
 var mongod = spawn('mongod', args);
 mongod.stdout.on('data', function(data) {
