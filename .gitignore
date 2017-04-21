@@ -12,3 +12,5 @@ server/localdb/data/*
 !server/localdb/data/README.md
 server/localdb/log/*
 !server/localdb/log/README.md
+server/logs/*
+!server/logs/README.md

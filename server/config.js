@@ -11,6 +11,8 @@ if (result) {
   basePath = path.resolve('server');
 }
 
+exports.SERVER_PATH = path.resolve(basePath);
+
 exports.DB = {
   host: '127.0.0.1',
   port: 27077,
@@ -19,4 +21,12 @@ exports.DB = {
   db: 'gtip',
   user: 'gtip',
   password: '8a3a2a7e'
+}
+
+exports.MAIL = {
+  enable: true,
+  host: 'smtp.sina.com',
+  user: 'sfsm_gtip@sina.com',
+  pwd: 'sfsm_gtip',
+  admin: '1078777529@qq.com'
 }

@@ -73,7 +73,7 @@ function analysisSetInterval () {
   if (!collectionTickTest) return;
   console.info('tickTest analysis setInterval');
   collectionTickTest.find({
-    type: 'setInterval'
+    type: 'setInterval60'
   }).toArray(function(err, result){
     if (err) {
       console.error('find setInterval result fail: ' + err, err);
@@ -87,7 +87,7 @@ function analysisSetTimeout () {
   if (!collectionTickTest) return;
   console.info('tickTest analysis setTimeout');
   collectionTickTest.find({
-    type: 'setTimeout'
+    type: 'setTimeout60'
   }).toArray(function(err, result){
     if (err) {
       console.error('find setTimeout result fail: ' + err, err);
@@ -117,9 +117,9 @@ MongoClient.connect(constr, function(err, con) {
               console.log('Connect closed');
             } else {
               collectionTickTest = collection;
-              runTest();
+              // runTest();
               // analysisSetInterval();
-              // analysisSetTimeout();
+              analysisSetTimeout();
             }
           })
         }
