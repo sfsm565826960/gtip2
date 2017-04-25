@@ -12,6 +12,7 @@ var _default = function(callback, requireNew) {
   if (_db && requireNew !== true) {
     callback(null, _db);
   } else {
+    console.info('Create New DB Connection');
     MongoClient.connect(constr, function(err, con) {
       if (err) {
         console.error('Connect fail: ' + err, err);
