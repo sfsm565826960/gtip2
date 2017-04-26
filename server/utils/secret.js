@@ -2,6 +2,13 @@ var crypto = require('crypto');
 var CONF = require('../config').APP;
 var keyBuffer = CONF.key;
 
+exports.createPassword = function(password) {
+  if (!password) return null;
+  var hmac = crypto.createHmac('sha1', keyBuffer);
+  hmac.update(password);
+  return hmac.digest('hex');
+}
+
 exports.createToken = function(mail) {
   if (!mail) return null;
   var hmac = crypto.createHmac('sha1', keyBuffer);
