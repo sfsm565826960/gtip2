@@ -1,4 +1,4 @@
-# gtip2
+# gtip
 
 > A Vue.js project
 
