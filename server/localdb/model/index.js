@@ -2,10 +2,14 @@ var mongoose = require('mongoose');
 var Log = require('../../utils/log')({
   file: 'module.log'
 });
-var CONF_DB = require('../../config.js').DB;
+var CONF = require('../../config.js');
+var path = require('path');
+var MODEL_PATH = path.resolve(CONF.SERVER_PATH, './localdb/model/')
+var CONF_DB = CONF.DB;
 var constr = 'mongodb://' + CONF_DB.user + ':' + CONF_DB.password + '@' + CONF_DB.host + ':' + CONF_DB.port + '/' + CONF_DB.db;
 
 /**
+ * 连接数据库并返回mongoose对象
  * @param {Function} callback function(err, mongoose)
  */
 exports.getMongoose = function(callback) {
@@ -19,16 +23,18 @@ exports.getMongoose = function(callback) {
 }
 
 /**
+ * 获取所有模块
  * @param {Function} callback function(err, modules){}
  */
-exports.getModules = function(callback) {
+exports.getModels = function(callback) {
   exports.getMongoose(function(err, mongoose){
     if (err) {
       callback(err);
     } else {
       callback(null, {
-        User: require('./user').getUserModels(mongoose)
+        User: require(path.resolve(MODEL_PATH, 'user')).getUserModel(mongoose)
       }, mongoose);
     }
-  })
+  });
 }
+  
