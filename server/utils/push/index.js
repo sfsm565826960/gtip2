@@ -66,8 +66,21 @@ exports.Transmission = function(content, options) {
   return new exports.TransmissionTemplate(options);
 };
 
-exports.pushMessageToSingle = function(template, clientId, options) {
+/**
+ * 按Id推送
+ * @param {Object} template template or SingleMessage
+ * @param {String|Object} clientId string or Target
+ * @param {Object|Function} options options or callback
+ * @param {Function} callback function(err, res){}
+ */
+exports.pushMessageToSingle = function(template, clientId, options, callback) {
   if (!template || !clientId) return;
+  if (typeof options === 'function') {
+    callback = options;
+    options = {};
+  } else if (typeof callback !== 'function') {
+    callback = function(){}
+  }
   options = Object.assign({data:template}, DEFAULT_PUSH_OPTIONS, options);
   var message = template instanceof SingleMessage ? template : new SingleMessage(options);
   var target = clientId instanceof Target ? target : new Target({
@@ -81,26 +94,43 @@ exports.pushMessageToSingle = function(template, clientId, options) {
       var requestId = err.exception.requestId;
       gt.pushMessageToSingle(message, target, requestId, function(err, res) {
         if (err) {
-          Log.e(err, true, true);
+          Log.e(err, true);
+          callback(err);
         } else {
           Log.i('pushMessageToSingle: ' + JSON.stringify(res));
+          callback(err, res);
         }
       });
     } else {
       Log.i('pushMessageToSingle: ' + JSON.stringify(res));
+      callback(err, res);
     }
   });
 };
 
-exports.pushMessageToList = function(template, clientList, options) {
+/**
+ * 按列表推送
+ * @param {Object} template template or ListMessage
+ * @param {Array} clientList string or Target
+ * @param {Object|Function} options options or callback
+ * @param {Function} callback function(err, res){}
+ */
+exports.pushMessageToList = function(template, clientList, options, callback) {
   if (!template || !clientList || clientList.length === 0) return;
+  if (typeof options === 'function') {
+    callback = options;
+    options = {};
+  } else if (typeof callback !== 'function') {
+    callback = function(){}
+  }
   options = Object.assign({data:template}, DEFAULT_PUSH_OPTIONS, options);
   var message = template instanceof ListMessage ? template : new ListMessage(options);
   // 任务名称
   var taskName = message.data.title || 'task' + new Date().getTime();
   gt.getContentId(message, taskName, function(err, contentId) {
     if (err) {
-      Log.e(err, true, true);
+      Log.e(err, true);
+      callback(err);
     } else {
       Log.i('contentId: ' + contentId);
       var targets = [];
@@ -116,17 +146,31 @@ exports.pushMessageToList = function(template, clientList, options) {
       }
       gt.pushMessageToList(contentId, targets, function(err, res) {
         if (err) {
-          Log.e(err, true, true);
+          Log.e(err, true);
+          callback(err);
         } else {
           Log.i('pushMessageToList: ' + JSON.stringify(res));
+          callback(null, res);
         }
       });
     }
   });
 };
 
-exports.pushMessageToApp = function(template, options) {
+/**
+ * 按标签/地区/系统进行推送
+ * @param {Object} template template or AppMessage
+ * @param {Object|Function} options options or callback
+ * @param {Function} callback function(err, res){}
+ */
+exports.pushMessageToApp = function(template, options, callback) {
   if (!template) return;
+  if (typeof options === 'function') {
+    callback = options;
+    options = {};
+  } else if (typeof callback !== 'function') {
+    callback = function(){}
+  }
   options = Object.assign({
     data: template,
     appIdList: [CONF.appId],
@@ -137,9 +181,29 @@ exports.pushMessageToApp = function(template, options) {
   var taskName = message.data.title || 'task' + new Date().getTime();
   gt.pushMessageToApp(message, taskName, function(err, res) {
     if (err) {
-      Log.e(err, true, true);
+      Log.e(err, true);
+      callback(err);
     } else {
       Log.i('pushMessageToApp: ' + JSON.stringify(res));
+      callback(null, res);
     }
   });
 };
+
+/**
+ * 设置用户标签
+ * @param {String} clientId
+ * @param {Array} tagList
+ * @param {Function} callback function(err, res){}
+ */
+exports.setClientTag = function(clientId, tagList, callback) {
+  gt.setClientTag(CONF.appId, clientId, tagList, function(err, res) {
+    if (err) {
+      Log.e(err, true);
+      typeof callback === 'function' && callback(err);
+    } else {
+      Log.i('setClientTag: ' + JSON.stringify(res));
+      typeof callback === 'function' && callback(null, res);
+    }
+  });
+}
