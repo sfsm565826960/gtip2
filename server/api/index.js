@@ -3,10 +3,10 @@ var router = express.Router();
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+  res.send('router /api test success');
 });
 
-router.use('/fetch', require('./fetch.js'));
-router.use('/user', require('./user.js'));
+router.use('/fetch', require('./fetch'));
+router.use('/user', require('./user'));
 
 module.exports = router;

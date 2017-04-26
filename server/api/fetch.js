@@ -8,8 +8,12 @@ var Log = require('../utils/log.js')({
   file: 'fetch.log'
 });
 
-router.post('/quotation', function(req, res, next) {
-  if (req.body.list.length > 0) {
+router.get('/', function(req, res) {
+  res.send('router /api/fetch test success');
+})
+
+router.post('/quotation', function(req, res) {
+  if (req.body.list && req.body.list.length > 0) {
     require('../utils/quotation.js')(req.body.list, function(err, data){
       if (err) {
         res.json({
