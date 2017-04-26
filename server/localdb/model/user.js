@@ -4,11 +4,11 @@ var Log = require('../../utils/log')({
 function UserSchema (mongoose) {
   var Types = mongoose.Schema.Types;
   var schema = new mongoose.Schema({
-    mail: { type: Types.String, match: /^[A-Za-zd]+([-_.][A-Za-zd]+)*@([A-Za-zd]+[-.])+[A-Za-zd]{2,5}$/, required: true},
+    mail: { type: Types.String, match: /^[A-Za-z0-9]+([-_.][A-Za-z0-9]+)*@([A-Za-z0-9]+[-.])+[A-Za-z]{2,5}$/, required: true},
     nickname: { type: Types.String, match: /.{2,}/, required: true },
     password: { type: Types.String, match: /.{6,}/, required: true },
     token: Types.String,
-    verifyCode: { // 验证码
+    verifiyCode: { // 验证码
       brief: Types.String,
       value: Types.String,
       createDate: Types.Date, // 创建日期，60秒内不允许重复创建（发送邮件)
