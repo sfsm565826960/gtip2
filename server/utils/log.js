@@ -78,7 +78,7 @@ module.exports = function (config) {
             if (error) {
               LOG.e(error.stack || error, true);
             } else {
-              LOG.i('Message send:' + info.response, true);
+              LOG.i('Message send:' + info.response);
             }
             transporter.close();
           });
