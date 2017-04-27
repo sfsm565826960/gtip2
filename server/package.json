@@ -1,10 +1,12 @@
 {
-  "name": "server",
+  "name": "gtip-server",
   "version": "0.0.0",
+  "description": "GTip Server",
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "db": "node ./bin/db"
+    "db": "node ./bin/db",
+    "apidoc": "apidoc -i ./api/ -o ./api/doc/"
   },
   "dependencies": {
     "body-parser": "~1.16.0",
@@ -22,5 +24,8 @@
     "request": "^2.51.0",
     "util": "^0.10.3",
     "zlib": "^1.0.5"
+  },
+  "devDependencies": {
+    "apidoc": "^0.17.5"
   }
 }

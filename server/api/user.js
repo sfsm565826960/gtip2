@@ -63,6 +63,17 @@ function userInfo(user) {
   }
 }
 
+/**
+ * @api {post} /user/login 用户登录
+ * @apiName UserLogin
+ * @apiGroup user
+ * 
+ * @apiParam {String} mail 用户邮箱（必填1）
+ * @apiParam {String{6..}} password 用户密码，长度不得小于6（必填1）
+ * @apiParam {String} token 用户令牌（必填2）
+ * @apiParam {String} clientId 推送ID
+ * @apiParam {String="true","false"} autoLogin 自动登录（true|false）
+ */
 router.post('/login', (req, res) => {
   User.findOne({ $or: [
     {

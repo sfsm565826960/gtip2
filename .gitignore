@@ -14,3 +14,4 @@ server/localdb/log/*
 !server/localdb/log/README.md
 server/logs/*
 !server/logs/README.md
+server/api/doc/*
