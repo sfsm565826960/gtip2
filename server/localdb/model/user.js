@@ -1,6 +1,7 @@
 var Log = require('../../utils/log')({
   file: 'models.user.log'
 });
+var secret = require('../../utils/secret');
 function UserSchema (mongoose) {
   var Types = mongoose.Schema.Types;
   var schema = new mongoose.Schema({
@@ -22,10 +23,11 @@ function UserSchema (mongoose) {
     //   unlockDate: { type: Types.Date, default: new Date() } // 解锁时间
     // },
     habit: { // 用户习惯
-      loginTime: [Types.Date],
-      logoutTime: [Types.Date]
+      loginDate: [Types.Date],
+      logoutDate: [Types.Date]
     },
     lastLogin: Types.Date, // 最近一次登录时间
+    loginExpired: Types.Date, // 登录过期时间
     firstLogin: { type: Types.Date, default: new Date() }, // 注册时间
     settings: {
       receiveNotifiy: { type: Types.Boolean, default: true },
@@ -39,6 +41,58 @@ function UserSchema (mongoose) {
       analysis: Types.Mixed
     }
   });
+  schema.methods.signLogin = function() {
+    var date = new Date();
+    var token = secret.createToken(this.mail);
+    this.token = token;
+    this.lastLogin = date;
+    this.loginExpired = new Date(date.getTime() + 1800000);
+    this.habit.loginDate.push(date);
+    this.state = 'online';
+    return token;
+  };
+  /**
+   * @param {Boolean} offline true离线模式;false注销
+   * @param {Boolean} isBackground true关闭程序;false进入后台。仅offline为true有效
+   */
+  schema.methods.signLogout = function(offline, isExit) {
+    var date = new Date();
+    if (offline === true) {
+      this.state = 'offline';
+      if (isExit === true) {
+        this.loginExpired = date;
+        this.habit.logoutDate.push(date);
+      }
+    } else {
+      this.token = 'InvalidToken' + (date.getTime() * Math.random());
+      this.state = 'logout';
+      this.habit.logoutDate.push(date);
+    }
+  }
+  schema.methods.createVerifiyCode = function(brief) {
+    var date = new Date();
+    var verifiyCode = secret.createVerifyCode(6);
+    this.verifiyCode.brief = brief;
+    this.verifiyCode.value = verifiyCode;
+    this.verifiyCode.createDate = date;
+    this.verifiyCode.expireDate = new Date(date.getTime() + 600000);
+    return verifiyCode;
+  };
+  schema.methods.checkVerifiyCode = function(brief, verifyCode) {
+    var date = new Date();
+    if (this.verifiyCode.brief === brief &&
+        this.verifiyCode.expireDate > date && 
+        this.verifiyCode.createDate < date &&
+        this.verifiyCode.value === verifyCode) {
+        this.verifiyCode.value = '';
+        this.verifiyCode.createDate = date;
+        this.verifiyCode.expireDate = date;
+        this.verifiyCode.brief = '';
+      return true;
+    } else {
+      return false;
+    }
+  }
   return schema;
 }
 
