@@ -55,6 +55,7 @@ function errMsg(err) {
  */
 function userInfo(user) {
   return {
+    mail: user.mail,
     token: user.token,
     nickname: user.nickname,
     settings: user.settings,
@@ -72,7 +73,7 @@ function userInfo(user) {
  * @apiParam {String{6..}} password 用户密码，长度不得小于6（必填1）
  * @apiParam {String} token 用户令牌（必填2）
  * @apiParam {String} clientId 推送ID
- * @apiParam {String="true","false"} autoLogin 自动登录（true|false）
+ * @apiParam {String="true","false"} autoLogin 自动登录（true|false），若无该参数则保持默认
  */
 router.post('/login', (req, res) => {
   User.findOne({ $or: [
@@ -104,6 +105,7 @@ router.post('/login', (req, res) => {
           break;
         case 'false':
           user.settings.autoLogin = false;
+          user.settings.gestures = ''; // 手势密码仅在autoLogin为true时可用
           break;
       }
       if (req.body.clientId &&
@@ -125,6 +127,16 @@ router.post('/login', (req, res) => {
   })
 });
 
+/**
+ * @api {post} /user/register 用户注册
+ * @apiName UserRegister
+ * @apiGroup user
+ * 
+ * @apiParam {String} mail 用户邮箱
+ * @apiParam {String{2..}} nickname 用户昵称，长度不能小于2
+ * @apiParam {String{6..}} password 用户密码，长度不能小于6
+ * @apiParam {String} clientId 推送ID
+ */
 router.post('/register', (req, res) => {
   // 检查用户是否存在
   User.findOne({ mail: req.body.mail }, (err, result) => {
@@ -139,12 +151,11 @@ router.post('/register', (req, res) => {
           password: 'Password Min-length is six'
         }});
         return;
-      } else {
-        req.body.password = secret.createPassword(req.body.password);
       }
+      req.body.password = secret.createPassword(req.body.password);
       var user = new User({
         mail: req.body.mail,
-        nickname: req.body.nickname,
+        nickname: (req.body.nickname || '').trim(),
         password: req.body.password,
         clientId: req.body.clientId
       });
@@ -159,6 +170,20 @@ router.post('/register', (req, res) => {
   });
 });
 
+/**
+ * @api {post} /user/logout 用户离线/退出
+ * @apiName UserLogout
+ * @apiGroup user
+ * 
+ * @apiParam {String} token 用户令牌
+ * @apiParam {String="true","false"} offline 若为true则用户离线（例如APP进入后台）
+ * @apiParam {String="true","false"} isExit 若为true则用户退出程序
+ * 
+ * @apiDescription 说明：
+ * 若offline为false，则退出用户，下次启动程序时要求用户使用账户密码登录；
+ * 若offline为true，且isExit为true，则退出程序，下次启动时取决autoLogin进行自动登录或账户密码登录
+ * 若offline为true，且isExit为false，则进入后台，下次启动时判断登录是否过期，不过期则正常使用，过期则取决于autoLogin
+ */
 router.post('/logout', (req, res) => {
   User.findOne({
     token: req.body.token,
@@ -181,6 +206,13 @@ router.post('/logout', (req, res) => {
   })
 });
 
+/**
+ * @api {post} /user/forget 忘记密码申请
+ * @apiName UserForgetPassword
+ * @apiGroup user
+ * 
+ * @apiParam {String} mail 用户邮箱
+ */
 router.post('/forget', (req, res) => {
   User.findOne({
     mail: req.body.mail
@@ -220,12 +252,26 @@ router.post('/forget', (req, res) => {
   })
 });
 
+/**
+ * @api {post} /user/password 用户修改密码
+ * @apiName UserResetPassword
+ * @apiGroup user
+ * 
+ * @apiParam {String} token 用户令牌（必选1）
+ * @apiParam {String} oldPassword 用户旧密码（必选1）
+ * @apiParam {String} mail 用户邮箱（必选2）
+ * @apiParam {String} verifiyCode 验证码（必选2）
+ * @apiParam {String{6..}} newPassword 用户新密码，长度不得小于6
+ * 
+ */
 router.post('/password', (req, res) => {
   var date = new Date();
   var brief = 'ForgetPassword';
+  req.body.oldPassword = secret.createPassword(req.body.oldPassword);
   User.findOne({$or: [
     {
       token: req.body.token,
+      password: req.body.oldPassword,
       state: 'online',
       loginExpired: {$gt: date}
     },
@@ -247,16 +293,15 @@ router.post('/password', (req, res) => {
           return;
         }
       }
-      // 修改密码
-      if (!req.body.password || req.body.password.length < 6) {
+      // 检测新密码格式
+      if (!req.body.newPassword || req.body.newPassword.length < 6) {
         res.json({code: 'fail', detail: 'User validation failed', errors: {
           password: 'Password Min-length is six'
         }});
         return;
-      } else {
-        req.body.password = secret.createPassword(req.body.password);
       }
-      user.password = req.body.password;
+      // 修改密码
+      user.password = secret.createPassword(req.body.newPassword);
       user.signLogout(false, true);
       user.save().then(doc => {
         res.json({code: 'ok', detail: 'Change password success, please relogin.'});

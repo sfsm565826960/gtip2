@@ -32,7 +32,8 @@ function UserSchema (mongoose) {
     settings: {
       receiveNotifiy: { type: Types.Boolean, default: true },
       voiceBroadcast: { type: Types.Boolean, default: false },
-      autoLogin: { type: Types.Boolean, default: true } // 若为true，则登录的时候使用token即可
+      autoLogin: { type: Types.Boolean, default: false }, // 若为true，则登录的时候使用token即可
+      gestures: { type: Types.String, default: '' } // 用户手势密码，仅在autoLogin为true时有效
     },
     concern: {
       stockId: [Types.String]
@@ -60,7 +61,7 @@ function UserSchema (mongoose) {
     if (offline === true) {
       this.state = 'offline';
       if (isExit === true) {
-        this.loginExpired = date;
+        this.loginExpired = date; // 将登录过期时间设置为当前时间。若autoLogin为true可自动登录，否则需要账户密码登录。
         this.habit.logoutDate.push(date);
       }
     } else {
