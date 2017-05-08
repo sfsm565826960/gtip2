@@ -13,7 +13,8 @@
       "js/mui.locker.js",
       "js/app.js",
       "css/mui.min.css",
-      "css/feedback-page.css"
+      "css/feedback-page.css",
+      "fonts/mui.ttf"
     ],
     "refer": [
       "login.html"
@@ -25,7 +26,8 @@
     "resources": [
       "css/mui.min.css",
       "js/mui.min.js",
-      "js/app.js"
+      "js/app.js",
+      "fonts/mui.ttf"
     ],
     "refer": [
       "setting.html"
@@ -63,7 +65,8 @@
       "css/mui.min.css",
       "css/style.css",
       "js/mui.min.js",
-      "js/app.js"
+      "js/app.js",
+      "fonts/mui.ttf"
     ],
     "refer": [
       "login.html"
@@ -77,13 +80,15 @@
       "css/style.css",
       "js/mui.min.js",
       "js/mui.enterfocus.js",
-      "js/app.js"
+      "js/app.js",
+      "fonts/mui.ttf"
     ],
     "refer": [
       "unlock.html",
       "forget_password.html",
       "main.html",
-      "reg.html"
+      "reg.html",
+      "login.html"
     ],
     "priority": 0
   }

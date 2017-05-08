@@ -1,1 +1,8 @@
-null
+{
+  "login.html": {
+    "href": "login.html",
+    "resources": [],
+    "refer": [],
+    "priority": 0
+  }
+}

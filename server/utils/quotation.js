@@ -112,3 +112,9 @@ module.exports = function (list, callback) {
   };
   task(url);
 }
+
+/**
+ * 获取历史日交易记录：http://vip.stock.finance.sina.com.cn/corp/go.php/vMS_MarketHistory/stockid/000001/type/S.phtml
+ * 获取实时数据：https://gupiao.baidu.com/api/stocks/stocktimeline?from=pc&os_ver=1&cuid=xxx&vv=100&format=json&stock_code=sh000001&timestamp=1494215025325
+ * 获取历史5日交易记录：https://gupiao.baidu.com/api/stocks/stocktimelinefive?from=pc&os_ver=1&cuid=xxx&vv=100&format=json&stock_code=sh000001&step=3&timestamp=1494217570037
+ */
