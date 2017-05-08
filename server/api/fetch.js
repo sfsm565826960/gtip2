@@ -17,19 +17,19 @@ router.post('/quotation', function(req, res) {
     require('../utils/quotation.js')(req.body.list, function(err, data){
       if (err) {
         res.json({
-          code: 'fail',
+          state: 'fail',
           detail: err
         });
       } else {
         res.json({
-          code: 'ok',
+          state: 'ok',
           data: data
         })
       }
     })
   } else {
     res.json({
-      code: 'fail',
+      state: 'fail',
       detail: 'param list is empty.eg: list=sz000001,sz000002'
     });
   }

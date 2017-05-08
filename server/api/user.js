@@ -25,7 +25,7 @@ require('../localdb/model/user').getUserModel((err, model) => {
 // 检查User模型是否加载成功
 router.use((req, res, next) => {
   if (User === null) {
-    res.json({code: 'fail', detail: 'User Model is null'});
+    res.json({state: 'fail', detail: 'User Model is null'});
   } else {
     next();
   }
@@ -41,7 +41,7 @@ router.get('/', (req, res) => {
  * @param {Object} err
  */
 function errMsg(err) {
-  var data = {code: 'fail', detail: err.message, errors: {}}
+  var data = {state: 'fail', detail: err.message, errors: {}}
   for(key in err.errors) {
     data.errors[key] = err.errors[key].message;
   }
@@ -95,9 +95,9 @@ router.post('/login', (req, res) => {
   ]}, (err, user) => {
     if (err) {
       Log.e(err, true);
-      res.json({code: 'fail', detail: err.message || err})
+      res.json({state: 'fail', detail: err.message || err})
     } else if (user === null) {
-      res.json({code: 'fail', detail: 'Mail or Password or Token is wrong'});
+      res.json({state: 'fail', detail: 'Mail or Password or Token is wrong'});
     } else {
       switch(req.body.autoLogin) { // 可选
         case 'true':
@@ -118,7 +118,7 @@ router.post('/login', (req, res) => {
         // 重新设置标签
         var tagList = [].concat(doc.concern.stockId);
         push.setClientTag(doc.clientId, tagList);
-        res.json({code: 'ok', detail: 'Login Success', data: userInfo(doc)});
+        res.json({state: 'ok', detail: 'Login Success', data: userInfo(doc)});
       }).catch(err => {
         Log.e(err, true);
         res.json(errMsg(err))
@@ -142,12 +142,12 @@ router.post('/register', (req, res) => {
   User.findOne({ mail: req.body.mail }, (err, result) => {
     if (err) {
       Log.e(err, true);
-      res.json({code: 'fail', detail: err.message || err});
+      res.json({state: 'fail', detail: err.message || err});
     } else if (result !== null) {
-      res.json({code: 'fail', detail: 'Mail Exist'});
+      res.json({state: 'fail', detail: 'Mail Exist'});
     } else {
       if (!req.body.password || req.body.password.length < 6) {
-        res.json({code: 'fail', detail: 'User validation failed', errors: {
+        res.json({state: 'fail', detail: 'User validation failed', errors: {
           password: 'Password Min-length is six'
         }});
         return;
@@ -161,7 +161,7 @@ router.post('/register', (req, res) => {
       });
       user.signLogin();
       user.save().then(doc => {
-        res.json({code: 'ok', detail: 'Register Success', data: userInfo(doc)});
+        res.json({state: 'ok', detail: 'Register Success', data: userInfo(doc)});
       }).catch(err => {
         Log.e(err, true);
         res.json(errMsg(err));
@@ -191,13 +191,13 @@ router.post('/logout', (req, res) => {
   }, (err, user) => {
     if (err) {
       Log.e(err, true);
-      res.json({code: 'fail', detail: err.message || err});
+      res.json({state: 'fail', detail: err.message || err});
     } else if (user === null) {
-      res.json({code: 'fail', detail: 'User not exist or User had logout'});
+      res.json({state: 'fail', detail: 'User not exist or User had logout'});
     } else {
       user.signLogout(req.body.offline === 'true', req.body.isExit === 'true');
       user.save().then(doc => {
-        res.json({code: 'ok', detail: 'User logout success'});
+        res.json({state: 'ok', detail: 'User logout success'});
       }).catch(err => {
         Log.e(err, true);
         res.json(errMsg(err));
@@ -219,9 +219,9 @@ router.post('/forget', (req, res) => {
   }, (err, user) => {
     if (err) {
       Log.e(err, true);
-      res.json({code: 'fail', detail: err.message || err});
+      res.json({state: 'fail', detail: err.message || err});
     } else if (user === null) {
-      res.json({code: 'fail', detail: 'Mail not exist'});
+      res.json({state: 'fail', detail: 'Mail not exist'});
     } else {
       user.createVerifiyCode('ForgetPassword');
       user.save().then(doc => {
@@ -238,10 +238,10 @@ router.post('/forget', (req, res) => {
           function(err, info) {
             if (err) {
               Log.e(err, true);
-              res.json({code: 'fail', detail: 'Send forget application mail fail'});
+              res.json({state: 'fail', detail: 'Send forget application mail fail'});
             } else {
               Log.i(info);
-              res.json({code: 'ok', detail: 'Send forget application mail success'});
+              res.json({state: 'ok', detail: 'Send forget application mail success'});
             }
           });
       }).catch(err => {
@@ -282,20 +282,20 @@ router.post('/password', (req, res) => {
   ]}, function(err, user) {
     if (err) {
       Log.e(err, true);
-      res.json({code: 'fail', detail: err.message || err});
+      res.json({state: 'fail', detail: err.message || err});
     } else if (user === null) {
-      res.json({code: 'fail', detail: 'Token or Mail not exist'});
+      res.json({state: 'fail', detail: 'Token or Mail not exist'});
     } else {
       // 检查验证码
       if (req.body.verifiyCode && req.body.verifiyCode.length > 0) {
         if (!user.checkVerifiyCode(brief, req.body.verifiyCode)) {
-          res.json({code: 'fail', detail: 'Check VerifiyCode fail'});
+          res.json({state: 'fail', detail: 'Check VerifiyCode fail'});
           return;
         }
       }
       // 检测新密码格式
       if (!req.body.newPassword || req.body.newPassword.length < 6) {
-        res.json({code: 'fail', detail: 'User validation failed', errors: {
+        res.json({state: 'fail', detail: 'User validation failed', errors: {
           password: 'Password Min-length is six'
         }});
         return;
@@ -304,7 +304,7 @@ router.post('/password', (req, res) => {
       user.password = secret.createPassword(req.body.newPassword);
       user.signLogout(false, true);
       user.save().then(doc => {
-        res.json({code: 'ok', detail: 'Change password success, please relogin.'});
+        res.json({state: 'ok', detail: 'Change password success, please relogin.'});
       }).catch(err => {
         res.json(errMsg(err));
       })
