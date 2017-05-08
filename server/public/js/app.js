@@ -1,5 +1,5 @@
 (function($, owner, server) {
-	var API_HOST = 'http://gtip.sfsm.me/api/';
+	var API_HOST = 'http://gtip.sfsm.me:3305/api/';
 	var _temp = {};
 	_temp.expired = function(keep){
 		if (!keep) keep = 300000;
@@ -196,7 +196,7 @@
 	/**
 	 * 新用户注册
 	 **/
-	owner.reg = function(regInfo, callback) {
+	owner.register = function(regInfo, callback) {
 		callback = callback || $.noop;
 		regInfo = regInfo || {};
 		regInfo.mail = regInfo.mail || '';
