@@ -4,7 +4,7 @@
 
 var http = require('./http.js');
 var Log = require('./log.js')({
-  file: 'quotation.log'
+  file: 'stock.quotation.log'
 });
 
 function parseItem(code, detailStr) {
@@ -116,5 +116,6 @@ module.exports = function (list, callback) {
 /**
  * 获取历史日交易记录：http://vip.stock.finance.sina.com.cn/corp/go.php/vMS_MarketHistory/stockid/000001/type/S.phtml
  * 获取实时数据：https://gupiao.baidu.com/api/stocks/stocktimeline?from=pc&os_ver=1&cuid=xxx&vv=100&format=json&stock_code=sh000001&timestamp=1494215025325
+ * 获取历史每日交易记录：https://gupiao.baidu.com/api/stocks/stockdaybar?from=pc&os_ver=1&cuid=xxx&vv=100&format=json&stock_code=sh600198&step=3&start=20151216&count=320&fq_type=no&timestamp=1494254897557
  * 获取历史5日交易记录：https://gupiao.baidu.com/api/stocks/stocktimelinefive?from=pc&os_ver=1&cuid=xxx&vv=100&format=json&stock_code=sh000001&step=3&timestamp=1494217570037
  */
