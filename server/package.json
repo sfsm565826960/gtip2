@@ -26,6 +26,7 @@
     "zlib": "^1.0.5"
   },
   "devDependencies": {
-    "apidoc": "^0.17.5"
+    "apidoc": "^0.17.5",
+    "iconv-lite": "^0.4.17"
   }
 }
