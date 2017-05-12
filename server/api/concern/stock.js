@@ -5,7 +5,7 @@
 var express = require('express');
 var router = express.Router();
 var User = null;
-var Log = require('../utils/log')({
+var Log = require('../../utils/log')({
   file: 'api.concern.stock.log'
 });
 
