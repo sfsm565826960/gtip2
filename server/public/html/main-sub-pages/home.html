@@ -7,11 +7,47 @@
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<link href="../../css/mui.min.css" rel="stylesheet" />
 		<style type="text/css">
+			html,
+			body,
+			.mui-content {
+				background-color: rgb(36, 37, 42);
+			}
+			
 			.chart {
 				height: 200px;
 				width: 100%;
 				margin: 0px;
 				padding: 0px;
+				background-color: rgb(36, 37, 42);
+			}
+			
+			.bar-title {
+				height: 30px;
+				background-color: rgb(45, 50, 56);
+				color: rgba(255, 255, 255, 0.5);
+				line-height: 30px;
+				padding: 0 8px;
+				font-size: 14px;
+			}
+			
+			.bar-title a {
+				line-height: 30px;
+				color: white;
+			}
+			
+			#stockQuotation {
+				visibility: hidden;
+			}
+			
+			#stockQuotation ul {
+				background-color: rgb(36, 37, 42);
+			}
+			
+			#stockQuotation ul li {
+				color: white;
+				font-size: 18px;
+				display: flex;
+				justify-content: space-between;
 			}
 		</style>
 	</head>
@@ -19,17 +55,78 @@
 	<body>
 		<div class="mui-content">
 			<!--大盘数据-->
-			<canvas id="broaderIndex" class="chart"></canvas>
+			<div class="bar-title">
+				大盘指数
+				<!--<a class="mui-icon mui-icon-plusempty mui-pull-right"></a>-->
+			</div>
+			<div id="broaderIndex" class="chart"></div>
+			<!--关注的股票数据-->
+			<div class="bar-title">
+				我的关注
+				<a class="mui-icon mui-icon-plusempty mui-pull-right"></a>
+			</div>
+			<div id="stockQuotation">
+				<ul class="mui-table-view">
+					<li class="mui-table-view-cell" v-for="item in list">
+						<span>{{item.name}}</span>
+						<span>{{item.price}}</span>
+						<span>{{item.rate}}%</span>
+					</li>
+				</ul>
+			</div>
 		</div>
 		<script src="../../js/mui.min.js"></script>
 		<script src="../../libs/echarts.js"></script>
 		<script src="../../js/app.js"></script>
-		<script src="../../js/home-broader-index.js"></script>
+		<script src="../../js/broader-index.js"></script>
+		<script src="../../js/stock.js"></script>
+		<script src="../../js/vue.min.js"></script>
 		<script type="text/javascript">
-			(function($, doc){
+			(function($, doc) {
 				$.init();
 				// 初始化大盘数据
-				InitBroaderIndex($, doc.getElementById('broaderIndex'));
+				InitBroaderIndex($, doc.getElementById('broaderIndex'), [{
+						name: '沪A',
+						code: 'sh000001'
+					},
+					{
+						name: '深A',
+						code: 'sz399001'
+					}
+				]);
+				
+				$.plusReady(function(){
+					var vm = new Vue({
+						el: '#stockQuotation',
+						data: {
+							list: []
+						},
+						created: function(){
+							var concern = app.getConcern();
+							if (!concern || !concern.stockIds) {
+								console.error('无法获取用户关注的股票');
+								$.toast('获取用户关注的股票错误');
+								return;
+							}
+							stock.realTime(concern.stockIds, function(err, info) {
+								if (err) {
+									console.error(err);
+									$.toast(err);
+									return;
+								}
+								for (item in info) {
+									this.data.push({
+										code: item.code,
+										name: item.name,
+										price: item.price,
+										rate: Math.round((item.price - item.open) / item.open * 100) / 100
+									})
+								}
+							});
+							this.el.style.visibility = 'visible';
+						}
+					})
+				})
 			})(mui, document);
 		</script>
 	</body>

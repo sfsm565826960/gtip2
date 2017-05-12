@@ -12,7 +12,7 @@
 	/**
 	 * 获取实时股票数据
 	 * @param {Array|String} list 股票代码列表
-	 * @param {Function} callback function(res){}
+	 * @param {Function} callback function(err, data){}
 	 */
 	stock.realTime = function(list, callback) {
 		var url = 'http://hq.sinajs.cn/list=' + (typeof list === 'string' ? list : list.join(','));
@@ -76,7 +76,7 @@
 			}
 		}
 		
-		$.get(url, function(data) {
+		server.send(url, function(data) {
 			var data = {
 				ignore: []
 			};
@@ -98,4 +98,5 @@
 			callback(null, data);
 		});
 	}
+	
 })(mui, window.stock = {}, window.server || {});

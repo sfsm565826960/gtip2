@@ -24,7 +24,7 @@ exports.getMongoose = function(callback) {
 
 /**
  * 获取所有模块
- * @param {Function} callback function(err, modules){}
+ * @param {Function} callback function(err, modules, mongoose){}
  */
 exports.getModels = function(callback) {
   exports.getMongoose(function(err, mongoose){

@@ -12,15 +12,15 @@ var Log = require('../utils/log')({
   file: 'api.user.log'
 });
 
-// 连接数据库并加载User模型
-require('../localdb/model/user').getUserModel((err, model) => {
-  if (err) {
-    Log.e(err, true, true);
-  } else {
-    User = model;
-    Log.i('User Model Loaded', true);
-  }
-});
+// // 连接数据库并加载User模型
+// require('../localdb/model/user').getUserModel((err, model) => {
+//   if (err) {
+//     Log.e(err, true, true);
+//   } else {
+//     User = model;
+//     Log.i('User: User Model Loaded');
+//   }
+// });
 
 // 检查User模型是否加载成功
 router.use((req, res, next) => {
@@ -65,7 +65,7 @@ function userInfo(user) {
 }
 
 /**
- * @api {post} /user/login 用户登录
+ * @api {post} /api/user/login 用户登录
  * @apiName UserLogin
  * @apiGroup user
  * 
@@ -97,7 +97,7 @@ router.post('/login', (req, res) => {
       Log.e(err, true);
       res.json({state: 'fail', detail: err.message || err})
     } else if (user === null) {
-      res.json({state: 'fail', detail: 'Mail or Password or Token is wrong'});
+      res.json({state: 'fail', detail: '邮箱/密码/令牌无效'});
     } else {
       switch(req.body.autoLogin) { // 可选
         case 'true':
@@ -128,7 +128,7 @@ router.post('/login', (req, res) => {
 });
 
 /**
- * @api {post} /user/register 用户注册
+ * @api {post} /api/user/register 用户注册
  * @apiName UserRegister
  * @apiGroup user
  * 
@@ -171,7 +171,7 @@ router.post('/register', (req, res) => {
 });
 
 /**
- * @api {post} /user/logout 用户离线/退出
+ * @api {post} /api/user/logout 用户离线/退出
  * @apiName UserLogout
  * @apiGroup user
  * 
@@ -193,7 +193,7 @@ router.post('/logout', (req, res) => {
       Log.e(err, true);
       res.json({state: 'fail', detail: err.message || err});
     } else if (user === null) {
-      res.json({state: 'fail', detail: 'User not exist or User had logout'});
+      res.json({state: 'fail', detail: '用户不存在或已退出'});
     } else {
       user.signLogout(req.body.offline === 'true', req.body.isExit === 'true');
       user.save().then(doc => {
@@ -207,7 +207,7 @@ router.post('/logout', (req, res) => {
 });
 
 /**
- * @api {post} /user/forget 忘记密码申请
+ * @api {post} /api/user/forget 忘记密码申请
  * @apiName UserForgetPassword
  * @apiGroup user
  * 
@@ -221,7 +221,7 @@ router.post('/forget', (req, res) => {
       Log.e(err, true);
       res.json({state: 'fail', detail: err.message || err});
     } else if (user === null) {
-      res.json({state: 'fail', detail: 'Mail not exist'});
+      res.json({state: 'fail', detail: '该邮箱未注册'});
     } else {
       user.createVerifiyCode('ForgetPassword');
       user.save().then(doc => {
@@ -253,7 +253,7 @@ router.post('/forget', (req, res) => {
 });
 
 /**
- * @api {post} /user/password 用户修改密码
+ * @api {post} /api/user/password 用户修改密码
  * @apiName UserResetPassword
  * @apiGroup user
  * 
@@ -312,4 +312,7 @@ router.post('/password', (req, res) => {
   })
 });
 
-module.exports = router;
+module.exports = function(models) {
+  User = models.User;
+  return router;
+}

@@ -14,6 +14,11 @@
 			.mui-btn {
 				padding: 10px;
 			}
+			
+			.mui-bar {
+				background-color: rgb(39,43,54);
+				color: white;
+			}
 		</style>
 	</head>
 
@@ -52,14 +57,13 @@
 				
 				// 搜索子页面
 				var subPages = [];
-				var subTabs = $('.mui-bar-tab');
-				subTabs.each(function(){
+				$('.mui-tab-item').each(function(){
 					subPages.push(this.getAttribute('href'))
 				});
 				//当前激活选项
 				var activeTab = subPages[0];
 				//选项卡点击事件
-				subTabs.on('tap', 'a', function(e) {
+				$('.mui-bar-tab').on('tap', 'a', function(e) {
 					var targetTab = this.getAttribute('href');
 					if(targetTab == activeTab) {
 						return;

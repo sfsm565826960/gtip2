@@ -13,48 +13,79 @@
 	 * @param {String} method
 	 */
 	server.send = function(url, params, callback, method) {
-		if(typeof params === 'function') {
-			method = callback;
-			callback = params;
-			params = null;
-		}
-		if(plus.networkinfo.getCurrentType() == plus.networkinfo.CONNECTION_NONE) {
-			if(callback) {
-				callback({
-					'state': 'CONNECTION_NONE',
-					'detail': '请开启网络'
-				});
-			} else {
-				mui.toast("请开启网络！");
+		$.plusReady(function() {
+			if(typeof params === 'function') {
+				method = callback;
+				callback = params;
+				params = null;
 			}
-			return null;
-		}
-		if(!url || url.length == 0) return null;
-		if(url.indexOf("http") < 0) url = API_HOST + url;
-		method = method || 'post';
-		method = method.toLowerCase();
-		params = params || {};
-		if(params.token === undefined) params.token = owner.getToken();
-		var cb = function(res) {
-			console.log('send return: ' + JSON.stringify(res));
-			if(res.state == 'logout') {
-				owner.reLogin();
-				callback({
-					'state': 'logout',
-					'detail': '登录令牌失效，请重新登录'
-				});
-			} else {
-				if(typeof(callback) == 'function') callback(res || {
-					state: 'fail',
-					detail: '获取数据失败'
-				});
+			var hasCB = typeof callback === 'function';
+			if(plus.networkinfo.getCurrentType() == plus.networkinfo.CONNECTION_NONE) {
+				if(hasCB) {
+					callback({
+						'state': 'CONNECTION_NONE',
+						'detail': '请开启网络'
+					});
+				} else {
+					$.toast("请开启网络！");
+				}
+				return null;
 			}
-		}
-		if(method === 'get') {
-			return $.getJSON(url, params, cb);
-		} else if(method === 'post') {
-			return $.post(url, params, cb, 'json');
-		}
+			if(!url || url.length == 0) {
+				if(hasCB) {
+					callback({
+						state: 'fail',
+						detail: '请求地址不能为空!'
+					});
+				} else {
+					$.toast("请求地址不能为空!");
+				}
+				return null;
+			}
+			if(url.indexOf("http") < 0) url = API_HOST + url;
+			method = method || 'post';
+			method = method.toLowerCase();
+			params = params || {};
+			if(params.token === undefined) params.token = owner.getToken();
+			$.ajax(url, {
+				data: params,
+				dataType: 'json',
+				type: method,
+				timeout: 10000,
+				crossDomain: true, // 强制跨域，要求5+
+				success: function(res) {
+					console.log('server return: ' + JSON.stringify(res));
+					if(res && res.state == 'logout') {
+						owner.reLogin();
+						if(hasCB) {
+							callback({
+								'state': 'logout',
+								'detail': '登录令牌失效，请重新登录'
+							});
+						} else {
+							$.toast('登录失效，请重新登录');
+						}
+					} else {
+						if(hasCB) {
+							callback(res || {
+								state: 'fail',
+								detail: '获取数据失败'
+							});
+						}
+					}
+				},
+				error: function(xhr, type, errorThrown) {
+					if(hasCB) {
+						callback({
+							state: type,
+							detail: errorThrown
+						})
+					} else {
+						$.toast(errorThrown)
+					}
+				}
+			})
+		})
 	}
 
 	/**
@@ -136,6 +167,23 @@
 			return _temp.settings;
 		}
 	}
+	
+	owner.getConcern = function() {
+		if (_temp.concern && _temp.concern._expired > new Date()) {
+			return _temp.concern;
+		} else {
+			var concernText = localStorage.getItem('$concern') || '{}';
+			_temp.concern = JSON.parse(concernText);
+			_temp.concern._expired = _temp.expired();
+			return _temp.concern;
+		}
+	}
+	
+	owner.setConcern = function (concern) {
+		_temp.concern = concern || {};
+		_temp.concern._expired = _temp.expired();
+		localStorage.setItem('$concern', JSON.stringify(_temp.concern));
+	}
 
 	/**
 	 * 创建数据仓库
@@ -143,14 +191,16 @@
 	 * @param {Object} callback
 	 */
 	owner.createState = function(params, callback) {
-		var state = owner.getState();
-		var settings = owner.getSettings();
 		// 创建状态
+		var state = owner.getState();
 		state.mail = params.mail;
 		state.nickname = decodeURI(params.nickname);
 		state.token = params.token;
 		owner.setState(state);
+		// 创建关注
+		owner.setConcern(params.concern);
 		// 创建设置
+		var settings = owner.getSettings();
 		settings.receiveNotify = params.settings.receiveNotify;
 		settings.voiceBroadcast = params.settings.voiceBroadcast;
 		if(settings.voiceBroadcast === true) {
@@ -176,6 +226,7 @@
 	/**
 	 * 用户登录
 	 * @param {Object} loginInfo 若为null则使用token进行登录
+	 * @param {Function} callback function(err){}
 	 **/
 	owner.login = function(loginInfo, callback) {
 		callback = callback || $.noop;
@@ -235,6 +286,26 @@
 	};
 
 	/**
+	 * 用户注销
+	 * @param {Function} callback function(err,msg)
+	 */
+	owner.logout = function(callback) {
+		callback = callback || function(err) {
+			$toast(err || '退出用户成功');
+		}
+		server.send('user/logout', {
+			offline: false
+		}, function(res) {
+			if(res, state === 'ok') {
+				owner.reLogin();
+				callback(null);
+			} else {
+				callback(res.detail);
+			}
+		})
+	}
+
+	/**
 	 * 找回密码
 	 * @param {String} email
 	 * @param {Function} callback function(errmsg, okmsg){};
@@ -272,7 +343,7 @@
 		});
 	}
 
-	owner.quit = function(cb) {
+	owner.quit = function() {
 		server.send("user/logout", {
 			offline: true,
 			isExit: true

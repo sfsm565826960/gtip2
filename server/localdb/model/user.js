@@ -36,7 +36,7 @@ function UserSchema (mongoose) {
       gestures: { type: Types.String, default: '' } // 用户手势密码，仅在autoLogin为true时有效
     },
     concern: {
-      stockId: [Types.String]
+      stockIds: [Types.String]
     },
     authority: {
       analysis: Types.Mixed

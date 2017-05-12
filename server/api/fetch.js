@@ -35,4 +35,6 @@ router.post('/quotation', function(req, res) {
   }
 });
 
-module.exports = router;
+module.exports = function(models){
+  return router;
+};
