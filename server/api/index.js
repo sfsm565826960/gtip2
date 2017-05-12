@@ -1,6 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var modelLoaded = false;
+var Log = require('../utils/log')({
+  file: 'api.log'
+});
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
