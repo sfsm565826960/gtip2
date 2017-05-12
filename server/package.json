@@ -4,7 +4,8 @@
   "description": "GTip Server",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "node ./bin/start",
+    "server": "node ./bin/www",
     "db": "node ./bin/db",
     "apidoc": "apidoc -i ./api/ -o ./api/doc/"
   },

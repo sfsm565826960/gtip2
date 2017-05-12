@@ -1,0 +1,24 @@
+var cluster = require('cluster');
+var numCPUs = require('os').cpus().length;
+
+if (cluster.isMaster) {
+  console.log(`Master ${process.pid} is running`);
+  //Fork a worker to run the main program
+  for (var i = 0; i < npmCPUs; i++) {
+    cluster.fork();
+  }
+} else {
+  //Run main program
+  require('./www');
+  console.log(`Worker ${process.pid} started`);
+}
+
+cluster.on('exit', (worker, code, signal) => {
+  console.log(`worker ${worker.process.pid} died`);
+});
+
+cluster.on('death', function(worker) {
+  //If the worker died, fork a new worker
+  console.log('worker ' + worker.pid + ' died. restart...');
+  cluster.fork();
+});
