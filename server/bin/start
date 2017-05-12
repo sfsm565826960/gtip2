@@ -4,7 +4,7 @@ var numCPUs = require('os').cpus().length;
 if (cluster.isMaster) {
   console.log(`Master ${process.pid} is running`);
   //Fork a worker to run the main program
-  for (var i = 0; i < npmCPUs; i++) {
+  for (var i = 0; i < numCPUs; i++) {
     cluster.fork();
   }
 } else {
