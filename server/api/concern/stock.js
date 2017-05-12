@@ -57,7 +57,7 @@ router.post('/add', (req, res) => {
     } else if (user.concern.stockIds.indexOf(req.body.stockId) >= 0) {
       res.json({state: 'fail', detail: '用户已关注股票:' + req.body.stockId})
     } else {
-      user.stockIds.push(req.body.stockId);
+      user.concern.stockIds.push(req.body.stockId);
       user.save().then(doc => {
         res.json({state: 'ok', detail: 'add stock concern success', data: doc.concern.stockIds});
       }).catch(err => {

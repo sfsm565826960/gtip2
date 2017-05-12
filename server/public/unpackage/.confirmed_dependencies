@@ -118,7 +118,8 @@
 			"js/mui.enterfocus.js"
 		],
 		"refer": [
-			"html/main.html"
+			"html/main.html",
+			"html/auth/reg.html"
 		]
 	},
 	"html/main-sub-pages/setting.html": {
