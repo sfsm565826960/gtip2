@@ -5,10 +5,10 @@ var secret = require('../../utils/secret');
 function UserSchema (mongoose) {
   var Types = mongoose.Schema.Types;
   var schema = new mongoose.Schema({
-    mail: { type: Types.String, match: /^[A-Za-z0-9]+([-_.][A-Za-z0-9]+)*@([A-Za-z0-9]+[-.])+[A-Za-z]{2,5}$/, required: true},
+    mail: { type: Types.String, match: /^[A-Za-z0-9]+([-_.][A-Za-z0-9]+)*@([A-Za-z0-9]+[-.])+[A-Za-z]{2,5}$/, required: true, unique: true},
     nickname: { type: Types.String, match: /.{2,}/, required: true },
     password: { type: Types.String, match: /.{6,}/, required: true },
-    token: Types.String,
+    token: { type: Types.String, unique: true },
     verifiyCode: { // 验证码
       brief: Types.String,
       value: Types.String,
@@ -42,6 +42,11 @@ function UserSchema (mongoose) {
       analysis: Types.Mixed
     }
   });
+  // 添加索引
+  schema.index({mail: 1}, {unique: true});
+  schema.index({token: 1}, {unique: true});
+  schema.index({mail: 1, password: 1});
+  // 添加方法
   schema.methods.signLogin = function() {
     var date = new Date();
     var token = secret.createToken(this.mail);
