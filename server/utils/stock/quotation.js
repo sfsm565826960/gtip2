@@ -2,8 +2,8 @@
  * 本模块用于获取交易盘口数据
  */
 
-var http = require('./http.js');
-var Log = require('./log.js')({
+var http = require('../http.js');
+var Log = require('../log.js')({
   file: 'stock.quotation.log'
 });
 
@@ -71,14 +71,14 @@ function parseItem(code, detailStr) {
 }
 
 function parseQuotation(body, callback) {
-  var data = { ignore: [] };
+  var data = { ignore: [], stocks: {} };
   var regExp = /hq_str_(\w{8})="(.+?)";/g;
   var result = regExp.exec(body);
   while(result != null) {
     try {
       var item = parseItem(result[1], result[2]);
       if (item !== null) {
-        data[item.code] = item;
+        data.stocks[item.code] = item;
       } else {
         data.ignore.push(result[0]);
       }
@@ -90,6 +90,11 @@ function parseQuotation(body, callback) {
   callback(null, data);
 }
 
+
+/**
+ * @param {Array} list
+ * @param {Function} callback function(err, data){}  data={ignore:[],stocks:{stockCode:{}}}
+ */
 module.exports = function (list, callback) {
   var url = 'http://hq.sinajs.cn/list=' + (typeof list === 'string' ? list : list.join(','));
   var retry = 0;

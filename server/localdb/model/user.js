@@ -1,6 +1,3 @@
-var Log = require('../../utils/log')({
-  file: 'models.user.log'
-});
 var secret = require('../../utils/secret');
 function UserSchema (mongoose) {
   var Types = mongoose.Schema.Types;
@@ -106,7 +103,7 @@ function UserSchema (mongoose) {
  * 获取UserModules
  * @param {Object|Function} mongoose 当为mongoose时同步，当为function时异步
  */
-exports.getUserModel = function(callback) {
+exports.getModel = function(callback) {
   if (typeof callback === 'function') {
     require('./index').getMongoose(function(err, mongoose) {
       if (err) {
@@ -126,7 +123,7 @@ exports.getUserModel = function(callback) {
  * 获取UserSchema
  * @param {Object|Function} mongoose 当为mongoose时同步，当为function时异步
  */
-exports.getUserSchema = function(callback) {
+exports.getSchema = function(callback) {
   if (typeof callback === 'function') {
     require('./index').getMongoose(function(err, mongoose) {
       if (err) {

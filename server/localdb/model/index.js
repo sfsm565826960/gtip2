@@ -32,7 +32,8 @@ exports.getModels = function(callback) {
       callback(err);
     } else {
       callback(null, {
-        User: require(path.resolve(MODEL_PATH, 'user')).getUserModel(mongoose)
+        User: require(path.resolve(MODEL_PATH, 'user')).getModel(mongoose),
+        Stock: require(path.resolve(MODEL_PATH, 'stock')).getModel(mongoose)
       }, mongoose);
     }
   });

@@ -12,16 +12,6 @@ var Log = require('../utils/log')({
   file: 'api.user.log'
 });
 
-// // 连接数据库并加载User模型
-// require('../localdb/model/user').getUserModel((err, model) => {
-//   if (err) {
-//     Log.e(err, true, true);
-//   } else {
-//     User = model;
-//     Log.i('User: User Model Loaded');
-//   }
-// });
-
 // 检查User模型是否加载成功
 router.use((req, res, next) => {
   if (User === null) {
