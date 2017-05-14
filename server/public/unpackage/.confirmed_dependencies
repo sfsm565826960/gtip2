@@ -136,7 +136,8 @@
 			"js/app.js",
 			"fonts/mui.ttf",
 			"js/mui.min.js",
-			"css/mui.min.css"
+			"css/mui.min.css",
+			"libs/star/star.css"
 		]
 	},
 	"html/main-sub-pages/home.html": {
@@ -148,7 +149,32 @@
 			"js/mui.min.js",
 			"js/stock.js",
 			"js/vue.min.js",
-			"fonts/mui.ttf"
+			"fonts/mui.ttf",
+			"js/vue.js"
+		],
+		"refer": [
+			"html/main-sub-pages/stock-detail.html"
+		]
+	},
+	"html/main-sub-pages/concern.html": {
+		"resources": [
+			"js/mui.min.js",
+			"css/mui.min.css",
+			"fonts/mui.ttf",
+			"js/vue.min.js",
+			"js/vue.js"
+		]
+	},
+	"html/main-sub-pages/stock-detail.html": {
+		"resources": [
+			"js/stock.js",
+			"js/app.js",
+			"js/mui.min.js",
+			"fonts/mui.ttf",
+			"css/mui.min.css",
+			"js/broader-index.js",
+			"libs/echarts.js",
+			"js/vue.min.js"
 		]
 	}
 }

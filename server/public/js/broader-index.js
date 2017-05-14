@@ -21,6 +21,7 @@ function InitBroaderIndex($, dom, stocks) {
 		baseOption: {
 			backgroundColor: 'rgb(36,37,42)',
 			timeline: {
+				show: stocks.length > 1,
 				axisType: 'category',
 				data: [],
 				left: 'center',
@@ -215,32 +216,36 @@ function InitBroaderIndex($, dom, stocks) {
 		}
 		return cMacd;
 	}
-	
+
 	function calcKdj(price, oKdj) {
 		var cKdj = {};
 		var getMinMax = function(arr) {
-			var min = arr[0],max = arr[0];
-			for(var i = 1; i< arr.length; i++) {
-				if (arr[i] < min) {
+			var min = arr[0],
+				max = arr[0];
+			for(var i = 1; i < arr.length; i++) {
+				if(arr[i] < min) {
 					min = arr[i]
-				} else if (arr[i] > max) {
+				} else if(arr[i] > max) {
 					max = arr[i]
 				}
 			}
-			return {min:min,max:max};
+			return {
+				min: min,
+				max: max
+			};
 		}
-		var round = function (v) {
-			if (v < 0){
+		var round = function(v) {
+			if(v < 0) {
 				return 0;
-			} else if (v > 100) {
+			} else if(v > 100) {
 				return 100;
 			} else {
 				return v
 			}
 		}
-		if (oKdj) {
+		if(oKdj) {
 			oKdj.prices.push(price);
-			cKdj.prices = oKdj.prices.splice(oKdj.prices.length - 9);
+			cKdj.prices = oKdj.prices.splice(-9);
 			var minmax = getMinMax(cKdj.prices);
 			cKdj.rsv = (price - minmax.min) / (minmax.max - minmax.min) * 100;
 			cKdj.k = round((2 * oKdj.k + cKdj.rsv) / 3);
@@ -286,9 +291,9 @@ function InitBroaderIndex($, dom, stocks) {
 					kline: [],
 					macd: [],
 					kdj: {
-						k:[],
-						d:[],
-						j:[]
+						k: [],
+						d: [],
+						j: []
 					}
 				}
 				var oMacd = null;
@@ -438,8 +443,8 @@ function InitBroaderIndex($, dom, stocks) {
 			});
 			_currentLegendName = '实时';
 		} else {
-			for(var i=0;i<opt.series.length;i++){
-				if (opt.series[i].name === _currentLegendName) {
+			for(var i = 0; i < opt.series.length; i++) {
+				if(opt.series[i].name === _currentLegendName) {
 					option.baseOption.xAxis.data = opt.series[i].xAxis;
 				}
 			}

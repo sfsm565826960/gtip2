@@ -11,13 +11,15 @@
 	 * @param {Object} params 若没有参数token则自动追加该参数
 	 * @param {Function} callback function(res){}
 	 * @param {String} method
+	 * @param {String} resType json,xml,text,html,script
 	 */
-	server.send = function(url, params, callback, method) {
+	server.send = function(url, params, callback, method, resType) {
 		$.plusReady(function() {
 			if(typeof params === 'function') {
+				resType = method;
 				method = callback;
 				callback = params;
-				params = null;
+				params = {};
 			}
 			var hasCB = typeof callback === 'function';
 			if(plus.networkinfo.getCurrentType() == plus.networkinfo.CONNECTION_NONE) {
@@ -45,16 +47,14 @@
 			if(url.indexOf("http") < 0) url = API_HOST + url;
 			method = method || 'post';
 			method = method.toLowerCase();
-			params = params || {};
-			if(params.token === undefined) params.token = owner.getToken();
 			$.ajax(url, {
-				data: params,
-				dataType: 'json',
+				data: params || {},
+				dataType: resType || 'json',
 				type: method,
 				timeout: 10000,
 				crossDomain: true, // 强制跨域，要求5+
 				success: function(res) {
-					console.log('server return: ' + JSON.stringify(res));
+					console.log('server return: ' + (typeof res === 'object'?JSON.stringify(res):res));
 					if(res && res.state == 'logout') {
 						owner.reLogin();
 						if(hasCB) {
@@ -75,6 +75,7 @@
 					}
 				},
 				error: function(xhr, type, errorThrown) {
+					console.error('server fail: ' + type + ',' + url);
 					if(hasCB) {
 						callback({
 							state: type,
@@ -245,7 +246,9 @@
 			var cinfo = plus.push.getClientInfo();
 			loginInfo.clientId = cinfo.clientid || cinfo.token;
 		} else {
-			loginInfo = {}
+			loginInfo = {
+				token: owner.getToken()
+			}
 		}
 		server.send('user/login', loginInfo, function(res) {
 			if(res.state === 'ok') {
@@ -294,7 +297,8 @@
 			$toast(err || '退出用户成功');
 		}
 		server.send('user/logout', {
-			offline: false
+			offline: false,
+			token: owner.getToken()
 		}, function(res) {
 			if(res, state === 'ok') {
 				owner.reLogin();
@@ -346,7 +350,8 @@
 	owner.quit = function() {
 		server.send("user/logout", {
 			offline: true,
-			isExit: true
+			isExit: true,
+			token: owner.getToken()
 		}, function(res) {
 			plus.runtime.quit();
 		});
@@ -364,7 +369,8 @@
 		}
 		server.send("user/logout", {
 			offline: true,
-			isExit: false
+			isExit: false,
+			token: owner.getToken()
 		}, function(res) {
 			if(!isDone) pause();
 		});
@@ -374,7 +380,9 @@
 	owner.resume = function() {
 		var settings = owner.getSettings();
 		var cinfo = plus.push.getClientInfo();
-		server.send('user/login', function(res) {
+		server.send('user/login', {
+			token: owner.getToken()
+		}, function(res) {
 			if(res.state === 'ok') {
 				if(settings.voiceBroadcast) {
 					plus.device.setWakelock(true);

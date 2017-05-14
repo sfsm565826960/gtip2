@@ -76,9 +76,13 @@
 			}
 		}
 		
-		server.send(url, function(data) {
+		server.send(url, function(body) {
+			if (typeof body === 'object') {
+				return callback(body.state);
+			}
 			var data = {
-				ignore: []
+				ignore: [],
+				stocks: {}
 			};
 			var regExp = /hq_str_(\w{8})="(.+?)";/g;
 			var result = regExp.exec(body);
@@ -86,7 +90,7 @@
 				try {
 					var item = parseItem(result[1], result[2]);
 					if(item !== null) {
-						data[item.code] = item;
+						data.stocks[item.code] = item;
 					} else {
 						data.ignore.push(result[0]);
 					}
@@ -96,7 +100,7 @@
 				result = regExp.exec(body);
 			}
 			callback(null, data);
-		});
+		}, 'get', 'text');
 	}
 	
 })(mui, window.stock = {}, window.server || {});

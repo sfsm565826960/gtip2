@@ -1,0 +1,330 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="../../css/mui.min.css" rel="stylesheet" />
+		<style type="text/css">
+			html,
+			body,
+			.mui-content,
+			#stockTip ul,
+			.stockTip-content,
+			#stockTip ul li.mui-active {
+				background-color: rgb(36, 37, 42);
+				color: #ddd;
+			}
+			
+			.mui-bar,
+			.bar-title {
+				background-color: rgb(45, 50, 56);
+			}
+			
+			.mui-bar-nav {
+				-webkit-box-shadow: none;
+				box-shadow: none;
+			}
+			
+			.mui-title,
+			.mui-action-back {
+				color: #ddd;
+			}
+			
+			.chart {
+				height: 200px;
+				width: 100%;
+				margin: 0px;
+				padding: 0px;
+			}
+			
+			.bar-title {
+				height: 30px;
+				color: rgba(255, 255, 255, 0.5);
+				line-height: 30px;
+				padding: 0 8px;
+				font-size: 14px;
+			}
+			
+			.bar-title a {
+				line-height: 30px;
+				color: white;
+			}
+			
+			.view-horizontal-split {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-content: center;
+				flex-grow: 0.5;
+			}
+			
+			.view-vertical-split {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-content: center;
+				flex-grow: 0.5;
+			}
+			
+			#stockDetail {
+				padding: 10px 0;
+				color: #ddd;
+				font-size: 12px;
+			}
+			
+			#stockTip {
+				color: #ddd;
+				font-size: 14px;
+			}
+			
+			#stockTip .mui-table-view-cell.mui-collapse.mui-active {
+				margin-top: 0;
+			}
+			
+			#stockTip .mui-table-view:before,
+			#stockTip .mui-table-view:after {
+				background-color: transparent;
+			}
+			
+			#stockTip .mui-table-view-cell:after {
+				left: 0;
+				right: 0;
+				background-color: #666;
+			}
+			
+			#stockTip ul li {
+				padding: 0 0 0 6px;
+			}
+			
+			#stockTip .stockTip-content {
+				padding: 11px 15px 6px 10px;
+			}
+			
+			#stockTip .item-param {
+				margin-top: 10px;
+				min-height: 10px;
+			}
+			#stockTip .item-param>table {
+				width: 100%;
+				border-collapse: collapse;
+				margin-bottom: 4px;
+			}
+			#stockTip .item-param>table td {
+				width: 25%;
+				text-align: center;
+				border: 1px solid rgb(65, 70, 76);
+				overflow: hidden;
+			}
+			#stockTip .item-param>table th {
+				text-align: center;
+				width: 25%;
+				border: 1px solid rgb(65, 70, 76);
+				background-color: rgb(65, 70, 76);
+				overflow: hidden;
+			}
+			#stockTip .item-info{
+				justify-content: space-between;
+				font-size: 12px;
+				/*line-height: 12px;*/
+				color: rgba(255,255,255,0.5);
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">加载中</h1>
+			<a id="refreshDetail" class="mui-action-back mui-icon mui-icon-refreshempty mui-pull-right"></a>
+		</header>
+		<div class="mui-content">
+			<!--股票图像-->
+			<div id="broaderIndex" class="chart"></div>
+			<!--股票数据-->
+			<div class="bar-title">
+				股票详情
+				<!--<a class="mui-icon mui-icon-plusempty mui-pull-right"></a>-->
+			</div>
+			<div id="stockDetail" style="text-align: center;">
+				加载中...
+			</div>
+			<!--形势变动-->
+			<div class="bar-title">
+				最新变动提醒
+				<a class="mui-icon mui-icon-more mui-pull-right"></a>
+			</div>
+			<div id="stockTip"  style="text-align: center; padding: 10px;">
+				加载中...
+			</div>
+		</div>
+
+		<script src="../../js/mui.min.js"></script>
+		<script src="../../js/vue.min.js"></script>
+		<script src="../../libs/echarts.js"></script>
+		<script src="../../js/app.js"></script>
+		<script src="../../js/broader-index.js"></script>
+		<script src="../../js/stock.js"></script>
+		<script id="stockDetailTemplate" type="x-template">
+			<div id="stockDetail" class="view-vertical-split">
+				<div class="view-horizontal-split" style="flex-grow: 1;">
+					<div class="view-vertical-split" :style="{color: stock.diff > 0 ? 'red' : '#afa'}">
+						<span style="font-size: 40px;height: 60px;line-height: 60px;text-align: center;">{{stock.current}}</span>
+						<div class="view-horizontal-split" style="font-size: 20px;justify-content: space-around;">
+							<span>{{stock.diff > 0 ? '+' + stock.diff: stock.diff}}</span>
+							<span>{{stock.rate > 0 ? '+' + stock.rate : stock.rate}}%</span>
+						</div>
+					</div>
+					<div class="view-horizontal-split">
+						<div class="view-vertical-split">
+							<span>今开</span>
+							<span>{{stock.open}}</span>
+							<span>成交量</span>
+							<span>{{stock.tradeCount}}</span>
+						</div>
+						<div class="view-vertical-split">
+							<span>昨收</span>
+							<span>{{stock.close}}</span>
+							<span>成交额</span>
+							<span>{{stock.tradePrice}}</span>
+						</div>
+						<div class="view-vertical-split">
+							<span>最高</span>
+							<span>{{stock.max}}</span>
+							<span>最低</span>
+							<span>{{stock.min}}</span>
+						</div>
+					</div>
+				</div>
+				<div class="view-horizontal-split"></div>
+			</div>
+		</script>
+		<script id="stockTipTemplate" type="x-template">
+			<div id="stockTip">
+				<ul class="mui-table-view" v-for="item in list">
+					<li class="mui-table-view-cell view-vertical-split"
+						:style="{backgroundColor: item.trend === 'down' ? '#afa':'red'}">
+						<div class="stockTip-content">
+							<span>{{item.text}}</span>
+							<div class="item-param">
+								<table>
+									<tr>
+										<th>均价</th>
+										<td>￥7.10</td>
+										<th>总手数</th>
+										<td>12826</td>
+									</tr>
+									<tr>
+										<th>总金额</th>
+										<td>949万</td>
+										<th>-</th>
+										<td>-</td>
+									</tr>
+								</table>
+							</div>
+							<div class="item-info view-horizontal-split">
+								<span>來自：{{item.from}}</span><span>{{item.date}}</span>
+							</div>
+						</div>
+					</li>
+					<li class="mui-table-view-cell">
+						面板2
+					</li>
+				</ul>
+			</div>
+		</script>
+		<script type="text/javascript">
+			(function($, doc) {
+				$.init();
+				var _oldEvent = null;
+
+				function loadStockInfo(event) {
+					_oldEvent = event
+					var stock = event.detail.stock;
+					console.log('loadStockInfo: ' + stock.name);
+					$('.mui-title')[0].innerHTML = stock.name
+					$.plusReady(function() {
+						InitBroaderIndex($, doc.getElementById('broaderIndex'), [{
+							name: stock.name,
+							code: stock.code
+						}]);
+						var stockDetail = new Vue({
+							el: '#stockDetail',
+							template: '#stockDetailTemplate',
+							data: {
+								stock: {
+									code: '',
+									name: '',
+									open: 0,
+									close: 0,
+									current: 0,
+									diff: 0,
+									rate: 0,
+									MAX: 0,
+									MIN: 0,
+									max: 0,
+									min: 0,
+									firstBuyPrice: 0,
+									firstSalePrice: 0,
+									tradeCount: 0,
+									tradePrice: 0,
+									buy: [],
+									sale: [],
+									date: '',
+									time: '',
+									timestamp: 0
+								}
+							},
+							mounted: function() {
+								var formatVal = function(val) {
+									if(typeof val === 'string') val = parseFloat(val);
+									return Math.round(val * 100) / 100;
+								};
+								var updateStockInfo = function(stockIds) {
+									window.stock.realTime(stockIds, function(err, info) {
+										if(err) {
+											console.error(err);
+											$.toast(err);
+											return;
+										}
+										if(info.stocks[stock.code]) {
+											var obj = info.stocks[stock.code];
+											obj.diff = formatVal(obj.current - obj.open);
+											obj.rate = formatVal((obj.current - obj.open) / obj.open);
+											obj.tradeCount = formatVal(obj.tradeCount / 1000000);
+											obj.tradePrice = formatVal(obj.tradePrice / 100000000);
+											console.log('stockDetail: ' + JSON.stringify(obj));
+											$.extend(true, stockDetail.stock, obj);
+										} else {
+											$.toast('更新股票详情失败');
+										}
+									});
+								}
+								updateStockInfo([stock.code]);
+								setInterval(updateStockInfo, 60000, [stock.code]);
+							}
+						});
+						var stockTip = new Vue({
+							el: '#stockTip',
+							template: '#stockTipTemplate',
+							data: {
+								list: []
+							},
+							mounted: function(){
+								
+							}
+						})
+					})
+				}
+				window.addEventListener('loadStockInfo', loadStockInfo);
+				doc.getElementById('refreshDetail').addEventListener('tap', function() {
+					if(_oldEvent !== null) {
+						loadStockInfo(_oldEvent);
+					}
+				});
+			})(mui, document)
+		</script>
+	</body>
+
+</html>

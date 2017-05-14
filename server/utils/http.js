@@ -11,10 +11,11 @@ var iconv = require('iconv-lite');
  */
 var getCharset = function (response) {
   var contentType = (response.headers || {})['content-type'];
+  // console.log(contentType);
   if (!contentType || contentType.length === 0) {
     return 'UTF8';
   } else {
-    var charset = contentType.replace(/ /g, '').match(/charset=(\w+)/i);
+    var charset = contentType.replace(/ /g, '').match(/charset=([\w-\d]+)/i);
     if (charset && charset.length > 1) {
       return charset[1];
     } else {

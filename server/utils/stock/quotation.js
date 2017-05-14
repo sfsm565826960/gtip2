@@ -31,16 +31,16 @@ function parseItem(code, detailStr) {
         {
           count: parseInt(detail[10]),
           price: parseFloat(detail[11])
-        },{
+        }, {
           count: parseInt(detail[12]),
           price: parseFloat(detail[13])
-        },{
+        }, {
           count: parseInt(detail[14]),
           price: parseFloat(detail[15])
-        },{
+        }, {
           count: parseInt(detail[16]),
           price: parseFloat(detail[17])
-        },{
+        }, {
           count: parseInt(detail[18]),
           price: parseFloat(detail[19])
         }
@@ -49,16 +49,16 @@ function parseItem(code, detailStr) {
         {
           count: parseInt(detail[20]),
           price: parseFloat(detail[21])
-        },{
+        }, {
           count: parseInt(detail[22]),
           price: parseFloat(detail[23])
-        },{
+        }, {
           count: parseInt(detail[24]),
           price: parseFloat(detail[25])
-        },{
+        }, {
           count: parseInt(detail[26]),
           price: parseFloat(detail[27])
-        },{
+        }, {
           count: parseInt(detail[28]),
           price: parseFloat(detail[29])
         }
@@ -71,23 +71,25 @@ function parseItem(code, detailStr) {
 }
 
 function parseQuotation(body, callback) {
-  var data = { ignore: [], stocks: {} };
-  var regExp = /hq_str_(\w{8})="(.+?)";/g;
-  var result = regExp.exec(body);
-  while(result != null) {
-    try {
+  try {
+    var data = { ignore: [], stocks: {} };
+    var regExp = /hq_str_(\w{8})="(.+?)";/g;
+    var result = regExp.exec(body);
+    while (result != null) {
+
       var item = parseItem(result[1], result[2]);
       if (item !== null) {
         data.stocks[item.code] = item;
       } else {
         data.ignore.push(result[0]);
       }
-    } catch(err) {
-      callback(err);
+      result = regExp.exec(body);
     }
-    result = regExp.exec(body);
+    callback(null, data);
+  } catch (err) {
+    Log.e(err, true);
+    callback(err);
   }
-  callback(null, data);
 }
 
 
@@ -101,6 +103,7 @@ module.exports = function (list, callback) {
   var task = function (url) {
     http.get(url, function (err, body, response) {
       if (err) {
+        Log.e(err, true);
         callback(err);
       } else {
         if (body && body.length > 0) {
@@ -109,6 +112,7 @@ module.exports = function (list, callback) {
           if (++retry < 3) {
             task(url);
           } else {
+            Log.e(new Error('Fetch empty: ' + url), true);
             callback(new Error('Fetch empty: ' + url));
           }
         }

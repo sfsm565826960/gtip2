@@ -6,12 +6,173 @@
 		<title></title>
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<link href="../../css/mui.min.css" rel="stylesheet" />
+		<style type="text/css">
+			html,
+			body,
+			.search-bar,
+			.mui-control-content {
+				background-color: rgb(36, 37, 42);
+			}
+			
+			#slider {
+				color: white;
+				background-color: rgb(45, 50, 56);
+			}
+			
+			.search-bar {
+				padding: 6px 10px;
+			}
+			.search-bar input {
+				background-color: rgba(255,255,255,0.2);
+				margin-bottom: 0;
+			}
+			.search-result{
+				position: absolute;
+				top: 50px;
+				left: 10px;
+				right: 10px;
+				z-index: 9;
+				visibility: hidden;
+			}
+			.search-result li {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				height: 30px;
+				padding: 0 10px;
+				font-size: 14px;
+				line-height: 16px;
+			}
+			
+			.mui-control-content {
+				min-height: 400px;
+			}
+			.mui-control-content .mui-loading {
+				margin-top: 50px;
+			}
+			
+			.mui-slider .mui-segmented-control.mui-segmented-control-inverted~.mui-slider-group .mui-slider-item{
+				border: none;
+			}
+		</style>
 	</head>
 
 	<body>
+		<div class="mui-content">
+			<div id="searchBar" class="search-bar">
+				<div class="mui-input-row mui-search">
+					<input v-model="searchValue" type="search" class="mui-input-clear" placeholder="搜索股票或高手">
+				</div>
+				<ul class="mui-table-view search-result" v-show="searchResult.length > 0">
+			        <li class="mui-table-view-cell" v-for="item in searchResult">
+		            	<span>{{item.key}}</span>|
+		                <span>{{item.code}}</span>|
+		                <span>{{item.name}}</span>
+			        </li>
+			    </ul>
+			</div>
+			<div id="slider" class="mui-slider">
+				<div id="sliderSegmentedControl" class="mui-slider-indicator mui-segmented-control mui-segmented-control-inverted mui-segmented-control-negative">
+					<a class="mui-control-item" href="#item1mobile">
+						热股推荐
+					</a>
+					<a class="mui-control-item" href="#item2mobile">
+						发现高手
+					</a>
+					<a class="mui-control-item" href="#item3mobile">
+						我的关注
+					</a>
+				</div>
+				<div id="sliderProgressBar" class="mui-slider-progress-bar mui-col-xs-4"></div>
+				<div class="mui-slider-group">
+					<div id="item1mobile" class="mui-slider-item mui-control-content mui-active">
+						<div id="scroll1" class="mui-scroll-wrapper">
+							<div class="mui-scroll">
+								<ul class="mui-table-view">
+									<li class="mui-table-view-cell">
+										第一个选项卡子项-1
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div id="item2mobile" class="mui-slider-item mui-control-content">
+						<div id="scroll2" class="mui-scroll-wrapper">
+							<div class="mui-scroll">
+								<div class="mui-loading">
+									<div class="mui-spinner">
+									</div>
+								</div>
+							</div>
+						</div>
+
+					</div>
+					<div id="item3mobile" class="mui-slider-item mui-control-content">
+						<div id="scroll3" class="mui-scroll-wrapper">
+							<div class="mui-scroll">
+								<div class="mui-loading">
+									<div class="mui-spinner">
+									</div>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
 		<script src="../../js/mui.min.js"></script>
+		<script src="../../js/vue.min.js"></script>
 		<script type="text/javascript">
-			mui.init()
+			(function($) {
+				$.plusReady(function(){
+					var vm = new Vue({
+						el: '#searchBar',
+						data: {
+							searchValue: '',
+							searchResult: []
+						},
+						watch: {
+							searchValue: function(newVal, oldVal) {
+								var url = 'http://suggest3.sinajs.cn/suggest/type=&key=' + encodeURI(newVal) + '&name=suggestdata';
+								server.send(url, function(res){
+									console.log(res);
+								}, 'get')
+							}
+						}
+					})
+				})
+				$('.mui-scroll-wrapper').scroll({
+					indicators: true //是否显示滚动条
+				});
+				var html2 = '<ul class="mui-table-view"><li class="mui-table-view-cell">第二个选项卡子项-1</li><li class="mui-table-view-cell">第二个选项卡子项-2</li><li class="mui-table-view-cell">第二个选项卡子项-3</li><li class="mui-table-view-cell">第二个选项卡子项-4</li><li class="mui-table-view-cell">第二个选项卡子项-5</li></ul>';
+				var html3 = '<ul class="mui-table-view"><li class="mui-table-view-cell">第三个选项卡子项-1</li><li class="mui-table-view-cell">第三个选项卡子项-2</li><li class="mui-table-view-cell">第三个选项卡子项-3</li><li class="mui-table-view-cell">第三个选项卡子项-4</li><li class="mui-table-view-cell">第三个选项卡子项-5</li></ul>';
+				var item2 = document.getElementById('item2mobile');
+				var item3 = document.getElementById('item3mobile');
+				document.getElementById('slider').addEventListener('slide', function(e) {
+					if(e.detail.slideNumber === 1) {
+						if(item2.querySelector('.mui-loading')) {
+							setTimeout(function() {
+								item2.querySelector('.mui-scroll').innerHTML = html2;
+							}, 500);
+						}
+					} else if(e.detail.slideNumber === 2) {
+						if(item3.querySelector('.mui-loading')) {
+							setTimeout(function() {
+								item3.querySelector('.mui-scroll').innerHTML = html3;
+							}, 500);
+						}
+					}
+				});
+				var sliderSegmentedControl = document.getElementById('sliderSegmentedControl');
+				$('.mui-input-group').on('change', 'input', function() {
+					if(this.checked) {
+						sliderSegmentedControl.className = 'mui-slider-indicator mui-segmented-control mui-segmented-control-inverted mui-segmented-control-' + this.value;
+						//force repaint
+						sliderProgressBar.setAttribute('style', sliderProgressBar.getAttribute('style'));
+					}
+				});
+			})(mui);
 		</script>
 	</body>
 
