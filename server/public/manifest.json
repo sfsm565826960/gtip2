@@ -357,9 +357,14 @@
 					"css/mui.min.css",
 					"fonts/mui.ttf",
 					"js/vue.min.js",
-					"js/vue.js"
+					"js/vue.js",
+					"js/app.js",
+					"js/lodash.min.js",
+					"js/stock.js"
 				],
-				"refer": [],
+				"refer": [
+					"html/main-sub-pages/stock-detail.html"
+				],
 				"priority": 0
 			},
 			"html/main-sub-pages/stock-detail.html": {

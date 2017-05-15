@@ -1,4 +1,4 @@
-(function($, owner, server) {
+(function($, owner, Server) {
 	var API_HOST = 'http://gtip.sfsm.me:3305/api/';
 	var _temp = {};
 	_temp.expired = function(keep) {
@@ -13,7 +13,7 @@
 	 * @param {String} method
 	 * @param {String} resType json,xml,text,html,script
 	 */
-	server.send = function(url, params, callback, method, resType) {
+	Server.send = function(url, params, callback, method, resType) {
 		$.plusReady(function() {
 			if(typeof params === 'function') {
 				resType = method;
@@ -54,11 +54,11 @@
 				timeout: 10000,
 				crossDomain: true, // 强制跨域，要求5+
 				success: function(res) {
-					console.log('server return: ' + (typeof res === 'object'?JSON.stringify(res):res));
+//					console.log('Server return: ' + (typeof res === 'object'?JSON.stringify(res):res));
 					if(res && res.state == 'logout') {
 						owner.reLogin();
 						if(hasCB) {
-							callback({
+							callback(res || {
 								'state': 'logout',
 								'detail': '登录令牌失效，请重新登录'
 							});
@@ -75,12 +75,12 @@
 					}
 				},
 				error: function(xhr, type, errorThrown) {
-					console.error('server fail: ' + type + ',' + url);
+					console.error('Server fail: ' + type + ',' + url);
 					if(hasCB) {
 						callback({
 							state: type,
 							detail: errorThrown
-						})
+						});
 					} else {
 						$.toast(errorThrown)
 					}
@@ -250,7 +250,7 @@
 				token: owner.getToken()
 			}
 		}
-		server.send('user/login', loginInfo, function(res) {
+		Server.send('user/login', loginInfo, function(res) {
 			if(res.state === 'ok') {
 				owner.createState(res.data, callback);
 			} else {
@@ -279,7 +279,7 @@
 		}
 		var cinfo = plus.push.getClientInfo();
 		regInfo.clientId = cinfo.clientid || cinfo.token;
-		server.send('user/register', regInfo, function(res) {
+		Server.send('user/register', regInfo, function(res) {
 			if(res.state === 'ok') {
 				owner.createState(res.data, callback);
 			} else {
@@ -296,11 +296,11 @@
 		callback = callback || function(err) {
 			$toast(err || '退出用户成功');
 		}
-		server.send('user/logout', {
+		Server.send('user/logout', {
 			offline: false,
 			token: owner.getToken()
 		}, function(res) {
-			if(res, state === 'ok') {
+			if(res.state === 'ok') {
 				owner.reLogin();
 				callback(null);
 			} else {
@@ -319,7 +319,7 @@
 		if(!checkEmail(email)) {
 			return callback('邮箱地址不合法');
 		}
-		server.send('user/forget', {
+		Server.send('user/forget', {
 			mail: email
 		}, function(res) {
 			if(res.state === 'ok') {
@@ -337,7 +337,7 @@
 	 */
 	owner.changePassword = function(pwdInfo, callback) {
 		callback = callback || $.noop;
-		server.send('user/password', pwdInfo, function(res) {
+		Server.send('user/password', pwdInfo, function(res) {
 			if(res.state === 'ok') {
 				owner.reLogin();
 				callback(null, '密码修改成功，请重新登录！');
@@ -348,7 +348,7 @@
 	}
 
 	owner.quit = function() {
-		server.send("user/logout", {
+		Server.send("user/logout", {
 			offline: true,
 			isExit: true,
 			token: owner.getToken()
@@ -367,7 +367,7 @@
 			var main = plus.android.runtimeMainActivity();
 			main.moveTaskToBack(false);
 		}
-		server.send("user/logout", {
+		Server.send("user/logout", {
 			offline: true,
 			isExit: false,
 			token: owner.getToken()
@@ -380,7 +380,7 @@
 	owner.resume = function() {
 		var settings = owner.getSettings();
 		var cinfo = plus.push.getClientInfo();
-		server.send('user/login', {
+		Server.send('user/login', {
 			token: owner.getToken()
 		}, function(res) {
 			if(res.state === 'ok') {
@@ -393,4 +393,4 @@
 			}
 		});
 	}
-}(mui, window.app = {}, window.server = {}));
+}(mui, window.App = {}, window.Server = {}));

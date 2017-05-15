@@ -301,7 +301,7 @@
 		 //退出操作******************
 		document.getElementById('exit').addEventListener('tap', function() {
 			if (mui.os.ios) {
-				app.setState({});
+				App.setState({});
 				mui.openWindow({
 					url: 'login.html',
 					id: 'login',
@@ -326,7 +326,7 @@
 				var index = event.index;
 				switch (index) {
 					case 1:
-						app.setState({});
+						App.setState({});
 						mui.openWindow({
 							url: 'login.html',
 							id: 'login',
@@ -349,7 +349,7 @@
 		(function($, doc) {
 			//$.init();
 			$.plusReady(function() {
-				var settings = app.getSettings();
+				var settings = App.getSettings();
 				var lockStateButton = doc.getElementById("lockState");
 				var locker = doc.querySelector('.mui-locker');
 				lockStateButton.classList[settings.gestures ? 'add' : 'remove']('mui-active')
@@ -360,7 +360,7 @@
 					if (!isActive) {
 						//						alert(0);
 						settings.gestures = '';
-						app.setSettings(settings);
+						App.setSettings(settings);
 					}
 				}, false);
 				var record = [];
@@ -378,7 +378,7 @@
 							plus.nativeUI.toast('解锁手势设定成功，以后用户只需使用手势解锁而无需输入密码登录。');
 							settings.gestures = record[0];
 							settings.autoLogin = true;
-							app.setSettings(settings);
+							App.setSettings(settings);
 							setTimeout(function() {
 								$.back();
 							}, 200);
@@ -414,7 +414,7 @@
 			view.addEventListener('pageShow', function(e) {
 				//进入手执设定界面时
 				if (e.detail.page.id == 'lock') {
-					var settings = app.getSettings();
+					var settings = App.getSettings();
 					/*if (!settings.autoLogin) {
 						plus.nativeUI.toast('当前没有启用 “自动登录”，需要在登录时启用 "自动登录"，设定的手势锁屏才会升效。');
 					}*/

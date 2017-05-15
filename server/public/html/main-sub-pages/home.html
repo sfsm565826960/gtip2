@@ -36,26 +36,41 @@
 				color: white;
 			}
 			
-			#stockQuotation ul li {
-				color: #ddd;
+			ul.mui-table-view.stock-list:before,
+			ul.mui-table-view.stock-list:after {
+				background-color: transparent;
+			}
+			
+			ul.mui-table-view.stock-list li.mui-table-view-cell {
 				font-size: 18px;
 				display: flex;
 				justify-content: space-between;
 			}
-			#stockQuotation ul li.mui-active{
-				background-color: rgb(45, 50, 56);
-			}
-			#stockQuotation .mui-table-view:before,
-			#stockQuotation .mui-table-view:after {
-				background-color: transparent;
-			}
 			
-			#stockQuotation .mui-table-view-cell:after {
-				right: 15px;
+			ul.mui-table-view.stock-list li.mui-table-view-cell:after {
+				left: 0;
+				right: 0;
 				background-color: #666;
 			}
 			
-			#stockQuotation .tip {
+			ul.mui-table-view.stock-list li.mui-table-view-cell.mui-active {
+				background-color: rgb(45, 50, 56);
+			}
+			
+			ul.mui-table-view.stock-list li.mui-table-view-cell.list-title {
+				font-size: 14px;
+				color: rgba(255, 255, 255, 0.5);
+				padding: 0 15px;
+				height: 30px;
+				line-height: 30px;
+				background-color: rgb(45, 50, 56);
+			}
+			
+			ul.mui-table-view.stock-list li.mui-table-view-cell.list-title:after {
+				background-color: transparent;
+			}
+			
+			.loading-tip {
 				color: rgba(255, 255, 255, 0.5);
 				padding: 10px;
 				text-align: center;
@@ -86,112 +101,138 @@
 		<script src="../../js/vue.min.js"></script>
 		<script id="stockQuotationTemplate" type="x-template">
 			<div id="stockQuotation">
-				<ul class="mui-table-view" v-if="list.length > 0">
-					<li class="mui-table-view-cell" v-for="item in list" @click="viewDetail(item)">
+				<ul class="mui-table-view stock-list" v-if="list.length > 0">
+					<li class="mui-table-view-cell list-title">
+						<span>名称</span>
+						<span>最新价</span>
+						<span>跌涨幅</span>
+						<!--<span>千股千评</span>-->
+					</li>
+					<li class="mui-table-view-cell"
+						v-for="item in list"
+						@click="viewDetail(item)"
+						:style="{color: item.rate > 0 ? 'red':'#ddd'}">
 						<span>{{item.name}}</span>
 						<span>{{item.price}}</span>
-						<span :style="{color: item.rate>0?'red':'#afa'}">
+						<span>
 							{{item.rate > 0 ? '+' + item.rate: item.rate}}%
 						</span>
+						<!--<span @click.stop="getThousandEvaluate(item.code)">{{thousandEvaluate[item.code] || '点击获取'}}</span>-->
 					</li>
 				</ul>
-				<div class="tip" v-else>{{tip}}</div>
+				<div class="loading-tip" v-else>{{tip}}</div>
 			</div>
 		</script>
 		<script type="text/javascript">
 			(function($, doc) {
 				$.init();
-				// 初始化大盘数据
-				function initBroaderIndex() {
-					InitBroaderIndex($, doc.getElementById('broaderIndex'), [{
-							name: '沪A',
-							code: 'sh000001'
-						},
-						{
-							name: '深A',
-							code: 'sz399001' 
-						}
-					]);
-				}
-				doc.getElementById('refreshBroaderIndex').addEventListener('tap', 'initBroaderIndex');
-				initBroaderIndex();
-
-				$.plusReady(function() {
-					var vm = new Vue({
-						el: '#stockQuotation',
-						template: '#stockQuotationTemplate',
-						data: {
-							list: [],
-							tip: '加载中...'
-							
-						},
-						mounted: function() {
-							var concern = app.getConcern();
+				// 初始化我的关注
+				var vmConcern = new Vue({
+					el: '#stockQuotation',
+					template: '#stockQuotationTemplate',
+					data: {
+						list: [],
+						stocks: [],
+//						thousandEvaluate: {},
+						timer: null,
+						tip: '加载中...'
+					},
+					methods: {
+						init: function() {
+							var concern = App.getConcern();
 							if(!concern || !concern.stockIds) {
 								console.error('无法获取用户关注的股票');
-								$.toast('获取用户关注的股票错误');
 								this.tip = '请添加关注';
 								return;
 							} else if(concern.stockIds.length === 0) {
 								this.tip = '请添加关注';
 								return;
+							} else {
+								this.stocks = concern.stockIds;
 							}
-							var updateStockInfo = function(stockIds){
-								stock.realTime(stockIds, function(err, info) {
-									if(err) {
-										console.error(err);
-										$.toast(err);
-										return;
-									}
-									var item = {};
-									vm.list.splice(0);
-									for(code in info.stocks) {
-										item = info.stocks[code];
-										vm.list.push({
-											code: item.code,
-											name: item.name,
-											price: item.current,
-											rate: Math.round((item.current - item.open) / item.open * 100) / 100
-										})
-									}
-									console.log(JSON.stringify(vm.list));
-								});
-							}
-							updateStockInfo(concern.stockIds);
-							setInterval(updateStockInfo, 60000, concern.stockIds);
+//							for(var i = 0; i< this.stocks.length; i++) {
+//								this.getThousandEvaluate(this.stocks[i]);
+//							}
+							this.update();
+							if(this.timer) clearTimeout(this.timer);
+							setInterval(this.update, 60000);
 						},
-						methods: {
-							viewDetail: function(stock) {
-								var wv = $.openWindow({
-									url: 'stock-detail.html',
-									id: 'stockDetail',
-									styles: {
-										hardwareAccelerated: true, // 启动硬件加速
-										bounce: 'vertical' // 下拉回弹
-									},
-									extras: {
-										stockCode: code
-									},
-									show: {
-										event: 'loaded',
-										duration: 300
-									},
-									waiting: {
-										autoShow: false
-									}
-								});
-								wv.addEventListener('loaded', function(){
-									$.fire(wv, 'loadStockInfo', {
-										stock: {
-											code: stock.code,
-											name: stock.name
-										}
+//						getThousandEvaluate: function(code) {
+//							Vue.set(vmConcern.thousandEvaluate, code, '加载中');
+//							Stock.thousandEvaluate(code, function(err, data){
+//								if (err) {
+//									Vue.set(vmConcern.thousandEvaluate, code, '点击重试');
+//								} else {
+//									Vue.set(vmConcern.thousandEvaluate, code, data.msg);
+//								}
+//							})
+//						},
+						update: function() {
+							Stock.realTime(this.stocks, function(err, info) {
+								if(err) {
+									vmConcern.update();
+									return;
+								}
+								var item = {};
+								vmConcern.list.splice(0);
+								for(code in info.stocks) {
+									item = info.stocks[code];
+									vmConcern.list.push({
+										code: item.code,
+										name: item.name,
+										price: item.current,
+										rate: item.rate
 									})
+								}
+							});
+						},
+						viewDetail: function(stock) {
+							var wv = $.openWindow({
+								url: 'stock-detail.html',
+								id: 'stockDetail',
+								styles: {
+									hardwareAccelerated: true, // 启动硬件加速
+									bounce: 'vertical' // 下拉回弹
+								},
+								show: {
+									event: 'loaded',
+									duration: 300
+								},
+								waiting: {
+									autoShow: false
+								}
+							});
+							wv.addEventListener('loaded', function() {
+								$.fire(wv, 'loadStockInfo', {
+									stock: {
+										code: stock.code,
+										name: stock.name
+									}
 								})
-							}
+							})
 						}
-					})
+					}
 				})
+				$.plusReady(function() {
+					// 初始化大盘数据
+					function initBroaderIndex() {
+						InitBroaderIndex($, doc.getElementById('broaderIndex'), [{
+								name: '沪A',
+								code: 'sh000001'
+							},
+							{
+								name: '深A',
+								code: 'sz399001'
+							}
+						]);
+					}
+					doc.getElementById('refreshBroaderIndex').addEventListener('tap', initBroaderIndex);
+					setTimeout(initBroaderIndex, 500);
+					// 加载我的关注
+					vmConcern.init();
+					plus.webview.currentWebview().addEventListener('show', vmConcern.init);
+				})
+
 			})(mui, document);
 		</script>
 	</body>

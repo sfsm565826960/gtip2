@@ -1,6 +1,6 @@
 //加载设置
 mui.plusReady(function(){
-	var s=app.getSettings();
+	var s=App.getSettings();
 	var synchronize={};//需要同步的数据
 	var monitor=['receiveNotify','voiceBroadcast'];//需要同步的监视对象
 	var isNeedSynchronize=false;//是否需要同步
@@ -33,7 +33,7 @@ mui.plusReady(function(){
 	}
 	viewApi.view.addEventListener('pageBeforeShow',function(e){
 		if(e.detail.page.id=='notifications'){
-			s=app.getSettings();
+			s=App.getSettings();
 			for(key in s.newTip){
 				var elm=document.getElementById(key);
 				if(elm)elm.classList[s.newTip[key]?'add':'remove']('mui-active');
@@ -43,11 +43,11 @@ mui.plusReady(function(){
 	viewApi.view.addEventListener('pageBack',function(e){
 		if(e.detail.page.id=='notifications'){
 			if(isSettingsChange){
-				app.setSettings(s);
+				App.setSettings(s);
 				isSettingsChange=false;
 			}
 			if(isNeedSynchronize){
-				server.send('account.php',{
+				Server.send('account.php',{
 					'do':'settings',
 					'settings':JSON.stringify(synchronize)
 				},function(res){

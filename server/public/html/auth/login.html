@@ -8,6 +8,26 @@
 		<link href="../../css/mui.min.css" rel="stylesheet" />
 		<link href="../../css/style.css" rel="stylesheet" />
 		<style>
+			/*html,
+			body,
+			.mui-content {
+				background-color: rgb(36, 37, 42);
+				color: #ddd;
+			}
+			.mui-bar {
+				background-color: rgb(45, 50, 56);
+			}
+			.mui-bar-nav{
+				-webkit-box-shadow: 0 1px 6px rgb(45, 50, 56);
+    			box-shadow: 0 1px 6px rgb(45, 50, 56);
+			}
+			.link-area a,
+			.mui-title {
+				color: #ccc;
+			}*/
+			
+			
+			
 			.area {
 				margin: 20px auto 0px auto;
 			}
@@ -99,8 +119,8 @@
 				});
 				$.plusReady(function() {
 					plus.screen.lockOrientation("portrait-primary");
-					var settings = app.getSettings();
-					var state = app.getState();
+					var settings = App.getSettings();
+					var state = App.getState();
 					var mainPage = $.preload({
 						"id": 'main',
 						"url": '../main.html'
@@ -136,7 +156,7 @@
 						var w = plus.nativeUI.showWaiting('自动登录中', {
 							back: 'none'
 						});
-						app.login(null, function(err) {
+						App.login(null, function(err) {
 							w.close();
 							if(err) {
 								$.toast('自动登录失效，请重新登录！');
@@ -161,7 +181,7 @@
 						var w = plus.nativeUI.showWaiting('登录中', {
 							back: 'none'
 						});
-						app.login({
+						App.login({
 							mail: mailBox.value,
 							password: passwordBox.value,
 							autoLogin: autoLoginButton.classList.contains('mui-active')

@@ -408,10 +408,10 @@
 			$('#exitActionSheet').on('tap', 'a', function() {
 				switch(this.getAttribute('href')) {
 					case '#switchUser':
-						app.logout();
+						App.logout();
 						break;
 					case '#exitApp':
-						app.quit();
+						App.quit();
 						break;
 				}
 			})

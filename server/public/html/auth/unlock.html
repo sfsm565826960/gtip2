@@ -60,16 +60,16 @@
 							});
 						}, 0);
 					};
-					var settings = app.getSettings();
+					var settings = App.getSettings();
 					var forgetButton = doc.getElementById("forget");
 					var locker = doc.querySelector('.mui-locker');
 					var clearStateAndToLogin = function() {
 						settings.gestures = '';
 						settings.autoLogin = false;
-						app.setSettings(settings);
-						var state = app.getState();
+						App.setSettings(settings);
+						var state = App.getState();
 						state.token = '';
-						app.setState(state);
+						App.setState(state);
 						$.openWindow({
 							url: 'login.html',
 							id: 'login',

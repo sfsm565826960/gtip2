@@ -69,7 +69,7 @@
 			(function($, doc) {
 				$.init();
 				$.plusReady(function() {
-					var settings = app.getSettings();
+					var settings = App.getSettings();
 					var regButton = doc.getElementById('reg');
 					var mailBox = doc.getElementById('mail');
 					var nicknameBox = doc.getElementById('nickname');
@@ -107,7 +107,7 @@
 							plus.nativeUI.toast('密码两次输入不一致');
 							return;
 						}
-						app.register(regInfo, function(err) {
+						App.register(regInfo, function(err) {
 							if (err) {
 								plus.nativeUI.toast(err,{
 									duration: 'short'

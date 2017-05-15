@@ -1,7 +1,7 @@
  //************************
  //锁屏设置
  (function($, doc) {
-	var settings = app.getSettings();
+	var settings = App.getSettings();
 	var lockStateButton = doc.getElementById("lockState");
 	var locker = doc.querySelector('.mui-locker');
 	lockStateButton.classList[settings.gestures ? 'add' : 'remove']('mui-active')
@@ -11,7 +11,7 @@
 		locker.style.display = isActive ? 'block' : 'none';
 		if (!isActive) {
 			settings.gestures = '';
-			app.setSettings(settings);
+			App.setSettings(settings);
 		}
 	}, false);
 	var record = [];
@@ -28,7 +28,7 @@
 			if (record[0] == record[1]) {
 				$.toast('解锁手势设定成功，以后用户只需使用手势解锁而无需输入密码登录。');
 				settings.gestures = record[0];
-				app.setSettings(settings);
+				App.setSettings(settings);
 				setTimeout(function() {
 					$.back();
 				}, 200);
@@ -46,7 +46,7 @@
 viewApi.view.addEventListener('pageShow', function(e) {
 	//进入手执设定界面时
 	if (e.detail.page.id == 'lock') {
-		var settings = app.getSettings();
+		var settings = App.getSettings();
 		var lockStateButton = doc.getElementById("lockState");
 		var locker = doc.querySelector('.mui-locker');
 		lockStateButton.classList[settings.gestures ? 'add' : 'remove']('mui-active')

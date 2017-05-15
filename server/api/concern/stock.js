@@ -45,7 +45,7 @@ function errMsg(err) {
  * @apiGroup concern
  * 
  * @apiParam {String} token 用户令牌
- * @apiParam {String} stockId 若为true则用户离线（例如APP进入后台）
+ * @apiParam {String} stockId 股票代码
  */
 router.post('/add', (req, res) => {
   User.findOne({
@@ -56,7 +56,7 @@ router.post('/add', (req, res) => {
       Log.e(err, true);
       res.json({ state: 'fail', detail: err.message || err });
     } else if (user === null) {
-      res.json({ state: 'fail', detail: '用户不存在或不在线' });
+      res.json({ state: 'logout', detail: '用户不存在或不在线' });
     } else if (user.concern.stockIds.indexOf(req.body.stockId) >= 0) {
       res.json({ state: 'fail', detail: '用户已关注股票:' + req.body.stockId })
     } else {
@@ -100,6 +100,65 @@ router.post('/add', (req, res) => {
     }
   })
 });
+
+/**
+ * @api {post} /api/concern/stock/remove 移除股票关注
+ * @apiName RemoveStockConcern
+ * @apiGroup concern
+ * 
+ * @apiParam {String} token 用户令牌
+ * @apiParam {String} stockId 股票代码
+ */
+router.post('/remove', (req, res) => {
+  User.findOne({
+    token: req.body.token,
+    state: 'online'
+  }, (err, user) => {
+    if (err) {
+      Log.e(err, true);
+      res.json({ state: 'fail', detail: err.message || err });
+    } else if (user === null) {
+      res.json({ state: 'logout', detail: '用户不存在或不在线' });
+    } else if (user.concern.stockIds.indexOf(req.body.stockId) < 0) {
+      res.json({ state: 'fail', detail: '用户未关注股票:' + req.body.stockId })
+    } else {
+      var removeStockId = function(){
+        var index = user.concern.stockIds.indexOf(req.body.stockId);
+        user.concern.stockIds.splice(index, 1);
+        user.save()
+          .then(doc => {
+            res.json({ state: 'ok', detail: 'remove stock concern success', data: doc.concern.stockIds })
+          }).catch(err => {
+            Log.e(err, true);
+            res.json({ state: 'fail', detail: err.message || err });
+          });
+      }
+      Stock.findOne({
+        code: req.body.stockId
+      }, (err, stock) => {
+        if (err) {
+          Log.e(err, true);
+          res.json({ state: 'fail', detail: err.message || err });
+        } else if (stock !== null) {
+          var index = stock.subscribers.indexOf(user._id);
+          if (index >= 0) {
+            stock.subscribers.splice(index, 1);
+            stock.save()
+              .then(removeStockId)
+              .catch(err => {
+                Log.e(err, true);
+                res.json({ state: 'fail', detail: err.message || err });
+              });
+          } else {
+            removeStockId();
+          }
+        } else {
+          removeStockId();
+        }
+      })
+    }
+  })
+})
 
 
 module.exports = function (models) {

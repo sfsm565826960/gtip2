@@ -150,7 +150,7 @@ function InitBroaderIndex($, dom, stocks) {
 	 */
 	function loadTimeLine(code, callback) {
 		var url = 'https://gupiao.baidu.com/api/stocks/stocktimeline';
-		server.send(url, {
+		Server.send(url, {
 			from: 'pc',
 			os_ver: 1,
 			cuid: 'xxx',
@@ -184,12 +184,17 @@ function InitBroaderIndex($, dom, stocks) {
 			} else {
 				var err = res.errorMsg || res.detail;
 				if(typeof err === 'object') err = JSON.stringify(err);
-				console.error(err);
-				if(typeof callback === 'function') {
-					callback(err);
+				if(err === 'timeout') {
+					loadTimeLine(code, callback);
+					return;
 				} else {
-					$.toast(err);
+					if(typeof callback === 'function') {
+						callback(err);
+					} else {
+						$.toast(err);
+					}
 				}
+
 			}
 		});
 	}
@@ -271,7 +276,7 @@ function InitBroaderIndex($, dom, stocks) {
 			start = '';
 		}
 		var url = 'https://gupiao.baidu.com/api/stocks/stockdaybar';
-		server.send(url, {
+		Server.send(url, {
 			from: 'pc',
 			os_ver: 1,
 			cuid: 'xxx',
@@ -285,7 +290,7 @@ function InitBroaderIndex($, dom, stocks) {
 			timestamp: new Date().getTime()
 		}, function(res) {
 			if(res.errorNo === 0) {
-				var list = res.mashData.reverse();
+				var list = (res.mashData || []).reverse();
 				var data = {
 					date: [],
 					kline: [],
@@ -331,13 +336,18 @@ function InitBroaderIndex($, dom, stocks) {
 				}
 				typeof callback === 'function' && callback(null, data)
 			} else {
-				var err = res.errorMsg || res.detail;
+				var err = res.errorMsg || res.detail || res.state;
 				if(typeof err === 'object') err = JSON.stringify(err);
-				console.error(err);
-				if(typeof callback === 'function') {
-					callback(err);
+				console.error('loadDayBar[' + code + ']: ' + err);
+				if(err === 'timeout') {
+					loadDaybar(code, count, start, callback);
+					return;
 				} else {
-					$.toast(err);
+					if(typeof callback === 'function') {
+						callback(err);
+					} else {
+						$.toast(err);
+					}
 				}
 			}
 		});
@@ -466,6 +476,7 @@ function InitBroaderIndex($, dom, stocks) {
 		var finsh = 2;
 		var done = function() {
 			updateOption(tmp);
+			//console.log(stock.name + '图像加载完成');
 			typeof callback === 'function' && callback();
 		}
 		loadTimeLine(stock.code, function(err, data) {
@@ -501,7 +512,7 @@ function InitBroaderIndex($, dom, stocks) {
 		for(var i = 0; i < stocks.length; i++) {
 			loadStock(stocks[i], function(err, stock) {
 				if(err) {
-					$.toast('加载' + stock.name + ' 图像失败');
+					$.toast('更新' + stock.name + ' 图像失败');
 				}
 				successCount++;
 				if(successCount >= stocks.length) {

@@ -16,7 +16,7 @@
 			}
 			
 			.mui-bar {
-				background-color: rgb(39,43,54);
+				background-color: rgb(39, 43, 54);
 				color: white;
 			}
 		</style>
@@ -25,19 +25,19 @@
 	<body>
 		<div class="mui-content"></div>
 		<nav class="mui-bar mui-bar-tab">
-			<a id="tabHome" class="mui-tab-item mui-active" href="main-sub-pages/home.html">
+			<a id="tabHome" wIndex="0" class="mui-tab-item mui-active" href="main-sub-pages/home.html">
 				<span class="mui-icon mui-icon-home"></span>
 				<span class="mui-tab-label">首页</span>
 			</a>
-			<a id="tabMessage" class="mui-tab-item" href="main-sub-pages/message.html">
+			<a id="tabMessage" wIndex="1" class="mui-tab-item" href="main-sub-pages/message.html">
 				<span class="mui-icon mui-icon-email"><span class="mui-badge">9</span></span>
 				<span class="mui-tab-label">消息</span>
 			</a>
-			<a id="tabConcern" class="mui-tab-item" href="main-sub-pages/concern.html">
+			<a id="tabConcern" wIndex="2" class="mui-tab-item" href="main-sub-pages/concern.html">
 				<span class="mui-icon mui-icon-star"></span>
 				<span class="mui-tab-label">关注</span>
 			</a>
-			<a id="tabSetting" class="mui-tab-item" href="main-sub-pages/setting.html">
+			<a id="tabSetting" wIndex="3" class="mui-tab-item" href="main-sub-pages/setting.html">
 				<span class="mui-icon mui-icon-gear"></span>
 				<span class="mui-tab-label">设置</span>
 			</a>
@@ -53,15 +53,14 @@
 					hardwareAccelerated: true, // 启动硬件加速
 					bounce: 'vertical' // 下拉回弹
 				};
-				var aniShow = {};
-				
 				// 搜索子页面
 				var subPages = [];
-				$('.mui-tab-item').each(function(){
+				$('.mui-tab-item').each(function() {
 					subPages.push(this.getAttribute('href'))
 				});
 				//当前激活选项
 				var activeTab = subPages[0];
+				var activeIndex = 0;
 				//选项卡点击事件
 				$('.mui-bar-tab').on('tap', 'a', function(e) {
 					var targetTab = this.getAttribute('href');
@@ -69,25 +68,14 @@
 						return;
 					}
 					//显示目标选项卡
-					//若为iOS平台或非首次显示，则直接显示
-					if($.os.ios || aniShow[targetTab]) {
-						plus.webview.show(targetTab);
-					} else {
-						//否则，使用fade-in动画，且保存变量
-						var temp = {};
-						temp[targetTab] = "true";
-						$.extend(aniShow, temp);
-						plus.webview.show(targetTab, "fade-in", 300);
-					}
-					//隐藏当前;
-					plus.webview.hide(activeTab);
+					plus.webview.show(targetTab, 'none');
+					plus.webview.hide(activeTab, 'none');
 					//更改当前活跃的选项卡
 					activeTab = targetTab;
 				});
-				
 				window.addEventListener('switchTab', function(tabName) {
 					var tab = document.getElementById(tabName);
-					if (!tab) {
+					if(!tab) {
 						console.warn('switchTab: ' + tabName + ' not exist');
 						return;
 					}
@@ -95,7 +83,7 @@
 					$.trigger(tab, 'tap');
 					//切换选项卡高亮
 					var current = document.querySelector(".mui-bar-tab>.mui-tab-item.mui-active");
-					if (defaultTab !== current) {
+					if(defaultTab !== current) {
 						current.classList.remove('mui-active');
 						defaultTab.classList.add('mui-active');
 					}
@@ -109,9 +97,6 @@
 						var sub = plus.webview.create(subPages[i], subPages[i], subPageStyle);
 						if(i > 0) {
 							sub.hide();
-						} else {
-							temp[subPages[i]] = "true";
-							$.extend(aniShow, temp);
 						}
 						self.append(sub);
 					}
@@ -119,39 +104,44 @@
 					initPushEvent();
 					// 设置返回事件
 					var backButtonPress = 0;
-					var timOutId=null;
+					var timOutId = null;
 					$.back = function(event) {
-						var settings = app.getSettings();
-						if(settings.receiveNotify){
-							app.pause();
-						}else{
+						var settings = App.getSettings();
+						if(settings.receiveNotify) {
+							App.pause();
+						} else {
 							backButtonPress++;
-							if (backButtonPress >= 2) {
+							if(backButtonPress >= 2) {
 								clearTimeout(timOutId);
-								app.quit();
+								var w = plus.nativeUI.showWaiting('应用退出中', {
+									back: 'none'
+								});
+								App.quit();
 							} else {
 								plus.nativeUI.toast('再按一次退出应用');
-								timOutId=setTimeout(function() {backButtonPress = 0;}, 1600);
+								timOutId = setTimeout(function() {
+									backButtonPress = 0;
+								}, 1600);
 							}
 						}
 						return false;
 					};
 					//设置前台和后台事件
-					doc.addEventListener("pause", app.pause, false);
-					doc.addEventListener("resume", app.resume, false);
+					doc.addEventListener("pause", App.pause, false);
+					doc.addEventListener("resume", App.resume, false);
 				});
-				
+
 				// 接收Push数据
 				function initPushEvent() {
 					//接收的消息将不会主动显示在系统消息中心
 					plus.push.setAutoNotification(false);
 					//用户点击消息后启动程序应用事件
-					plus.push.addEventListener('click', function(msg){
+					plus.push.addEventListener('click', function(msg) {
 						console.log('push click: ' + msg);
 						// TODO
 					});
 					//从推送服务器接收到推送消息
-					plus.push.addEventListener('receive', function(msg){
+					plus.push.addEventListener('receive', function(msg) {
 						console.log('push receive: ' + msg);
 						// TODO
 					});

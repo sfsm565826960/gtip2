@@ -14,26 +14,41 @@
 				background-color: rgb(36, 37, 42);
 			}
 			
-			#slider {
-				color: white;
+			#slider,
+			.search-result li.mui-active {
 				background-color: rgb(45, 50, 56);
 			}
 			
 			.search-bar {
 				padding: 6px 10px;
 			}
+			
 			.search-bar input {
-				background-color: rgba(255,255,255,0.2);
+				background-color: rgba(255, 255, 255, 0.2);
 				margin-bottom: 0;
 			}
-			.search-result{
+			
+			.mui-search:before,
+			.mui-icon-search:before,
+			#slider,
+			.search-bar input {
+				color: #ddd;
+			}
+			
+			.mui-table-view {
+				background-color: transparent;
+			}
+			
+			.search-result {
 				position: absolute;
 				top: 50px;
-				left: 10px;
-				right: 10px;
+				left: 0px;
+				right: 0px;
 				z-index: 9;
-				visibility: hidden;
+				background-color: rgb(45, 50, 56);
+				color: #ddd;
 			}
+			
 			.search-result li {
 				display: flex;
 				justify-content: space-between;
@@ -44,15 +59,61 @@
 				line-height: 16px;
 			}
 			
+			.mui-search.mui-active:before {
+				margin-top: -10px;
+			}
+			
 			.mui-control-content {
 				min-height: 400px;
+				border: none;
 			}
+			
 			.mui-control-content .mui-loading {
 				margin-top: 50px;
 			}
 			
-			.mui-slider .mui-segmented-control.mui-segmented-control-inverted~.mui-slider-group .mui-slider-item{
+			.mui-slider .mui-segmented-control.mui-segmented-control-inverted~.mui-slider-group .mui-slider-item {
 				border: none;
+			}
+			
+			ul.mui-table-view.stock-list:before,
+			ul.mui-table-view.stock-list:after {
+				background-color: transparent;
+			}
+			
+			ul.mui-table-view.stock-list li.mui-table-view-cell {
+				font-size: 18px;
+				display: flex;
+				justify-content: space-between;
+			}
+			
+			ul.mui-table-view.stock-list li.mui-table-view-cell:after {
+				left: 0;
+				right: 0;
+				background-color: #666;
+			}
+			
+			ul.mui-table-view.stock-list li.mui-table-view-cell.mui-active {
+				background-color: rgb(45, 50, 56);
+			}
+			
+			ul.mui-table-view.stock-list li.mui-table-view-cell.list-title {
+				font-size: 14px;
+				color: rgba(255, 255, 255, 0.5);
+				padding: 0 15px;
+				height: 30px;
+				line-height: 30px;
+				background-color: rgb(45, 50, 56);
+			}
+			
+			ul.mui-table-view.stock-list li.mui-table-view-cell.list-title:after {
+				background-color: transparent;
+			}
+			
+			.loading-tip {
+				color: rgba(255, 255, 255, 0.5);
+				padding: 10px;
+				text-align: center;
 			}
 		</style>
 	</head>
@@ -61,15 +122,8 @@
 		<div class="mui-content">
 			<div id="searchBar" class="search-bar">
 				<div class="mui-input-row mui-search">
-					<input v-model="searchValue" type="search" class="mui-input-clear" placeholder="搜索股票或高手">
+					<input v-model="searchValue" type="search" class="mui-input-clear" placeholder="搜索股票代码/拼音/名字">
 				</div>
-				<ul class="mui-table-view search-result" v-show="searchResult.length > 0">
-			        <li class="mui-table-view-cell" v-for="item in searchResult">
-		            	<span>{{item.key}}</span>|
-		                <span>{{item.code}}</span>|
-		                <span>{{item.name}}</span>
-			        </li>
-			    </ul>
 			</div>
 			<div id="slider" class="mui-slider">
 				<div id="sliderSegmentedControl" class="mui-slider-indicator mui-segmented-control mui-segmented-control-inverted mui-segmented-control-negative">
@@ -77,43 +131,32 @@
 						热股推荐
 					</a>
 					<a class="mui-control-item" href="#item2mobile">
-						发现高手
+						牛股扫描
 					</a>
 					<a class="mui-control-item" href="#item3mobile">
-						我的关注
+						机构推荐
 					</a>
 				</div>
 				<div id="sliderProgressBar" class="mui-slider-progress-bar mui-col-xs-4"></div>
-				<div class="mui-slider-group">
+				<div id="muiSliderGroup" class="mui-slider-group">
 					<div id="item1mobile" class="mui-slider-item mui-control-content mui-active">
 						<div id="scroll1" class="mui-scroll-wrapper">
 							<div class="mui-scroll">
-								<ul class="mui-table-view">
-									<li class="mui-table-view-cell">
-										第一个选项卡子项-1
-									</li>
-								</ul>
+								<div id="hotStock"></div>
 							</div>
 						</div>
 					</div>
 					<div id="item2mobile" class="mui-slider-item mui-control-content">
 						<div id="scroll2" class="mui-scroll-wrapper">
 							<div class="mui-scroll">
-								<div class="mui-loading">
-									<div class="mui-spinner">
-									</div>
-								</div>
+								<div id="burstStock"></div>
 							</div>
 						</div>
-
 					</div>
 					<div id="item3mobile" class="mui-slider-item mui-control-content">
-						<div id="scroll3" class="mui-scroll-wrapper">
+						<div id="scroll2" class="mui-scroll-wrapper">
 							<div class="mui-scroll">
-								<div class="mui-loading">
-									<div class="mui-spinner">
-									</div>
-								</div>
+								<div id="institutionConcern"></div>
 							</div>
 						</div>
 
@@ -123,53 +166,309 @@
 		</div>
 		<script src="../../js/mui.min.js"></script>
 		<script src="../../js/vue.min.js"></script>
+		<script src="../../js/lodash.min.js"></script>
+		<script src="../../js/app.js"></script>
+		<script src="../../js/stock.js"></script>
+		<script id="searchBarTemplate" type="x-template">
+			<div id="searchBar" class="search-bar">
+				<div class="mui-input-row mui-search">
+					<input v-model="searchValue" type="search" class="mui-input-clear" placeholder="搜索股票代码/拼音/名字">
+				</div>
+				<ul class="mui-table-view search-result" v-show="searchResult.length > 0">
+					<li class="mui-table-view-cell" v-for="item in searchResult" @click="viewDetail(item)">
+						<span>{{item.key}}</span>|
+						<span>{{item.code}}</span>|
+						<span>{{item.name}}</span>
+					</li>
+				</ul>
+			</div>
+		</script>
+		<script id="hotStockTemplate" type="x-template">
+			<div id="hotStock">
+				<ul class="mui-table-view stock-list" v-if="list.length > 0">
+					<li class="mui-table-view-cell list-title">
+						<span>名称</span>
+						<span>最新价</span>
+						<span>跌涨额</span>
+						<span>跌涨幅</span>
+						<span>5分钟涨速</span>
+					</li>
+					<li class="mui-table-view-cell" v-for="item in list" @click="viewDetail(item)" :style="{color: item.diff > 0 ? 'red':'#ddd'}">
+						<span>{{item.name}}</span>
+						<span>{{item.price}}</span>
+						<span>{{item.diff > 0 ? '+' + item.diff : item.diff}}</span>
+						<span>{{item.dayPercent > 0 ? '+' + item.dayPercent : item.dayPercent}}%</span>
+						<span>{{item.fiveMinutePercent > 0 ? '+' + item.fiveMinutePercent : item.fiveMinutePercent}}%</span>
+					</li>
+				</ul>
+				<div class="loading-tip" v-else @click="update">{{tip}}</div>
+			</div>
+		</script>
+		<script id="burstStockTemplate" type="x-template">
+			<div id="burstStock">
+				<ul class="mui-table-view stock-list" v-if="list.length > 0">
+					<li class="mui-table-view-cell list-title">
+						<span>名称</span>
+						<span>最新价</span>
+						<span>跌涨额</span>
+						<span>跌涨幅</span>
+						<span>操作</span>
+					</li>
+					<li class="mui-table-view-cell" v-for="item in list" @click="viewDetail(item)" :style="{color: item.rate > 0 ? 'red':'#ddd'}">
+						<span>{{item.name}}</span>
+						<span>{{item.price}}</span>
+						<span>{{item.diff > 0 ? '+' + item.diff : item.diff}}</span>
+						<span>{{item.rate > 0 ? '+' + item.rate : item.rate}}%</span>
+						<span @click="cancelConcern(item)" class="mui-icon mui-icon-trash"></span>
+					</li>
+				</ul>
+				<div class="loading-tip" v-else>{{tip}}</div>
+			</div>
+		</script>
+		<script id="institutionConcernTemplate" type="x-template">
+			<div id="institutionConcern">
+				<ul class="mui-table-view stock-list" v-if="list.length > 0">
+					<li class="mui-table-view-cell list-title">
+						<span>名称</span>
+						<span>最新价</span>
+						<span>跌涨幅</span>
+						<span>藏/买/持/中/减/卖</span>
+						<span>平均/最新</span>
+					</li>
+					<li class="mui-table-view-cell" v-for="item in list" @click="viewDetail(item)" :style="{color: item.rate > 0 ? 'red':'#ddd'}">
+						<span>{{item.name}}</span>
+						<span>{{item.price}}</span>
+						<span>{{item.rate > 0 ? '+' + item.rate : item.rate}}%</span>
+						<span>{{item.concern}}/{{item.buy}}/{{item.keep}}/{{item.neuter}}/{{item.reduce}}/{{item.sale}}</span>
+						<span>{{item.average}}/{{item.recent}}</span>
+					</li>
+				</ul>
+				<div class="loading-tip" v-else @click="init">{{tip}}</div>
+			</div>
+		</script>
 		<script type="text/javascript">
 			(function($) {
-				$.plusReady(function(){
-					var vm = new Vue({
-						el: '#searchBar',
-						data: {
-							searchValue: '',
-							searchResult: []
+				function parsePrice(price) {
+					return Math.round(price * 100) / 100;
+				}
+
+				function viewDetail(stock) {
+					var wv = $.openWindow({
+						url: 'stock-detail.html',
+						id: 'stockDetail',
+						styles: {
+							hardwareAccelerated: true, // 启动硬件加速
+							bounce: 'vertical' // 下拉回弹
 						},
-						watch: {
-							searchValue: function(newVal, oldVal) {
-								var url = 'http://suggest3.sinajs.cn/suggest/type=&key=' + encodeURI(newVal) + '&name=suggestdata';
-								server.send(url, function(res){
-									console.log(res);
-								}, 'get')
-							}
+						show: {
+							event: 'loaded',
+							duration: 300
+						},
+						waiting: {
+							autoShow: false
 						}
-					})
+					});
+					wv.addEventListener('loaded', function() {
+						$.fire(wv, 'loadStockInfo', {
+							stock: {
+								code: stock.code,
+								name: stock.name
+							}
+						})
+					});
+				}
+				document.getElementById("muiSliderGroup").style.height = (window.screen.height - (46 + 38 + 2 + 51 + 30)) + 'px';
+				var vmSearch = new Vue({
+					el: '#searchBar',
+					template: '#searchBarTemplate',
+					data: {
+						searchValue: '',
+						searchResult: []
+					},
+					methods: {
+						searchStock: function() {
+							var url = 'http://suggest3.sinajs.cn/suggest/type=&name=suggestdata&key=' + encodeURI(vmSearch.searchValue);
+							if(vmSearch.searchValue.length > 0) {
+								Server.send(url, function(res) {
+									if(typeof res === 'object') {
+										vmSearch.searchStock();
+										return;
+									}
+									vmSearch.searchResult.splice(0);
+									try {
+										var result = res.match(/"(.+)"/);
+										if(result && result[1]) {
+											var list = result[1].split(';');
+											var item = [];
+											for(var i = 0; i < list.length; i++) {
+												item = list[i].split(',');
+												if(item && item.length > 0) {
+													vmSearch.searchResult.push({
+														key: item[0],
+														code: item[3],
+														name: item[4]
+													});
+												}
+											}
+										}
+									} catch(err) {
+										console.error(err)
+									}
+								}, 'get', 'text');
+							} else {
+								vmSearch.searchResult.splice(0);
+							}
+						},
+						viewDetail: function(stock) {
+							viewDetial(stock);
+							setTimeout(function() {
+								vmSearch.searchValue = '';
+							}, 1000);
+						}
+					}
 				})
+				vmSearch.$watch('searchValue', _.debounce(vmSearch.searchStock, 200));
+
+				var vmHotStock = new Vue({
+					el: '#hotStock',
+					template: '#hotStockTemplate',
+					data: {
+						list: [],
+						tip: '加载中'
+					},
+					methods: {
+						viewDetail: viewDetail,
+						update: function() {
+							this.tip = '加载中';
+							var url = 'http://hq.sinajs.cn/format=text&list=stock_hs_up_5min_20';
+							Server.send(url, function(res) {
+								if(typeof res === 'object') {
+									vmHotStock.update();
+									return;
+								}
+								try {
+									var result = res.match(/\[.+\]/);
+									if(result) {
+										var list = eval(result[0]);
+										vmHotStock.list.splice(0);
+										for(var i = 0; i < list.length; i++) {
+											vmHotStock.list.push({
+												code: list[i].symbol,
+												name: list[i].name,
+												price: parsePrice(list[i].trade),
+												diff: parsePrice(list[i].trade - list[i].old_trade),
+												dayPercent: parsePrice(list[i].day_percent),
+												fiveMinutePercent: parsePrice(list[i].percent)
+											})
+										}
+									} else {
+										vmHotStock.tip = '点击重试';
+										return;
+									}
+								} catch(err) {
+									console.error(err)
+								}
+							}, 'get', 'text');
+						}
+					}
+				})
+
+				var vmInstitutionConcern = new Vue({
+					el: '#institutionConcern',
+					template: '#institutionConcernTemplate',
+					data: {
+						list: [],
+						codes: [],
+						timer: null,
+						tip: '加载中'
+					},
+					methods: {
+						init: function() {
+							var url = 'http://dp.sina.cn/dpool/stock_new/v2/recommend_stock.php?type=org&vt=15&rand=' + new Date().getTime();
+							this.tip = '加载中'
+							Server.send(url, function(html) {
+								if(typeof html === 'object') {
+									vmInstitutionConcern.init();
+									return;
+								}
+								var body = html.match(/<body>[\n\W\w.]+<\/body>/);
+								if(body) {
+									var list = body[0].match(/<a.+?code[\W\w]+?\n[\W\w].+/g);
+									if(list) {
+										var item = [];
+										var code = '';
+										vmInstitutionConcern.list.splice(0);
+										vmInstitutionConcern.codes.splice(0);
+										for(var i = 0; i < list.length; i++) {
+											item = list[i].match(/code=(.+?)&.+?>(.+?)<.+?(\d+).+?([\u4e00-\u9fa5]+).+?([\u4e00-\u9fa5]+)[\W\w]+?\n.+?(\d+).+?(\d+).+?(\d+).+?(\d+).+?(\d+)/);
+											code = item[1].substr(0, 1) === '6' ? 'sh' + item[1] : 'sz' + item[1];
+											vmInstitutionConcern.codes.push(code);
+											vmInstitutionConcern.list.push({
+												code: code,
+												name: item[2],
+												concern: item[3],
+												average: item[4],
+												recent: item[5],
+												buy: item[6],
+												keep: item[7],
+												neuter: item[8],
+												reduce: item[9],
+												sale: item[10],
+												price: 0,
+												rate: 0
+											})
+										}
+										vmInstitutionConcern.update();
+										if(vmInstitutionConcern.timer) clearTimeout(vmInstitutionConcern.timer);
+										setInterval(vmInstitutionConcern.update, 60000);
+									} else {
+										console.log('InstitutionConcern match list fail: ' + body[0]);
+										vmInstitutionConcern.tip = '点击重试';
+									}
+								} else {
+									console.log('InstitutionConcern match body fail: ' + html);
+									vmInstitutionConcern.tip = '点击重试';
+								}
+							}, 'get', 'text');
+						},
+						update: function() {
+							Stock.realTime(this.codes, function(err, data) {
+								if(err) {
+									console.error('InstitutionConcern fetch realtime fail: ' + err);
+									vmInstitutionConcern.tip = '点击重试';
+								} else {
+									for(var i = 0; i < vmInstitutionConcern.list.length; i++) {
+										if(data.stocks[vmInstitutionConcern.list[i].code]) {
+											var stock = data.stocks[vmInstitutionConcern.list[i].code];
+											vmInstitutionConcern.list[i].price = Stock.parsePrice(stock.current);
+											vmInstitutionConcern.list[i].rate = Stock.parsePrice(stock.rate);
+										}
+									}
+								}
+							})
+						},
+						viewDetail: viewDetail
+					}
+				});
+
 				$('.mui-scroll-wrapper').scroll({
 					indicators: true //是否显示滚动条
 				});
-				var html2 = '<ul class="mui-table-view"><li class="mui-table-view-cell">第二个选项卡子项-1</li><li class="mui-table-view-cell">第二个选项卡子项-2</li><li class="mui-table-view-cell">第二个选项卡子项-3</li><li class="mui-table-view-cell">第二个选项卡子项-4</li><li class="mui-table-view-cell">第二个选项卡子项-5</li></ul>';
-				var html3 = '<ul class="mui-table-view"><li class="mui-table-view-cell">第三个选项卡子项-1</li><li class="mui-table-view-cell">第三个选项卡子项-2</li><li class="mui-table-view-cell">第三个选项卡子项-3</li><li class="mui-table-view-cell">第三个选项卡子项-4</li><li class="mui-table-view-cell">第三个选项卡子项-5</li></ul>';
-				var item2 = document.getElementById('item2mobile');
-				var item3 = document.getElementById('item3mobile');
+				$.plusReady(function() {
+					vmInstitutionConcern.init();
+					vmHotStock.update();
+					setInterval(vmHotStock.update, 60000);
+				})
 				document.getElementById('slider').addEventListener('slide', function(e) {
-					if(e.detail.slideNumber === 1) {
-						if(item2.querySelector('.mui-loading')) {
-							setTimeout(function() {
-								item2.querySelector('.mui-scroll').innerHTML = html2;
-							}, 500);
-						}
-					} else if(e.detail.slideNumber === 2) {
-						if(item3.querySelector('.mui-loading')) {
-							setTimeout(function() {
-								item3.querySelector('.mui-scroll').innerHTML = html3;
-							}, 500);
-						}
-					}
-				});
-				var sliderSegmentedControl = document.getElementById('sliderSegmentedControl');
-				$('.mui-input-group').on('change', 'input', function() {
-					if(this.checked) {
-						sliderSegmentedControl.className = 'mui-slider-indicator mui-segmented-control mui-segmented-control-inverted mui-segmented-control-' + this.value;
-						//force repaint
-						sliderProgressBar.setAttribute('style', sliderProgressBar.getAttribute('style'));
+					switch(e.detail.slideNumber) {
+						case 0:
+							break;
+						case 1:
+//							vmConcern.init();
+							break;
+						case 2:
+//							vmInstitutionConcern.init();
+							break;
 					}
 				});
 			})(mui);
