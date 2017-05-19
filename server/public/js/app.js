@@ -105,7 +105,7 @@
 	owner.reLogin = function() {
 		owner.clear();
 		mui.openWindow({
-			url: 'login.html',
+			url: '/html/auth/login.html',
 			id: 'login',
 			show: {
 				aniShow: 'pop-in'
@@ -195,7 +195,7 @@
 		// 创建状态
 		var state = owner.getState();
 		state.mail = params.mail;
-		state.nickname = decodeURI(params.nickname);
+		state.nickname = encodeURI(params.nickname);
 		state.token = params.token;
 		owner.setState(state);
 		// 创建关注

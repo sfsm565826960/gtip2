@@ -107,7 +107,8 @@
 			"html/main-sub-pages/setting.html",
 			"html/main-sub-pages/home.html",
 			"html/main-sub-pages/concern.html",
-			"html/main-sub-pages/message.html"
+			"html/main-sub-pages/message.html",
+			"html/auth/login.html"
 		]
 	},
 	"html/auth/login.html": {
@@ -143,7 +144,8 @@
 			"js/setting.account.js",
 			"js/mui.enterfocus.js",
 			"js/setting.locker.js",
-			"js/mui.locker.js"
+			"js/mui.locker.js",
+			"js/vue.min.js"
 		]
 	},
 	"html/main-sub-pages/home.html": {
@@ -210,6 +212,9 @@
 			"images/thumbs-down.png",
 			"images/thumbs-up.png",
 			"images/thumbs-up-fill.png"
+		],
+		"refer": [
+			"html/auth/login.html"
 		]
 	}
 }

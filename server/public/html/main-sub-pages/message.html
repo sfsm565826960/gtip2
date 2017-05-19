@@ -161,7 +161,7 @@
 								if(res.state === 'ok') {
 									vmStockTip.pIndex = 0;
 									vmStockTip.list.splice(0);
-									vmStockTip.list.push.apply(vmStockTip.List, res.data);
+									vmStockTip.list.push.apply(vmStockTip.list, res.data);
 								} else if (res.state === 'timeout') {
 									vmStockTip.update();
 									return;
@@ -183,7 +183,7 @@
 								vmStockTip.inLoadmore = false;
 								var isEnd = false;
 								if(res.state === 'ok') {
-									vmStockTip.list.push.apply(vmStockTip.List, res.data);
+									vmStockTip.list.push.apply(vmStockTip.list, res.data);
 									if (res.data.length < vmStockTip.pCount) isEnd = true;
 								} else if (res.state === 'timeout') {
 									this.pIndex--;
@@ -201,9 +201,9 @@
 				mui.init({
 					pullRefresh: {
 						container: '#refreshContainer',
-						down: {
-							callback: vmStockTip.update
-						},
+//						down: {
+//							callback: vmStockTip.update
+//						},
 						up: {
 							contentrefresh: '正在加载...',
 							callback: vmStockTip.loadmore

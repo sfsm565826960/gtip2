@@ -268,16 +268,7 @@
 			<div class="mui-page-content">
 				<div class="mui-scroll-wrapper">
 					<div class="mui-scroll">
-						<div class="user-info">
-							<!--<canvas id="" class="user-info-bg"></canvas>-->
-							<div id='stars'></div>
-							<div id='stars2'></div>
-							<div id='stars3'></div>
-							<img class="user-headimg" src="../../images/headimg.jpg" />
-							<div class="user-nickname">Franchen
-								<a class="mui-icon mui-icon-compose user-info-modify"></a>
-							</div>
-						</div>
+						<div id="userInfo" class="user-info"></div>
 						<ul class="mui-table-view mui-table-view-chevron table-list-icon">
 							<li class="mui-table-view-cell" style="background-image: url(../../images/setting.alarm.png);">
 								<a href="#notifications" class="mui-navigate-right">提醒设置</a>
@@ -503,12 +494,68 @@
 	</body>
 	<script src="../../js/mui.min.js"></script>
 	<script src="../../js/mui.view.js"></script>
+	<script src="../../js/vue.min.js"></script>
 	<script src="../../js/app.js"></script>
+	<script id="userInfoTemplate" type="x-template">
+		<div class="user-info">
+			<div id='stars'></div>
+			<div id='stars2'></div>
+			<div id='stars3'></div>
+			<img class="user-headimg" :src="headimg" @click="modifyHeadimg" />
+			<div class="user-nickname">
+				<span>{{nickname}}</span>
+				<a @click="modifyNickname" class="mui-icon mui-icon-compose user-info-modify"></a>
+			</div>
+		</div>
+	</script>
 	<script>
 		mui.init();
 		//初始化单页view
 		var viewApi = mui('#app').view({
 			defaultPage: '#setting'
+		});
+		vmUserInfo = new Vue({
+			el: '#userInfo',
+			template: '#userInfoTemplate',
+			data: {
+				nickname:'',
+				headimg: ''
+			},
+			mounted:function(){
+				this.update()
+			},
+			methods: {
+				update: function(){
+					var state = App.getState();
+					this.nickname = decodeURI(state.nickname || '未命名');
+					this.headimg = state.headimg || '../../images/headimg.jpg'
+				},
+				modifyNickname: function() {
+					plus.nativeUI.prompt('请输入新的昵称', function(event){
+						if (event.index === 0) {
+							vmUserInfo.nickname = event.value;
+							var state = App.getState();
+							state.nickname = encodeURI(event.value);
+							App.setState(state);
+						}
+					}, '修改昵称', '至少需要2个字符', ['确认', '取消']);
+				},
+				modifyHeadimg: function() {
+//					plus.gallery.pick(function(data){
+//						this.headimg = data;
+//					}, function(err){
+//						
+//					}, {
+//						filter: 'image',
+//						multiple: false,
+//						system: false
+//					})
+					mui.toast('暂时不支持修改头像')
+				}
+			}
+		});
+		mui.plusReady(function(){
+			plus.webview.currentWebview().addEventListener('show', vmUserInfo.update);
 		});
 		(function($) {
 			var navbar = $('.mui-navbar')[0];

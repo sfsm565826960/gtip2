@@ -297,7 +297,8 @@
 					"css/common.css"
 				],
 				"refer": [
-					"html/main-sub-pages/setting.html"
+					"html/main-sub-pages/setting.html",
+					"html/auth/login.html"
 				],
 				"priority": 0
 			},
@@ -335,7 +336,8 @@
 					"js/setting.account.js",
 					"js/mui.enterfocus.js",
 					"js/setting.locker.js",
-					"js/mui.locker.js"
+					"js/mui.locker.js",
+					"js/vue.min.js"
 				],
 				"refer": [],
 				"priority": 0
@@ -409,7 +411,9 @@
 					"images/thumbs-up.png",
 					"images/thumbs-up-fill.png"
 				],
-				"refer": [],
+				"refer": [
+					"html/auth/login.html"
+				],
 				"priority": 0
 			}
 		},
