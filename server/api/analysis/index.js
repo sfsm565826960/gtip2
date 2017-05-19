@@ -176,7 +176,7 @@ router.post('/list', (req, res) => {
                         tips[i].isThumbsDown = (tips[i].thumbsDown || []).indexOf(user._id) >= 0;
                         tips[i].thumbsDown = (tips[i].thumbsDown || []).length;
                         delete tips[i].receivers;
-                    });
+                    }
                     res.json({ state: 'ok', detail: '获取提醒列表成功', data: tips })
                 }
             });
