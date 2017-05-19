@@ -252,7 +252,7 @@ function InitBroaderIndex($, dom, stocks) {
 			oKdj.prices.push(price);
 			cKdj.prices = oKdj.prices.splice(-9);
 			var minmax = getMinMax(cKdj.prices);
-			cKdj.rsv = (price - minmax.min) / (minmax.max - minmax.min) * 100;
+			cKdj.rsv = (price - minmax.min) / (minmax.max - minmax.min) * 100 || 0;
 			cKdj.k = round((2 * oKdj.k + cKdj.rsv) / 3);
 			cKdj.d = round((2 * oKdj.d + cKdj.k) / 3);
 			cKdj.j = round(3 * cKdj.d - 2 * cKdj.k);

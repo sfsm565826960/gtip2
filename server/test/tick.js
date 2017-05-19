@@ -97,6 +97,19 @@ function analysisSetTimeout () {
   });
 }
 
+
+var Quotation = require('../utils/stock/quotation');
+function saveQuation() {
+  Quotation(['sz300456','sh600988', 'sh600138', 'sh603003','sh600803','sz300159'],(err, data) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(JSON.stringify(data.stocks));
+      collectionTickTest.insert(data.stocks);
+    }
+  })
+}
+
 var constr = 'mongodb://' + CONF_DB.user + ':' + CONF_DB.password + '@' + CONF_DB.host + ':' + CONF_DB.port + '/' + CONF_DB.db;
 MongoClient.connect(constr, function(err, con) {
   if (err) {
@@ -119,7 +132,9 @@ MongoClient.connect(constr, function(err, con) {
               collectionTickTest = collection;
               // runTest();
               // analysisSetInterval();
-              analysisSetTimeout();
+              // analysisSetTimeout();
+              setInterval(saveQuation, 60000);
+              saveQuation();
             }
           })
         }

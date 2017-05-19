@@ -7,6 +7,11 @@ var Log = require('../log.js')({
   file: 'stock.quotation.log'
 });
 
+function parsePrice(val) {
+  if (typeof val === 'string') val = parseFloat(val);
+  return Math.round(val * 100) / 100;
+}
+
 function parseItem(code, detailStr) {
   var detail = detailStr.split(',');
   if (detail.length < 32) {
@@ -19,8 +24,10 @@ function parseItem(code, detailStr) {
       open: parseFloat(detail[1]),
       close: parseFloat(detail[2]),
       current: parseFloat(detail[3]),
-      MAX: Math.floor(parseFloat(detail[2]) * 1.1 * 10000) / 10000,
-      MIN: Math.floor(parseFloat(detail[2]) * 0.9 * 10000) / 10000,
+      diff: parsePrice(parseFloat(detail[3]) - parseFloat(detail[2])),
+		  rate: parsePrice((parseFloat(detail[3]) - parseFloat(detail[2])) / parseFloat(detail[2]) * 100), 
+      MAX: parsePrice(parseFloat(detail[2]) * 1.1),
+      MIN: parsePrice(parseFloat(detail[2]) * 0.9),
       max: parseFloat(detail[4]),
       min: parseFloat(detail[5]),
       firstBuyPrice: parseFloat(detail[6]),

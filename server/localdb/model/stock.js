@@ -33,6 +33,8 @@ function StockSchema(mongoose) {
       open: Types.Number,
       close: Types.Number,
       current: Types.Number,
+      diff: Types.Number,
+      rate: Types.Number,
       MAX: Types.Number,
       MIN: Types.Number,
       max: Types.Number,
@@ -74,7 +76,9 @@ function StockSchema(mongoose) {
           code: hq.code,
           name: hq.name
         });
-        stock.update(hq, callback);
+        stock.update({
+          quotation: hq
+        }, callback);
       }
     })
   }
@@ -172,22 +176,19 @@ function StockSchema(mongoose) {
   }
   /**
    * 更新数据
-   * @param {Object} quotation 盘口数据,null则自动联网获取
-   * @param {Object} timeline 当日实时数据，null则自动联网获取
-   * @param {Object} daybar 历史每日数据，null则自动联网获取
+   * @param {Object} options 配置:
+   *    quotation 盘口数据,null则自动联网获取
+   *    timeline 当日实时数据，null则自动联网获取
+   *    daybar 历史每日数据，null则自动联网获取
+   *    save 更新后保存，默认为true
    * @param {Function} callback function(err, stock){}
    */
-  schema.methods.update = function (quotation, timeline, daybar, callback) {
-    if (typeof quotation === 'function') {
-      callback = quotation;
-      quotation = null;
-    } else if (typeof timeline === 'function') {
-      callback = timeline;
-      timeline = null;
-    } else if (typeof daybar === 'function') {
-      callback = daybar;
-      daybar = null;
-    } else if (typeof callback !== 'function') {
+  schema.methods.update = function (options, callback) {
+    if (typeof option === 'function') {
+      callback = option;
+      options = {};
+    }
+    if (typeof callback !== 'function') {
       callback = function () { }
     }
     var process = 2; // 当process <= 0 时,调用callback。若process===-1则已经调用过callback
@@ -200,19 +201,23 @@ function StockSchema(mongoose) {
           return true;
         } else if (process <= 0) {
           process = -1;
-          stock.save().then(doc => {
-            callback(null, doc);
-          }).catch(err => {
-            callback(err);
-          });
+          if (options.save !== false) {
+            stock.save().then(doc => {
+              callback(null, doc);
+            }).catch(err => {
+              callback(err);
+            });
+          } else {
+            callback(null, stock);
+          }
           return true;
         }
         return false;
       }
       return true;
     }
-    updateQuotation(this, done, quotation);
-    updateTimeline(this, done, timeline);
+    updateQuotation(this, done, options.quotation);
+    updateTimeline(this, done, options.timeline);
   }
   return schema;
 }

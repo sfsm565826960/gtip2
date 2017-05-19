@@ -20,6 +20,7 @@ require('../localdb/model/index').getModels((err, models) => {
     router.use('/fetch', require('./fetch')(models));
     router.use('/user', require('./user')(models));
     router.use('/concern/stock', require('./concern/stock')(models));
+    router.use('/analysis', require('./analysis')(models));
   }
 });
 

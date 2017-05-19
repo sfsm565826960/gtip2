@@ -126,8 +126,8 @@
 							<div class="stockTip-param" v-html="parseParamsHtml(item.params)"></div>
 							<div class="stockTip-info view-horizontal-split">
 								<span>來自：{{item.from}}</span>
-								<span @click="thumb('up', itemIndex)" :class="{thumbs:true, up: true, fill:item.thumb.isUp}"></span>
-								<span @click="thumb('down', itemIndex)" :class="{thumbs:true, down: true, fill:item.thumb.isDown}"></span>
+								<span @click="thumb('up', itemIndex)" :class="{thumbs:true, up: true, fill:item.isThumbsUp}"></span>
+								<span @click="thumb('down', itemIndex)" :class="{thumbs:true, down: true, fill:item.isThumbsDown}"></span>
 								<span>{{item.date.toISOString().replace(/(\d+)-(\d+)-(\d+)T(\d+):(\d+):.+/, '$1/$2/$3 $4:$5')}}</span>
 							</div>
 						</div>
@@ -287,14 +287,12 @@
 							template: '#stockTipTemplate',
 							data: {
 								list: [
-									{
+									/*{
 										id: '2',
-										thumb: {
-											up: 99,
-											down: 2,
-											isUp: false,
-											isDown: false
-										},
+										thumbsUp: 99,
+										thumbsDown: 2,
+										isThumbsUp: false,
+										isThumbsDown: false,
 										name: '赤峰黄金',
 										code: 'sh600988',
 										text: '最新高价',
@@ -306,27 +304,7 @@
 										},
 										date: new Date(),
 										from: '价格提醒'
-									},
-									{
-										id: '3',
-										thumb: {
-											up: 99,
-											down: 2,
-											isUp: false,
-											isDown: true
-										},
-										name: '赤峰黄金',
-										code: 'sh600988',
-										text: '大单买入',
-										type: 'trend',
-										valuation: 'good',
-										params: {
-											'均价': '$12.11',
-											'数量': '162手'
-										},
-										date: new Date(),
-										from: '大单提醒'
-									}
+									}*/
 								]
 							},
 							methods: {
@@ -347,9 +325,9 @@
 								thumb: function(type, index) {
 									if(this.list[index]) {
 										if(type === 'up') {
-											this.list[index].thumb.isUp = !this.list[index].thumb.isUp;
+											this.list[index].isThumbsUp = !this.list[index].isThumbsUp;
 										} else if(type === 'down') {
-											this.list[index].thumb.isDown = !this.list[index].thumb.isDown;
+											this.list[index].isThumbsDown = !this.list[index].isThumbsDown;
 										}
 									}
 								}

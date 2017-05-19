@@ -32,7 +32,8 @@ var getCharset = function (response) {
 var get = function(url, callback) {
   request.get({
     url: url,
-    encoding: null
+    encoding: null,
+    timeout: 15000
   }, function(error, response, body) {
     if (error) {
       console.error(error);
@@ -53,7 +54,8 @@ var post = function(url, data, callback) {
   request.post({
     url: url,
     form: data,
-    encoding: null
+    encoding: null,
+    timeout: 15000
   }, function(error, response, body) {
     if (error) {
       console.error(error);

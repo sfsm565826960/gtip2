@@ -58,15 +58,17 @@
 			变动提醒
 			<a id="refreshBroaderIndex" class="mui-icon mui-icon mui-icon-refreshempty mui-pull-right"></a>
 		</div>
-		<div class="mui-scroll-wrapper" style="top:230px">
+
+		<!--下拉刷新容器-->
+		<div id="refreshContainer" class="mui-content mui-scroll-wrapper" style="top:230px">
 			<div class="mui-scroll">
 				<div id="stockTip" class="loading-tip">加载中</div>
 			</div>
 		</div>
 
 		<script src="../../js/mui.min.js"></script>
-		<!--<script src="../../js/vue.min.js"></script>-->
-		<script src="http://vuejs.org/js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/vue.min.js"></script>
+		<!--<script src="http://vuejs.org/js/vue.js" type="text/javascript" charset="utf-8"></script>-->
 		<script src="../../js/app.js"></script>
 		<script id="stockTipTemplate" type="x-template">
 			<div id="stockTip" class="stockTip">
@@ -78,8 +80,8 @@
 							<div class="stockTip-param" v-html="parseParamsHtml(item.params)"></div>
 							<div class="stockTip-info view-horizontal-split">
 								<span>來自：{{item.from}}</span>
-								<span @click="thumb('up', itemIndex)" :class="{thumbs:true, up: true, fill:item.thumb.isUp}"></span>
-								<span @click="thumb('down', itemIndex)" :class="{thumbs:true, down: true, fill:item.thumb.isDown}"></span>
+								<span @click="thumb('up', itemIndex)" :class="{thumbs:true, up: true, fill:item.isThumbsUp}"></span>
+								<span @click="thumb('down', itemIndex)" :class="{thumbs:true, down: true, fill:item.isThumbsDown}"></span>
 								<span>{{item.date.toISOString().replace(/(\d+)-(\d+)-(\d+)T(\d+):(\d+):.+/, '$1/$2/$3 $4:$5')}}</span>
 							</div>
 						</div>
@@ -89,44 +91,25 @@
 		</script>
 		<script type="text/javascript">
 			(function($, doc) {
-				mui.init()
 				var slider = mui("#slider");
 				slider.slider({
 					interval: 5000 //自动轮播周期，若为0则不自动播放，默认为0；
 				});
-
 				var vmStockTip = new Vue({
 					el: '#stockTip',
 					template: '#stockTipTemplate',
 					data: {
-						list: [{
-								id: '1',
-								thumb: {
-									up: 99,
-									down: 2,
-									isUp: true,
-									isDown: false
-								},
-								name: '耐威科技',
-								code: 'sz300456',
-								text: '大单卖出',
-								type: 'none',
-								valuation: 'none',
-								params: {
-									'均价': '$12',
-									'数量': '132手'
-								},
-								date: new Date(),
-								from: '大单提醒'
-							},
-							{
+						pIndex: 0,
+						pCount: 5,
+						inUpdate: false,
+						inLoadmore: false,
+						list: [
+							/*{
 								id: '2',
-								thumb: {
-									up: 99,
-									down: 2,
-									isUp: false,
-									isDown: false
-								},
+								thumbsUp: 99,
+								thumbsDown: 2,
+								isThumbsUp: false,
+								isThumbsDown: false,
 								name: '赤峰黄金',
 								code: 'sh600988',
 								text: '最新高价',
@@ -138,47 +121,7 @@
 								},
 								date: new Date(),
 								from: '价格提醒'
-							},
-							{
-								id: '3',
-								thumb: {
-									up: 99,
-									down: 2,
-									isUp: false,
-									isDown: true
-								},
-								name: '赤峰黄金',
-								code: 'sh600988',
-								text: '大单买入',
-								type: 'trend',
-								valuation: 'good',
-								params: {
-									'均价': '$12.11',
-									'数量': '162手'
-								},
-								date: new Date(),
-								from: '大单提醒'
-							},
-							{
-								id: '4',
-								thumb: {
-									up: 99,
-									down: 2,
-									isUp: true,
-									isDown: true
-								},
-								name: '中青旅',
-								code: 'sh600138',
-								text: '大单卖出',
-								type: 'trun',
-								valuation: 'important',
-								params: {
-									'均价': '$20.10',
-									'数量': '235手'
-								},
-								date: new Date(),
-								from: '大单提醒'
-							}
+							}*/
 						]
 					},
 					methods: {
@@ -197,19 +140,82 @@
 							return innerHTML;
 						},
 						thumb: function(type, index) {
-							if (this.list[index]) {
-								if (type === 'up') {
-									this.list[index].thumb.isUp = !this.list[index].thumb.isUp;
-								} else if (type === 'down') {
-									this.list[index].thumb.isDown = !this.list[index].thumb.isDown;
+							if(this.list[index]) {
+								if(type === 'up') {
+									this.list[index].isThumbsUp = !this.list[index].isThumbsUp;
+								} else if(type === 'down') {
+									this.list[index].isThumbsDown = !this.list[index].isThumbsDown;
 								}
 							}
+						},
+						update: function() {
+							if (vmStockTip.inUpdate) return;
+							vmStockTip.inUpdate = true;
+							Server.send('analysis/list', {
+								token: App.getToken(),
+								range: 'my',
+								count: vmStockTip.pCount,
+								index: 0
+							}, function(res) {
+								vmStockTip.inUpdate = false;
+								if(res.state === 'ok') {
+									vmStockTip.pIndex = 0;
+									vmStockTip.list.splice(0);
+									vmStockTip.list.push.apply(vmStockTip.List, res.data);
+								} else if (res.state === 'timeout') {
+									vmStockTip.update();
+									return;
+								} else {
+									$.toast(res.detail);
+								}
+								mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
+							})
+						},
+						loadmore: function(){
+							if (vmStockTip.inLoadmore) return;
+							vmStockTip.inLoadmore = true;
+							Server.send('analysis/list', {
+								token: App.getToken(),
+								range: 'my',
+								count: this.pCount,
+								index: ++this.pIndex
+							}, function(res) {
+								vmStockTip.inLoadmore = false;
+								var isEnd = false;
+								if(res.state === 'ok') {
+									vmStockTip.list.push.apply(vmStockTip.List, res.data);
+									if (res.data.length < vmStockTip.pCount) isEnd = true;
+								} else if (res.state === 'timeout') {
+									this.pIndex--;
+									vmStockTip.loadmore();
+									return;
+								} else {
+									$.toast(res.detail);
+								}
+								mui('#refreshContainer').pullRefresh().endPullupToRefresh(isEnd);
+							})
 						}
 					}
 				})
-				$('.mui-scroll-wrapper').scroll({
-					indicators: true //是否显示滚动条
-				});
+
+				mui.init({
+					pullRefresh: {
+						container: '#refreshContainer',
+						down: {
+							callback: vmStockTip.update
+						},
+						up: {
+							contentrefresh: '正在加载...',
+							callback: vmStockTip.loadmore
+						}
+					}
+				})
+
+				// 接收信息推送
+				window.addEventListener('receiveMsg', function(event) {
+					var msg = event.detail;
+					console.log(msg);
+				})
 			})(mui, document)
 		</script>
 	</body>

@@ -5,7 +5,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<link href="../css/mui.min.css" rel="stylesheet" />
-		<link rel="stylesheet" type="text/css" href="../css/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
 		<style>
 			ul {
 				font-size: 14px;
@@ -31,7 +31,7 @@
 				<span class="mui-tab-label">首页</span>
 			</a>
 			<a id="tabMessage" wIndex="1" class="mui-tab-item" href="main-sub-pages/message.html">
-				<span class="mui-icon mui-icon-email"><span class="mui-badge">9</span></span>
+				<span class="mui-icon mui-icon-email" id="msgBadge"><!--<span class="mui-badge">9</span>--></span>
 				<span class="mui-tab-label">消息</span>
 			</a>
 			<a id="tabConcern" wIndex="2" class="mui-tab-item" href="main-sub-pages/concern.html">
@@ -62,11 +62,19 @@
 				//当前激活选项
 				var activeTab = subPages[0];
 				var activeIndex = 0;
+				//消息页面
+				var wvMsg = null;
+				var msgCount = 0;
+				var msgBadge = doc.getElementById('msgBadge');
 				//选项卡点击事件
 				$('.mui-bar-tab').on('tap', 'a', function(e) {
 					var targetTab = this.getAttribute('href');
 					if(targetTab == activeTab) {
 						return;
+					}
+					//取消消息Tab的数字显示
+					if (targetTab.indexOf('message.html') > 0) {
+						msgBadge.innerHTML = '';
 					}
 					//显示目标选项卡
 					plus.webview.show(targetTab, 'none');
@@ -98,6 +106,7 @@
 						if(i > 0) {
 							sub.hide();
 						}
+						if(i===1) wvMsg = sub;
 						self.append(sub);
 					}
 					// 初始化推送事件
@@ -143,7 +152,9 @@
 					//从推送服务器接收到推送消息
 					plus.push.addEventListener('receive', function(msg) {
 						console.log('push receive: ' + msg);
-						// TODO
+						msgCount++;
+						msgBadge.innerHTML = '<span class="mui-badge">' + msgCount + '</span>';
+						$.fire(wvMsg, 'receiveMsg', msg);
 					});
 				}
 			}(mui, document));

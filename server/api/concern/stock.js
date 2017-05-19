@@ -72,15 +72,18 @@ router.post('/add', (req, res) => {
                 Log.e(err, true);
                 res.json(errMsg(err));
               })
-              Push.getClientTag(user.clientId, (err, res) => {
-                if (err) {
-                  return;
-                }
-                if ((res.tags || []).indexOf(req.body.stockId) < 0) {
-                  res.tags.push(req.body.stockId);
-                  Push.setClientTag(user.clientId, res.tags);
-                }
-              })
+              if (user.clientId && user.clientId.length > 0) {
+                Push.getClientTag(user.clientId, (err, res) => {
+                  if (err) {
+                    return;
+                  }
+                  if (!res.tags) res.tags = [];
+                  if (res.tags.indexOf(req.body.stockId) < 0) {
+                    res.tags.push(req.body.stockId);
+                    Push.setClientTag(user.clientId, res.tags);
+                  }
+                })
+              }
             })
             .catch(err => {
               Log.e(err, true);
@@ -126,26 +129,27 @@ router.post('/remove', (req, res) => {
     } else if ((user.concern.stockIds || []).indexOf(req.body.stockId) < 0) {
       res.json({ state: 'fail', detail: '用户未关注股票:' + req.body.stockId })
     } else {
-      var removeStockId = function(){
+      var removeStockId = function () {
         var index = (user.concern.stockIds || []).indexOf(req.body.stockId);
         user.concern.stockIds.splice(index, 1);
-        user.save()
-          .then(doc => {
-            res.json({ state: 'ok', detail: 'remove stock concern success', data: doc.concern.stockIds })
-          }).catch(err => {
-            Log.e(err, true);
-            res.json({ state: 'fail', detail: err.message || err });
-          });
-        Push.getClientTag(user.clientId, (err, res) => {
-          if (err) {
-            return;
-          }
-          var index = (res.tags || []).indexOf(req.body.stockId);
-          if (index >= 0) {
-            res.tags.splice(index, 1);
-            Push.setClientTag(user.clientId, res.tags);
-          }
-        })
+        user.save().then(doc => {
+          res.json({ state: 'ok', detail: 'remove stock concern success', data: doc.concern.stockIds })
+        }).catch(err => {
+          Log.e(err, true);
+          res.json({ state: 'fail', detail: err.message || err });
+        });
+        if (user.clientId && user.clientId.length > 0) {
+          Push.getClientTag(user.clientId, (err, res) => {
+            if (err) {
+              return;
+            }
+            var index = (res.tags || []).indexOf(req.body.stockId);
+            if (index >= 0) {
+              res.tags.splice(index, 1);
+              Push.setClientTag(user.clientId, res.tags);
+            }
+          })
+        }
       }
       Stock.findOne({
         code: req.body.stockId
