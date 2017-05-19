@@ -9,3 +9,7 @@ var clientId = '57d60845477093bedff1f166c63ae8a1';
 // push.pushMessageToList(new push.Notification('test'), [clientId]);
 
 // push.pushMessageToApp(new push.Link('http://gtip.sfsm.me', 'link'));
+
+push.setClientTag(clientId, ['sh6001211','shsdfsf']);
+
+push.getClientTag(clientId);

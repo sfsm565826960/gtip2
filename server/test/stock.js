@@ -23,14 +23,11 @@ require('../localdb/model/stock').getModel((err, Stock) => {
   if (err) {
     console.error(err)
   } else {
-    Stock.create('sh601212', (err, stock) => {
+    Stock.create('sh600988', (err, stock) => {
       if (err) {
         console.error(err);
       } else {
         console.log(JSON.stringify(stock));
-        stock.save().then(doc => {
-          console.log('ok')
-        })
       }
     })
   }

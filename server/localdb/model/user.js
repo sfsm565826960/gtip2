@@ -2,18 +2,27 @@ var secret = require('../../utils/secret');
 function UserSchema (mongoose) {
   var Types = mongoose.Schema.Types;
   var schema = new mongoose.Schema({
-    mail: { type: Types.String, match: /^[A-Za-z0-9]+([-_.][A-Za-z0-9]+)*@([A-Za-z0-9]+[-.])+[A-Za-z]{2,5}$/, required: true, unique: true},
+    mail: {
+      type: Types.String,
+      required: true,
+      unique: true,
+      match: /^[A-Za-z0-9]+([-_.][A-Za-z0-9]+)*@([A-Za-z0-9]+[-.])+[A-Za-z]{2,5}$/
+    },
     nickname: { type: Types.String, match: /.{2,}/, required: true },
     password: { type: Types.String, match: /.{6,}/, required: true },
     token: { type: Types.String, unique: true },
     verifiyCode: { // 验证码
-      brief: Types.String,
+      brief: Types.String, // 验证码用途
       value: Types.String,
       createDate: Types.Date, // 创建日期，60秒内不允许重复创建（发送邮件)
       expireDate: Types.Date // 过期日期，十分钟内有效，超过该日期验证码失效
     },
-    clientId: Types.String,
-    state: { type: Types.String, enum: ['online', 'offline', 'logout'], default: 'logout' }, // online在线,offline离线,logout未登录
+    clientId: Types.String, // 移动端设备推送ID
+    state: { // 用户状态：online在线,offline离线,logout未登录
+      type: Types.String,
+      default: 'logout',
+      enum: ['online', 'offline', 'logout']
+    },
     // lock: { // 登录锁
     //   brief: Types.String,
     //   failCount: { type: Types.Number, default: 0 }, // 记录密码输错次数 %5 来实现
@@ -26,24 +35,40 @@ function UserSchema (mongoose) {
     lastLogin: Types.Date, // 最近一次登录时间
     loginExpired: Types.Date, // 登录过期时间
     firstLogin: { type: Types.Date, default: new Date() }, // 注册时间
-    settings: {
-      receiveNotifiy: { type: Types.Boolean, default: true },
-      voiceBroadcast: { type: Types.Boolean, default: false },
+    settings: { // 移动端设置
+      receiveNotifiy: { type: Types.Boolean, default: true }, // 若为true则向其推送通知
+      voiceBroadcast: { type: Types.Boolean, default: false }, // 若为true则收到通知后进行朗读
       autoLogin: { type: Types.Boolean, default: false }, // 若为true，则登录的时候使用token即可
       gestures: { type: Types.String, default: '' } // 用户手势密码，仅在autoLogin为true时有效
     },
-    concern: {
-      stockIds: [Types.String]
+    concern: { // 关注内容
+      stockIds: [Types.String] // 用户关注的股票ID
     },
-    authority: {
-      analysis: Types.Mixed
-    }
+    // authority: { // 权限管理
+    //   analysis: Types.Mixed
+    // }
   });
   // 添加索引
   schema.index({mail: 1}, {unique: true});
   schema.index({token: 1}, {unique: true});
   schema.index({mail: 1, password: 1});
+  // 静态方法
+  schema.statics.getUserByToken = function(token, sql, callback) {
+    if (typeof sql === 'function') {
+      callback = sql;
+      sql = {}
+    }
+    var opt = Object.assign({
+      token: token,
+      state: 'online',
+      loginExpired: {$gt: new Date()}
+    }, sql);
+    this.findOne(opt, callback);
+  }
   // 添加方法
+  /**
+   * 签署用户登录状态
+   */
   schema.methods.signLogin = function() {
     var date = new Date();
     var token = secret.createToken(this.mail);
@@ -55,6 +80,7 @@ function UserSchema (mongoose) {
     return token;
   };
   /**
+   * 签署用户离线/注销状态
    * @param {Boolean} offline true离线模式;false注销
    * @param {Boolean} isBackground true关闭程序;false进入后台。仅offline为true有效
    */
@@ -72,6 +98,10 @@ function UserSchema (mongoose) {
       this.habit.logoutDate.push(date);
     }
   }
+  /**
+   * 创建验证码
+   * @param {String} brief 简要说明验证码的用途
+   */
   schema.methods.createVerifiyCode = function(brief) {
     var date = new Date();
     var verifiyCode = secret.createVerifyCode(6);
@@ -81,6 +111,11 @@ function UserSchema (mongoose) {
     this.verifiyCode.expireDate = new Date(date.getTime() + 600000);
     return verifiyCode;
   };
+  /**
+   * 校验验证码
+   * @param {String} brief 校验验证码的用途
+   * @param {String} verifyCode 校验验证码值
+   */
   schema.methods.checkVerifiyCode = function(brief, verifyCode) {
     var date = new Date();
     if (this.verifiyCode.brief === brief &&
@@ -96,6 +131,7 @@ function UserSchema (mongoose) {
       return false;
     }
   }
+  // 返回Schema对象
   return schema;
 }
 

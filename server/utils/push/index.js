@@ -207,3 +207,20 @@ exports.setClientTag = function(clientId, tagList, callback) {
     }
   });
 }
+
+/**
+ * 获取用户标签
+ * @param {String} clientId
+ * @param {Function} callback function(err, res){}
+ */
+exports.getClientTag = function(clientId, callback) {
+  gt.getUserTags(CONF.appId, clientId, function(err, res) {
+    if (err) {
+      Log.e(err, true);
+      typeof callback === 'function' && callback(err);
+    } else {
+      Log.i('getClientTag: ' + JSON.stringify(res));
+      typeof callback === 'function' && callback(null, res);
+    }
+  });
+}

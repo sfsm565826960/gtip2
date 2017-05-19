@@ -5,6 +5,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css"/>
 		<style>
 			ul {
 				font-size: 14px;
@@ -35,7 +36,7 @@
 			</a>
 			<a id="tabConcern" wIndex="2" class="mui-tab-item" href="main-sub-pages/concern.html">
 				<span class="mui-icon mui-icon-star"></span>
-				<span class="mui-tab-label">关注</span>
+				<span class="mui-tab-label">发现</span>
 			</a>
 			<a id="tabSetting" wIndex="3" class="mui-tab-item" href="main-sub-pages/setting.html">
 				<span class="mui-icon mui-icon-gear"></span>
@@ -73,7 +74,8 @@
 					//更改当前活跃的选项卡
 					activeTab = targetTab;
 				});
-				window.addEventListener('switchTab', function(tabName) {
+				window.addEventListener('switchTab', function(event) {
+					var tabName = event.detail;
 					var tab = document.getElementById(tabName);
 					if(!tab) {
 						console.warn('switchTab: ' + tabName + ' not exist');
@@ -83,10 +85,8 @@
 					$.trigger(tab, 'tap');
 					//切换选项卡高亮
 					var current = document.querySelector(".mui-bar-tab>.mui-tab-item.mui-active");
-					if(defaultTab !== current) {
-						current.classList.remove('mui-active');
-						defaultTab.classList.add('mui-active');
-					}
+					current.classList.remove('mui-active');
+					tab.classList.add('mui-active');
 				})
 
 				//创建子页面，首个选项卡页面显示，其它均隐藏；

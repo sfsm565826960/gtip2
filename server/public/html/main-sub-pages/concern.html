@@ -6,9 +6,9 @@
 		<title></title>
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<link href="../../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/stock-list.css"/>
 		<style type="text/css">
-			html,
-			body,
 			.search-bar,
 			.mui-control-content {
 				background-color: rgb(36, 37, 42);
@@ -74,46 +74,6 @@
 			
 			.mui-slider .mui-segmented-control.mui-segmented-control-inverted~.mui-slider-group .mui-slider-item {
 				border: none;
-			}
-			
-			ul.mui-table-view.stock-list:before,
-			ul.mui-table-view.stock-list:after {
-				background-color: transparent;
-			}
-			
-			ul.mui-table-view.stock-list li.mui-table-view-cell {
-				font-size: 18px;
-				display: flex;
-				justify-content: space-between;
-			}
-			
-			ul.mui-table-view.stock-list li.mui-table-view-cell:after {
-				left: 0;
-				right: 0;
-				background-color: #666;
-			}
-			
-			ul.mui-table-view.stock-list li.mui-table-view-cell.mui-active {
-				background-color: rgb(45, 50, 56);
-			}
-			
-			ul.mui-table-view.stock-list li.mui-table-view-cell.list-title {
-				font-size: 14px;
-				color: rgba(255, 255, 255, 0.5);
-				padding: 0 15px;
-				height: 30px;
-				line-height: 30px;
-				background-color: rgb(45, 50, 56);
-			}
-			
-			ul.mui-table-view.stock-list li.mui-table-view-cell.list-title:after {
-				background-color: transparent;
-			}
-			
-			.loading-tip {
-				color: rgba(255, 255, 255, 0.5);
-				padding: 10px;
-				text-align: center;
 			}
 		</style>
 	</head>
@@ -201,33 +161,37 @@
 						<span>{{item.fiveMinutePercent > 0 ? '+' + item.fiveMinutePercent : item.fiveMinutePercent}}%</span>
 					</li>
 				</ul>
-				<div class="loading-tip" v-else @click="update">{{tip}}</div>
+				<div class="loading-tip" v-else @click="update" v-html="tip"></div>
 			</div>
 		</script>
 		<script id="burstStockTemplate" type="x-template">
 			<div id="burstStock">
-				<ul class="mui-table-view stock-list" v-if="list.length > 0">
+				<ul class="mui-table-view stock-list" v-if="updated">
 					<li class="mui-table-view-cell list-title">
 						<span>名称</span>
 						<span>最新价</span>
 						<span>跌涨额</span>
 						<span>跌涨幅</span>
-						<span>操作</span>
+						<span>爆发放量</span>
+						<span>爆发涨幅</span>
+						<span>监控日期</span>
 					</li>
 					<li class="mui-table-view-cell" v-for="item in list" @click="viewDetail(item)" :style="{color: item.rate > 0 ? 'red':'#ddd'}">
 						<span>{{item.name}}</span>
 						<span>{{item.price}}</span>
 						<span>{{item.diff > 0 ? '+' + item.diff : item.diff}}</span>
 						<span>{{item.rate > 0 ? '+' + item.rate : item.rate}}%</span>
-						<span @click="cancelConcern(item)" class="mui-icon mui-icon-trash"></span>
+						<span>{{item.burstValue > 0 ? '+' + item.burstValue : item.burstValue}}</span>
+						<span>{{item.burstRate > 0 ? '+' + item.burstRate : item.burstRate}}%</span>
+						<span>{{item.date}}</span>
 					</li>
 				</ul>
-				<div class="loading-tip" v-else>{{tip}}</div>
+				<div class="loading-tip" v-else @click="init">{{tip}}</div>
 			</div>
 		</script>
 		<script id="institutionConcernTemplate" type="x-template">
 			<div id="institutionConcern">
-				<ul class="mui-table-view stock-list" v-if="list.length > 0">
+				<ul class="mui-table-view stock-list" v-if="updated">
 					<li class="mui-table-view-cell list-title">
 						<span>名称</span>
 						<span>最新价</span>
@@ -248,10 +212,6 @@
 		</script>
 		<script type="text/javascript">
 			(function($) {
-				function parsePrice(price) {
-					return Math.round(price * 100) / 100;
-				}
-
 				function viewDetail(stock) {
 					var wv = $.openWindow({
 						url: 'stock-detail.html',
@@ -350,19 +310,36 @@
 									var result = res.match(/\[.+\]/);
 									if(result) {
 										var list = eval(result[0]);
-										vmHotStock.list.splice(0);
+										var codes = [];
 										for(var i = 0; i < list.length; i++) {
-											vmHotStock.list.push({
-												code: list[i].symbol,
-												name: list[i].name,
-												price: parsePrice(list[i].trade),
-												diff: parsePrice(list[i].trade - list[i].old_trade),
-												dayPercent: parsePrice(list[i].day_percent),
-												fiveMinutePercent: parsePrice(list[i].percent)
-											})
+											codes.push(list[i].symbol);
 										}
+										Stock.realTime(codes, function(err, data) {
+											if(err) {
+												if(err === 'timeout') {
+													vmHotStock.update();
+												} else {
+													console.log('HotStock update realtime fail: ' + err);
+													vmHotStock.tip = '点击重试';
+												}
+												return;
+											}
+											vmHotStock.list.splice(0);
+											var item = {};
+											for(var i = 0; i < list.length; i++) {
+												item = data.stocks[list[i].symbol];
+												vmHotStock.list.push({
+													code: list[i].symbol,
+													name: list[i].name,
+													price: item.current === undefined ? Stock.parsePrice(list[i].trade) : item.current,
+													diff: item.diff === undefined ? Stock.parsePrice(list[i].trade - list[i].old_trade) : item.diff,
+													dayPercent: item.rate === undefined ? Stock.parsePrice(list[i].day_percent) : item.rate,
+													fiveMinutePercent: Stock.parsePrice(list[i].percent)
+												})
+											}
+										})
 									} else {
-										vmHotStock.tip = '点击重试';
+										vmHotStock.tip = '开市5分钟后才有热股推荐<br /><br />点击重试';
 										return;
 									}
 								} catch(err) {
@@ -373,6 +350,85 @@
 					}
 				})
 
+				var vmBurstStock = new Vue({
+					el: '#burstStock',
+					template: '#burstStockTemplate',
+					data: {
+						list: [],
+						codes: [],
+						timer: null,
+						expired: 0,
+						tip: '加载中',
+						updated: false
+					},
+					methods: {
+						init: function() {
+							var url = 'http://dp.sina.cn/dpool/stock_new/v2/big_stock.php?vt=15';
+							this.tip = '加载中';
+							this.expired = new Date(); // 当init时，防止tab切换过程中重复调用init
+							if(this.timer) { clearTimeout(this.timer);this.timer = null;} // 在init时，不再需要update realtime
+							this.updated = false; // 未更新realtime，同时显示加载中
+							Server.send(url, function(html) {
+								if(typeof html === 'object') {
+									vmBurstStock.init();
+									return;
+								}
+								var list = html.match(/<a.+?code.+/g);
+								if(list) {
+									var item = [];
+									var code = '';
+									vmBurstStock.list.splice(0);
+									vmBurstStock.codes.splice(0);
+									for(var i = 0; i < list.length; i++) {
+										item = list[i].match(/code=(.+?)&.+?>(.+?)<.+?([\d.%]+).+?([\d.%]+).+?([\d-]+)/);
+										code = item[1].substr(0, 1) === '6' ? 'sh' + item[1] : 'sz' + item[1];
+										vmBurstStock.codes.push(code);
+										vmBurstStock.list.push({
+											code: code,
+											name: item[2],
+											burstRate: item[3],
+											burstValue: item[4],
+											date: item[5],
+											price: 0,
+											diff: 0,
+											rate: 0
+										})
+									}
+									vmBurstStock.update();
+									setInterval(vmBurstStock.update, 60000);
+								} else {
+									console.log('BurstStock match list fail');
+									vmBurstStock.tip = '点击重试';
+									vmBurstStock.expired = 0;
+								}
+							}, 'get', 'text');
+						},
+						update: function() {
+							Stock.realTime(this.codes, function(err, data) {
+								if(err) {
+									if (err === 'timeout') {
+										vmBurstStock.update.call(vmBurstStock);
+									} else {
+										console.error('BurstStock fetch realtime fail: ' + err);
+										vmBurstStock.tip = '点击重试';
+									}
+									return;
+								}
+								for(var i = 0; i < vmBurstStock.list.length; i++) {
+									if(data.stocks[vmBurstStock.list[i].code]) {
+										var stock = data.stocks[vmBurstStock.list[i].code];
+										vmBurstStock.list[i].price = stock.current;
+										vmBurstStock.list[i].diff = stock.diff;
+										vmBurstStock.list[i].rate = stock.rate;
+									}
+								}
+								vmBurstStock.updated = true;
+							})
+						},
+						viewDetail: viewDetail
+					}
+				})
+
 				var vmInstitutionConcern = new Vue({
 					el: '#institutionConcern',
 					template: '#institutionConcernTemplate',
@@ -380,12 +436,17 @@
 						list: [],
 						codes: [],
 						timer: null,
-						tip: '加载中'
+						expired: 0,
+						tip: '加载中',
+						updated: false
 					},
 					methods: {
 						init: function() {
 							var url = 'http://dp.sina.cn/dpool/stock_new/v2/recommend_stock.php?type=org&vt=15&rand=' + new Date().getTime();
 							this.tip = '加载中'
+							this.expired = new Date(); // 当init时，防止tab切换过程中重复调用init
+							if(this.timer) { clearTimeout(this.timer);this.timer = null;} // 在init时，不再需要update realtime
+							this.updated = false; // 未更新realtime，同时显示加载中
 							Server.send(url, function(html) {
 								if(typeof html === 'object') {
 									vmInstitutionConcern.init();
@@ -419,32 +480,38 @@
 											})
 										}
 										vmInstitutionConcern.update();
-										if(vmInstitutionConcern.timer) clearTimeout(vmInstitutionConcern.timer);
 										setInterval(vmInstitutionConcern.update, 60000);
 									} else {
 										console.log('InstitutionConcern match list fail: ' + body[0]);
 										vmInstitutionConcern.tip = '点击重试';
+										vmInstitutionConcern.expired = 0;
 									}
 								} else {
 									console.log('InstitutionConcern match body fail: ' + html);
 									vmInstitutionConcern.tip = '点击重试';
+									vmInstitutionConcern.expired = 0;
 								}
 							}, 'get', 'text');
 						},
 						update: function() {
 							Stock.realTime(this.codes, function(err, data) {
 								if(err) {
-									console.error('InstitutionConcern fetch realtime fail: ' + err);
-									vmInstitutionConcern.tip = '点击重试';
-								} else {
-									for(var i = 0; i < vmInstitutionConcern.list.length; i++) {
-										if(data.stocks[vmInstitutionConcern.list[i].code]) {
-											var stock = data.stocks[vmInstitutionConcern.list[i].code];
-											vmInstitutionConcern.list[i].price = Stock.parsePrice(stock.current);
-											vmInstitutionConcern.list[i].rate = Stock.parsePrice(stock.rate);
-										}
+									if (err === 'timeout') {
+										vmInstitutionConcern.update.call(vmInstitutionConcern);
+									} else {
+										console.error('InstitutionConcern fetch realtime fail: ' + err);
+										vmInstitutionConcern.tip = '点击重试';
+									}
+									return;
+								}
+								for(var i = 0; i < vmInstitutionConcern.list.length; i++) {
+									if(data.stocks[vmInstitutionConcern.list[i].code]) {
+										var stock = data.stocks[vmInstitutionConcern.list[i].code];
+										vmInstitutionConcern.list[i].price = stock.current;
+										vmInstitutionConcern.list[i].rate = stock.rate;
 									}
 								}
+								vmInstitutionConcern.updated = true;
 							})
 						},
 						viewDetail: viewDetail
@@ -455,19 +522,23 @@
 					indicators: true //是否显示滚动条
 				});
 				$.plusReady(function() {
-					vmInstitutionConcern.init();
 					vmHotStock.update();
 					setInterval(vmHotStock.update, 60000);
 				})
 				document.getElementById('slider').addEventListener('slide', function(e) {
+					var now = new Date();
 					switch(e.detail.slideNumber) {
 						case 0:
 							break;
 						case 1:
-//							vmConcern.init();
+							if (now - vmBurstStock.expired > 300000) {
+								vmBurstStock.init();
+							}
 							break;
 						case 2:
-//							vmInstitutionConcern.init();
+							if (now - vmInstitutionConcern.expired > 300000) {
+								vmInstitutionConcern.init();
+							}
 							break;
 					}
 				});

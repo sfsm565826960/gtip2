@@ -47,8 +47,8 @@ viewApi.view.addEventListener('pageShow', function(e) {
 	//进入手执设定界面时
 	if (e.detail.page.id == 'lock') {
 		var settings = App.getSettings();
-		var lockStateButton = doc.getElementById("lockState");
-		var locker = doc.querySelector('.mui-locker');
+		var lockStateButton = document.getElementById("lockState");
+		var locker = document.querySelector('.mui-locker');
 		lockStateButton.classList[settings.gestures ? 'add' : 'remove']('mui-active')
 		locker.style.display = settings.gestures ? 'block' : 'none';
 	}

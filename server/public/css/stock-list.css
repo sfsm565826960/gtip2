@@ -1,0 +1,33 @@
+ul.mui-table-view.stock-list:before,
+ul.mui-table-view.stock-list:after {
+	background-color: transparent;
+}
+
+ul.mui-table-view.stock-list li.mui-table-view-cell {
+	font-size: 18px;
+	display: flex;
+	justify-content: space-between;
+}
+
+ul.mui-table-view.stock-list li.mui-table-view-cell:after {
+	left: 0;
+	right: 0;
+	background-color: #666;
+}
+
+ul.mui-table-view.stock-list li.mui-table-view-cell.mui-active {
+	background-color: rgb(45, 50, 56);
+}
+
+ul.mui-table-view.stock-list li.mui-table-view-cell.list-title {
+	font-size: 14px;
+	color: rgba(255, 255, 255, 0.5);
+	padding: 0 15px;
+	height: 30px;
+	line-height: 30px;
+	background-color: rgb(45, 50, 56);
+}
+
+ul.mui-table-view.stock-list li.mui-table-view-cell.list-title:after {
+	background-color: transparent;
+}

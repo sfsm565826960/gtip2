@@ -305,7 +305,7 @@ function InitBroaderIndex($, dom, stocks) {
 				var oKdj = null;
 				// 载入数据
 				for(var index = 0; index < list.length; index++) {
-					data.date.push(list[index].date.toString().replace(/(\w{4})(\w{2})(\w{2})/, '$1/$2/$3'));
+					data.date.push(list[index].date.toString().replace(/(\w{4})(\w{2})(\w{2})/, '$2/$3'));
 					data.kline.push([
 						list[index].kline.open,
 						list[index].kline.close,
@@ -409,7 +409,7 @@ function InitBroaderIndex($, dom, stocks) {
 					type: 'line',
 					lineStyle: {
 						normal: {
-							color: '#faa',
+							color: '#f00',
 							width: 2
 						}
 					},
@@ -421,7 +421,7 @@ function InitBroaderIndex($, dom, stocks) {
 					type: 'line',
 					lineStyle: {
 						normal: {
-							color: '#afa',
+							color: '#0f0',
 							width: 2
 						}
 					},
@@ -433,7 +433,7 @@ function InitBroaderIndex($, dom, stocks) {
 					type: 'line',
 					lineStyle: {
 						normal: {
-							color: '#aaf',
+							color: 'rgba(100,100,250,0.3)',
 							width: 2
 						}
 					},

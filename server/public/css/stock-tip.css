@@ -1,0 +1,107 @@
+.stockTip {
+	color: #ddd;
+	font-size: 14px;
+}
+
+.stockTip .mui-table-view-cell.mui-collapse.mui-active {
+	margin-top: 0;
+}
+
+.stockTip .mui-table-view:before,
+.stockTip .mui-table-view:after,
+.stockTip ul {
+	background-color: transparent;
+}
+
+.stockTip .mui-table-view-cell:after {
+	left: 0;
+	right: 0;
+	background-color: transparent;
+}
+
+.stockTip ul li {
+	padding: 0;
+	margin: 10px;
+	border: 1px solid rgb(65, 70, 76);
+}
+
+.stockTip .stockTip-title{
+	padding: 0 10px;
+	background-color: #777;
+	color: #ddd;
+}
+.stockTip ul li[valuation=good] .stockTip-title {
+	background-color: #f66;
+	color: #666;
+}
+.stockTip ul li[valuation=bad] .stockTip-title {
+	background-color: #6f6;
+	color: #666;
+}
+.stockTip ul li[valuation=important] .stockTip-title {
+	background-color: #66f;
+	color: #ddd;
+}
+
+
+.stockTip .stockTip-content {
+	padding: 8px 15px 6px 10px;
+	background-color: rgb(36, 37, 42);
+}
+
+.stockTip .stockTip-message{
+	/*font-size: 14px;*/
+}
+
+.stockTip .stockTip-param {
+	margin-top: 10px;
+	min-height: 10px;
+}
+
+.stockTip .stockTip-param>table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-bottom: 4px;
+}
+
+.stockTip .stockTip-param>table td {
+	width: 25%;
+	text-align: center;
+	border: 1px solid rgb(65, 70, 76);
+	overflow: hidden;
+}
+
+.stockTip .stockTip-param>table th {
+	text-align: center;
+	width: 25%;
+	border: 1px solid rgb(65, 70, 76);
+	background-color: rgba(65, 70, 76, 0.4);
+	font-weight: normal;
+	overflow: hidden;
+}
+
+.stockTip .stockTip-info {
+	justify-content: space-between;
+	font-size: 12px;
+	color: rgba(255, 255, 255, 0.5);
+}
+
+.stockTip .stockTip-info .thumbs {
+	background-repeat: no-repeat;
+	background-size: 20px 20px;
+	width: 20px;
+	height: 20px;
+}
+
+.stockTip .stockTip-info .thumbs.up {
+	background-image: url(../images/thumbs-up.png)
+}
+.stockTip .stockTip-info .thumbs.up.fill {
+	background-image: url(../images/thumbs-up-fill.png)
+}
+.stockTip .stockTip-info .thumbs.down {
+	background-image: url(../images/thumbs-down.png);
+}
+.stockTip .stockTip-info .thumbs.down.fill {
+	background-image: url(../images/thumbs-down-fill.png);
+}

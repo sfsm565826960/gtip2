@@ -6,7 +6,7 @@ var express = require('express');
 var router = express.Router();
 var User = null;
 var secret = require('../utils/secret');
-var push = require('../utils/push');
+var Push = require('../utils/push');
 var mail = require('../utils/mail');
 var Log = require('../utils/log')({
   file: 'api.user.log'
@@ -106,8 +106,10 @@ router.post('/login', (req, res) => {
       user.signLogin();
       user.save().then(doc => {
         // 重新设置标签
-        var tagList = [].concat(doc.concern.stockId);
-        push.setClientTag(doc.clientId, tagList);
+        if (doc.clientId && doc.clientId.length > 0) {
+          var tagList = [].concat(doc.concern.stockId);
+          Push.setClientTag(doc.clientId, tagList);
+        }
         res.json({state: 'ok', detail: 'Login Success', data: userInfo(doc)});
       }).catch(err => {
         Log.e(err, true);
@@ -151,6 +153,10 @@ router.post('/register', (req, res) => {
       });
       user.signLogin();
       user.save().then(doc => {
+        if (doc.clientId && doc.clientId.length > 0) {
+          var tagList = [].concat(doc.concern.stockId);
+          Push.setClientTag(doc.clientId, tagList);
+        }
         res.json({state: 'ok', detail: 'Register Success', data: userInfo(doc)});
       }).catch(err => {
         Log.e(err, true);

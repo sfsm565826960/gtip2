@@ -29,7 +29,7 @@ function StockSchema(mongoose) {
     name: Types.String,
     lastUpdate: Types.Date,
     firstUpdate: Types.Date,
-    quotation: {
+    quotation: { // 盘口数据
       open: Types.Number,
       close: Types.Number,
       current: Types.Number,
@@ -44,7 +44,10 @@ function StockSchema(mongoose) {
       buy: [billSchema],
       sale: [billSchema]
     },
-    timeline: [timelineSchema],
+    timeline: [timelineSchema], // 实时数据
+    temp: { // 有关该股票的相关临时数据，主要存放Analysis相关数据
+      type: Types.Mixed
+    },
     subscribers: [{ type: Types.ObjectId, ref: 'User' }] // 订阅者
   });
   // 添加索引
@@ -63,7 +66,7 @@ function StockSchema(mongoose) {
     Quotation([code], function (err, data) {
       if (err) {
         return callback(err);
-      } else if (data.stocks.length === 0) {
+      } else if (!data.stocks[code]) {
         return callback('股票代码无效');
       } else {
         var hq = data.stocks[code];
@@ -76,6 +79,97 @@ function StockSchema(mongoose) {
     })
   }
   // 添加方法
+  /**
+   * 更新quotation数据
+   * @param {Stock} stock 
+   * @param {Function} done 
+   * @param {Object} quotation 
+   */
+  function updateQuotation(stock, done, quotation) {
+    var todo = (quotation) => {
+      stock.quotation.open = quotation.open;
+      stock.quotation.close = quotation.close;
+      stock.quotation.current = quotation.current;
+      stock.quotation.MAX = quotation.MAX;
+      stock.quotation.MIN = quotation.MIN;
+      stock.quotation.max = quotation.max;
+      stock.quotation.min = quotation.min;
+      stock.quotation.firstBuyPrice = quotation.firstBuyPrice;
+      stock.quotation.firstSalePrice = quotation.firstSalePrice;
+      stock.quotation.tradeCount = quotation.tradeCount;
+      stock.quotation.tradePrice = quotation.tradePrice;
+      for (var i = 0; i < quotation.buy.length; i++) {
+        stock.quotation.buy.push({
+          count: quotation.buy[i].count,
+          price: quotation.buy[i].price
+        });
+      }
+      for (var i = 0; i < quotation.sale.length; i++) {
+        stock.quotation.sale.push({
+          count: quotation.sale[i].count,
+          price: quotation.sale[i].price
+        });
+      }
+      done(null, stock);
+    }
+    if (quotation) {
+      todo(quotation);
+    } else {
+      Quotation(stock.code, (err, data) => {
+        if (done()) return;
+        if (err || !data.stocks[stock.code]) {
+          done(err || 'fetch ' + stock.code + ' quotation fail.');
+        } else {
+          todo(data.stocks[stock.code]);
+        }
+      })
+    }
+  }
+
+  /**
+   * 更新实时数据
+   * @param {Stock} stock 
+   * @param {Function} done 
+   * @param {Object} timeline 
+   */
+  function updateTimeline(stock, done, timeline) {
+    var todo = (timeline) => {
+      stock.timeline.splice(0);
+      for (var i = 0; i < timeline.length; i++) {
+        stock.timeline.push({
+          date: timeline[i].date,
+          time: timeline[i].time,
+          price: timeline[i].price,
+          volume: timeline[i].volume,
+          avgPrice: timeline[i].avgPrice,
+          netChangeRatio: timeline[i].netChangeRatio,
+          macd: {
+            diff: timeline[i].macd.diff,
+            dea: timeline[i].macd.dea,
+            macd: timeline[i].macd.macd
+          },
+          kdj: {
+            k: timeline[i].kdj.k,
+            d: timeline[i].kdj.d,
+            j: timeline[i].kdj.j
+          }
+        })
+      }
+      done(null, stock);
+    }
+    if (timeline) {
+      todo(timeline);
+    } else {
+      Timeline(stock.code, (err, data) => {
+        if (done()) return;
+        if (err || data.length === 0) {
+          done(err || 'fetch ' + stock.code + ' timeline fail.');
+        } else {
+          todo(data);
+        }
+      })
+    }
+  }
   /**
    * 更新数据
    * @param {Object} quotation 盘口数据,null则自动联网获取
@@ -97,92 +191,28 @@ function StockSchema(mongoose) {
       callback = function () { }
     }
     var process = 2; // 当process <= 0 时,调用callback。若process===-1则已经调用过callback
-    // 更新quotation数据
-    var updateQuotation = (quotation) => {
-      this.quotation.open = quotation.open;
-      this.quotation.close = quotation.close;
-      this.quotation.current = quotation.current;
-      this.quotation.MAX = quotation.MAX;
-      this.quotation.MIN = quotation.MIN;
-      this.quotation.max = quotation.max;
-      this.quotation.min = quotation.min;
-      this.quotation.firstBuyPrice = quotation.firstBuyPrice;
-      this.quotation.firstSalePrice = quotation.firstSalePrice;
-      this.quotation.tradeCount = quotation.tradeCount;
-      this.quotation.tradePrice = quotation.tradePrice;
-      for (var i = 0; i < quotation.buy.length; i++) {
-        this.quotation.buy.push({
-          count: quotation.buy[i].count,
-          price: quotation.buy[i].price
-        });
-      }
-      for (var i = 0; i < quotation.sale.length; i++) {
-        this.quotation.sale.push({
-          count: quotation.sale[i].count,
-          price: quotation.sale[i].price
-        });
-      }
-      if (process < 0) return;
-      if (--process <= 0) {
-        process = -1;
-        callback(null, this);
-      }
-    }
-    if (quotation) {
-      updateQuotation(quotation);
-    } else {
-      Quotation(this.code, (err, data) => {
-        if (process < 0) return;
-        if (err || !data.stocks[this.code]) {
+    var done = function (err, stock) { // 判断进程是否结束
+      if (!err && !stock) return process <= 0;
+      if (process-- > 0) {
+        if (err) {
           process = -1;
-          return callback(err || 'fetch ' + this.code + ' quotation fail.');
-        } else {
-          updateQuotation(data.stocks[this.code]);
-        }
-      })
-    }
-    // 更新timeline数据
-    var updateTimeline = (timeline) => {
-      this.timeline.splice(0);
-      for (var i = 0; i < timeline.length; i++) {
-        this.timeline.push({
-          date: timeline[i].date,
-          time: timeline[i].time,
-          price: timeline[i].price,
-          volume: timeline[i].volume,
-          avgPrice: timeline[i].avgPrice,
-          netChangeRatio: timeline[i].netChangeRatio,
-          macd: {
-            diff: timeline[i].macd.diff,
-            dea: timeline[i].macd.dea,
-            macd: timeline[i].macd.macd
-          },
-          kdj: {
-            k: timeline[i].kdj.k,
-            d: timeline[i].kdj.d,
-            j: timeline[i].kdj.j
-          }
-        })
-      }
-      if (process < 0) return;
-      if (--process <= 0) {
-        process = -1;
-        callback(null, this);
-      }
-    }
-    if (timeline) {
-      updateTimeline(timeline);
-    } else {
-      Timeline(this.code, (err, data) => {
-        if (process < 0) return;
-        if (err || data.length === 0) {
+          callback(err);
+          return true;
+        } else if (process <= 0) {
           process = -1;
-          return callback(err || 'fetch ' + this.code + ' timeline fail.');
-        } else {
-          updateTimeline(data);
+          stock.save().then(doc => {
+            callback(null, doc);
+          }).catch(err => {
+            callback(err);
+          });
+          return true;
         }
-      })
+        return false;
+      }
+      return true;
     }
+    updateQuotation(this, done, quotation);
+    updateTimeline(this, done, timeline);
   }
   return schema;
 }

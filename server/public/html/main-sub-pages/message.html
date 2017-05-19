@@ -6,12 +6,211 @@
 		<title></title>
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<link href="../../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/stock-tip.css" />
+		<style type="text/css">
+			#slider {
+				background-color: rgb(36, 37, 42);
+			}
+			
+			.mui-slider .mui-slider-group .mui-slider-item img {
+				height: 200px;
+			}
+		</style>
 	</head>
 
 	<body>
+		<div id="slider" class="mui-slider">
+			<div class="mui-slider-group mui-slider-loop">
+				<!-- 额外增加的一个节点(循环轮播：第一个节点是最后一张轮播) -->
+				<div class="mui-slider-item mui-slider-item-duplicate">
+					<a href="#">
+						<img src="../../images/img1.jpg">
+					</a>
+				</div>
+				<!-- 第一张 -->
+				<div class="mui-slider-item">
+					<a href="#">
+						<img src="../../images/img2.jpg">
+					</a>
+				</div>
+				<!-- 第二张 -->
+				<div class="mui-slider-item">
+					<a href="#">
+						<img src="../../images/img1.jpg">
+					</a>
+				</div>
+				<!-- 额外增加的一个节点(循环轮播：最后一个节点是第一张轮播) -->
+				<div class="mui-slider-item mui-slider-item-duplicate">
+					<a href="#">
+						<img src="../../images/img2.jpg">
+					</a>
+				</div>
+			</div>
+			<div class="mui-slider-indicator">
+				<div class="mui-indicator mui-active"></div>
+				<div class="mui-indicator"></div>
+			</div>
+		</div>
+
+		<!--千股千评-->
+		<div class="bar-title">
+			变动提醒
+			<a id="refreshBroaderIndex" class="mui-icon mui-icon mui-icon-refreshempty mui-pull-right"></a>
+		</div>
+		<div class="mui-scroll-wrapper" style="top:230px">
+			<div class="mui-scroll">
+				<div id="stockTip" class="loading-tip">加载中</div>
+			</div>
+		</div>
+
 		<script src="../../js/mui.min.js"></script>
+		<!--<script src="../../js/vue.min.js"></script>-->
+		<script src="http://vuejs.org/js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/app.js"></script>
+		<script id="stockTipTemplate" type="x-template">
+			<div id="stockTip" class="stockTip">
+				<ul class="mui-table-view">
+					<li v-for="(item, itemIndex) in list" class="mui-table-view-cell view-vertical-split" :valuation="item.valuation">
+						<div class="stockTip-title">{{item.name}}({{item.code}})</div>
+						<div class="stockTip-content view-vertical-split">
+							<div class="stockTip-message">{{item.text}}</div>
+							<div class="stockTip-param" v-html="parseParamsHtml(item.params)"></div>
+							<div class="stockTip-info view-horizontal-split">
+								<span>來自：{{item.from}}</span>
+								<span @click="thumb('up', itemIndex)" :class="{thumbs:true, up: true, fill:item.thumb.isUp}"></span>
+								<span @click="thumb('down', itemIndex)" :class="{thumbs:true, down: true, fill:item.thumb.isDown}"></span>
+								<span>{{item.date.toISOString().replace(/(\d+)-(\d+)-(\d+)T(\d+):(\d+):.+/, '$1/$2/$3 $4:$5')}}</span>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</script>
 		<script type="text/javascript">
-			mui.init()
+			(function($, doc) {
+				mui.init()
+				var slider = mui("#slider");
+				slider.slider({
+					interval: 5000 //自动轮播周期，若为0则不自动播放，默认为0；
+				});
+
+				var vmStockTip = new Vue({
+					el: '#stockTip',
+					template: '#stockTipTemplate',
+					data: {
+						list: [{
+								id: '1',
+								thumb: {
+									up: 99,
+									down: 2,
+									isUp: true,
+									isDown: false
+								},
+								name: '耐威科技',
+								code: 'sz300456',
+								text: '大单卖出',
+								type: 'none',
+								valuation: 'none',
+								params: {
+									'均价': '$12',
+									'数量': '132手'
+								},
+								date: new Date(),
+								from: '大单提醒'
+							},
+							{
+								id: '2',
+								thumb: {
+									up: 99,
+									down: 2,
+									isUp: false,
+									isDown: false
+								},
+								name: '赤峰黄金',
+								code: 'sh600988',
+								text: '最新高价',
+								type: 'trun',
+								valuation: 'good',
+								params: {
+									'最高价': '12.16',
+									'涨幅': '+0.75%'
+								},
+								date: new Date(),
+								from: '价格提醒'
+							},
+							{
+								id: '3',
+								thumb: {
+									up: 99,
+									down: 2,
+									isUp: false,
+									isDown: true
+								},
+								name: '赤峰黄金',
+								code: 'sh600988',
+								text: '大单买入',
+								type: 'trend',
+								valuation: 'good',
+								params: {
+									'均价': '$12.11',
+									'数量': '162手'
+								},
+								date: new Date(),
+								from: '大单提醒'
+							},
+							{
+								id: '4',
+								thumb: {
+									up: 99,
+									down: 2,
+									isUp: true,
+									isDown: true
+								},
+								name: '中青旅',
+								code: 'sh600138',
+								text: '大单卖出',
+								type: 'trun',
+								valuation: 'important',
+								params: {
+									'均价': '$20.10',
+									'数量': '235手'
+								},
+								date: new Date(),
+								from: '大单提醒'
+							}
+						]
+					},
+					methods: {
+						parseParamsHtml: function(params) {
+							var innerHTML = '<table>';
+							var pLen = 0;
+							for(key in params) {
+								if(pLen % 2 == 0) innerHTML += '<tr>';
+								innerHTML += '<th>' + key + '</th><td>' + params[key] + '</td>';
+								if(++pLen % 2 == 0) innerHTML += '</tr>';
+							}
+							if(pLen % 2 != 0) {
+								innerHTML += '<th>-</th><td>-</td></tr>';
+							}
+							innerHTML += '</table>';
+							return innerHTML;
+						},
+						thumb: function(type, index) {
+							if (this.list[index]) {
+								if (type === 'up') {
+									this.list[index].thumb.isUp = !this.list[index].thumb.isUp;
+								} else if (type === 'down') {
+									this.list[index].thumb.isDown = !this.list[index].thumb.isDown;
+								}
+							}
+						}
+					}
+				})
+				$('.mui-scroll-wrapper').scroll({
+					indicators: true //是否显示滚动条
+				});
+			})(mui, document)
 		</script>
 	</body>
 

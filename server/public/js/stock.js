@@ -38,7 +38,7 @@
 			}
 			var msg = html.match(/<\/span>([^<]+?)<br/);
 			if (msg) {
-				var info = msg[0].match(/([\u4e00-\u9fa5].+?[\u4e00-\u9fa5])\(([\d-]+)\)/);
+				var info = msg[0].match(/([\u4e00-\u9fa5].*?[\u4e00-\u9fa5])\(([\d-]+)\)/);
 				if (info) {
 					callback(null, {
 						code: code,

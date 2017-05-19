@@ -6,7 +6,7 @@
 		<title></title>
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<link href="../../css/mui.min.css" rel="stylesheet" />
-		<link rel="stylesheet" type="text/css" href="../../libs/star/star.css"/>
+		<link rel="stylesheet" type="text/css" href="../../libs/star/star.css" />
 		<style type="text/css">
 			html,
 			body,
@@ -25,22 +25,25 @@
 			.mui-bar {
 				background-color: rgb(45, 50, 56);
 			}
+			
 			.mui-table-view-cell>a:not(.mui-btn).mui-active,
-			.mui-table-view-chevron .mui-table-view-cell.mui-active{
+			.mui-table-view-chevron .mui-table-view-cell.mui-active {
 				background-color: transparent;
 			}
-			.mui-table-view-cell:after{
+			
+			.mui-table-view-cell:after {
 				background-color: #666;
 			}
-			.mui-bar-nav{
+			
+			.mui-bar-nav {
 				-webkit-box-shadow: 0 1px 6px rgb(45, 50, 56);
-    			box-shadow: 0 1px 6px rgb(45, 50, 56);
-			}
-			.mui-navbar .mui-bar .mui-title,
-			.mui-bar .mui-btn-link{
-				color: #ddd;
+				box-shadow: 0 1px 6px rgb(45, 50, 56);
 			}
 			
+			.mui-navbar .mui-bar .mui-title,
+			.mui-bar .mui-btn-link {
+				color: #ddd;
+			}
 			
 			.mui-views,
 			.mui-view,
@@ -82,7 +85,7 @@
 				left: 0;
 				z-index: 10;
 				height: 44px;
-				color: rgba(255,255,255,0.5);
+				color: rgba(255, 255, 255, 0.5);
 			}
 			
 			.mui-navbar .mui-bar {
@@ -156,6 +159,7 @@
 			.mui-table-view {
 				margin-top: 20px;
 			}
+			
 			.mui-table-view:before,
 			.mui-table-view:after {
 				background-color: transparent;
@@ -308,7 +312,8 @@
 			<!--页面主内容区结束-->
 		</div>
 		<!--单页面结束-->
-		<!--新消息通知页面-->
+
+		<!--提醒设置页面-->
 		<div id="notifications" class="mui-page">
 			<div class="mui-navbar-inner mui-bar mui-bar-nav">
 				<button type="button" class="mui-left mui-action-back mui-btn  mui-btn-link mui-btn-nav mui-pull-left">
@@ -356,7 +361,126 @@
 				</div>
 			</div>
 		</div>
-		<!--新消息通知页面结束-->
+		<!--提醒设置页面结束-->
+
+		<!--账户安全页面-->
+		<div id="account" class="mui-page">
+			<div class="mui-navbar-inner mui-bar mui-bar-nav">
+				<button type="button" class="mui-left mui-action-back mui-btn  mui-btn-link mui-btn-nav mui-pull-left">
+					<span class="mui-icon mui-icon-left-nav"></span>设置
+				</button>
+				<h1 class="mui-center mui-title">账号与安全</h1>
+			</div>
+			<div class="mui-page-content">
+				<div class="mui-scroll-wrapper">
+					<div class="mui-scroll">
+						<ul class="mui-table-view">
+							<li class="mui-table-view-cell">
+								<a href="#lock" class="mui-navigate-right">设置锁屏图案</a>
+							</li>
+						</ul>
+						<ul class="mui-table-view">
+							<li class="mui-table-view-cell">
+								<a href="#changePwd" class="mui-navigate-right">更改密码</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--账户安全页面结束-->
+
+		<!--手势密码页面-->
+		<div id="lock" class="mui-page">
+			<div class="mui-navbar-inner mui-bar mui-bar-nav">
+				<button type="button" class="mui-left mui-action-back mui-btn  mui-btn-link mui-btn-nav mui-pull-left">
+					<span class="mui-icon mui-icon-left-nav"></span>账户与安全
+				</button>
+				<h1 class="mui-center mui-title">锁屏图案</h1>
+			</div>
+			<div class="mui-page-content">
+				<div class="mui-content-padded">
+					<ul class="mui-table-view mui-table-view-chevron">
+						<li class="mui-table-view-cell">
+							使用手势解锁
+							<div id="lockState" class="mui-switch">
+								<div class="mui-switch-handle"></div>
+							</div>
+						</li>
+					</ul>
+					<center>
+						<div id='holder' class="mui-locker" data-locker-options='{"ringColor":"rgba(210,210,210,1)","fillColor":"#ffffff","pointColor":"rgba(0,136,204,1)","lineColor":"rgba(0,136,204,1)"}' data-locker-width='300' data-locker-height='300'></div>
+						<div id='alert'></div>
+					</center>
+				</div>
+			</div>
+		</div>
+
+		<!--更改密码页面-->
+		<div id="changePwd" class="mui-page">
+			<div class="mui-navbar-inner mui-bar mui-bar-nav">
+				<button type="button" class="mui-left mui-action-back mui-btn  mui-btn-link mui-btn-nav mui-pull-left">
+					<span class="mui-icon mui-icon-left-nav"></span>账户与安全
+				</button>
+				<h1 class="mui-center mui-title">修改密码</h1>
+			</div>
+			<div class="mui-page-content">
+				<div class="mui-content-padded">
+					<form id='resetPwd-form' class="mui-input-group">
+						<div class="mui-input-row">
+							<label>原密码</label>
+							<input id='oldPwd' type="password" class="mui-input-clear mui-input" placeholder="请输入原密码">
+						</div>
+						<div class="mui-input-row">
+							<label>新密码</label>
+							<input id='newPwd' type="password" class="mui-input-clear mui-input" placeholder="请输入新密码">
+						</div>
+						<div class="mui-input-row">
+							<label>再确认</label>
+							<input id='newPwd2' type="password" class="mui-input-clear mui-input" placeholder="请输入新密码">
+						</div>
+					</form>
+				</div>
+				<div class="mui-content-padded">
+					<button id='resetPwdBtn' class="mui-btn mui-btn-block mui-btn-primary">确认修改</button>
+				</div>
+			</div>
+		</div>
+
+		<!--关于页面-->
+		<div id="about" class="mui-page">
+			<div class="mui-navbar-inner mui-bar mui-bar-nav">
+				<button type="button" class="mui-left mui-action-back mui-btn  mui-btn-link mui-btn-nav mui-pull-left">
+					<span class="mui-icon mui-icon-left-nav"></span>设置
+				</button>
+				<h1 class="mui-center mui-title">关于GTip</h1>
+			</div>
+			<div class="mui-page-content">
+				<div class="mui-scroll-wrapper">
+					<div class="mui-scroll">
+						<ul class="mui-table-view">
+							<li class="mui-table-view-cell mui-plus-visible">
+								<a id="welcome" class="mui-navigate-right">最新功能介绍</a>
+							</li>
+							<li class="mui-table-view-cell mui-plus-visible">
+								<a id="help" class="mui-navigate-right">查看帮助</a>
+							</li>
+						</ul>
+						<ul class="mui-table-view">
+							<li class="mui-table-view-cell mui-plus-visible">
+								<a id="share" class="mui-navigate-right">分享推荐</a>
+							</li>
+							<li class="mui-table-view-cell">
+								<a id="feedback-btn" href="#feedback" class="mui-navigate-right">问题反馈</a>
+							</li>
+							<li class="mui-table-view-cell mui-plus-visible">
+								<a id="update" class="mui-navigate-right">检查更新</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
 
 		<!--actionSheet-->
 		<div id="exitActionSheet" class="mui-popover mui-popover-bottom mui-popover-action ">
@@ -392,7 +516,7 @@
 				if(e.detail.page.id == 'setting') {
 					navbar.style.display = 'none';
 				} else {
-					navbar.style.display = 'block';	
+					navbar.style.display = 'block';
 				}
 			});
 			//初始化单页的区域滚动
@@ -430,9 +554,9 @@
 	<!--新消息通知-->
 	<script src="../../js/setting.notifications.js"></script>
 	<!--账户与安全界面-->
-	<script src="js/mui.enterfocus.js"></script>
-	<script src="js/setting.account.js"></script>
-	<script src="js/mui.locker.js"></script>
-	<script src="js/setting.locker.js"></script>
+	<script src="../../js/mui.enterfocus.js"></script>
+	<!--<script src="../../js/setting.account.js"></script>-->
+	<script src="../../js/mui.locker.js"></script>
+	<script src="../../js/setting.locker.js"></script>
 
 </html>

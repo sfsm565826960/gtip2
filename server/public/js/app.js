@@ -2,7 +2,7 @@
 	var API_HOST = 'http://gtip.sfsm.me:3305/api/';
 	var _temp = {};
 	_temp.expired = function(keep) {
-		if(!keep) keep = 300000;
+		if(!keep) keep = 3000;
 		return new Date(new Date().getTime() + keep);
 	}
 	/**

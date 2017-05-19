@@ -6,29 +6,13 @@
 		<title></title>
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<link href="../../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/stock-tip.css" />
 		<style type="text/css">
-			html,
-			body,
-			.mui-content,
 			#stockTip ul,
 			.stockTip-content,
 			#stockTip ul li.mui-active {
 				background-color: rgb(36, 37, 42);
-				color: #ddd;
-			}
-			
-			.mui-bar,
-			.bar-title {
-				background-color: rgb(45, 50, 56);
-			}
-			
-			.mui-bar-nav {
-				-webkit-box-shadow: none;
-				box-shadow: none;
-			}
-			
-			.mui-title,
-			.mui-action-back {
 				color: #ddd;
 			}
 			
@@ -39,102 +23,21 @@
 				padding: 0px;
 			}
 			
-			.bar-title {
-				height: 30px;
-				color: rgba(255, 255, 255, 0.5);
-				line-height: 30px;
-				padding: 0 8px;
-				font-size: 14px;
-			}
-			
-			.bar-title a {
-				line-height: 30px;
-				color: white;
-			}
-			
-			.view-horizontal-split {
-				display: flex;
-				flex-direction: row;
-				justify-content: center;
-				align-content: center;
-				flex-grow: 0.5;
-			}
-			
-			.view-vertical-split {
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
-				align-content: center;
-				flex-grow: 0.5;
-			}
-			
 			#stockDetail {
 				padding: 10px 0;
 				color: #ddd;
 				font-size: 12px;
+				min-height: 100px;
 			}
 			
-			#stockTip {
+			#stockEvaluate {
+				padding: 10px 0;
+				display: flex;
+				justify-content: center;
+				align-content: center;
 				color: #ddd;
-				font-size: 14px;
-			}
-			
-			#stockTip .mui-table-view-cell.mui-collapse.mui-active {
-				margin-top: 0;
-			}
-			
-			#stockTip .mui-table-view:before,
-			#stockTip .mui-table-view:after {
-				background-color: transparent;
-			}
-			
-			#stockTip .mui-table-view-cell:after {
-				left: 0;
-				right: 0;
-				background-color: #666;
-			}
-			
-			#stockTip ul li {
-				padding: 0 0 0 6px;
-			}
-			
-			#stockTip .stockTip-content {
-				padding: 11px 15px 6px 10px;
-			}
-			
-			#stockTip .item-param {
-				margin-top: 10px;
-				min-height: 10px;
-			}
-			#stockTip .item-param>table {
-				width: 100%;
-				border-collapse: collapse;
-				margin-bottom: 4px;
-			}
-			#stockTip .item-param>table td {
-				width: 25%;
-				text-align: center;
-				border: 1px solid rgb(65, 70, 76);
-				overflow: hidden;
-			}
-			#stockTip .item-param>table th {
-				text-align: center;
-				width: 25%;
-				border: 1px solid rgb(65, 70, 76);
-				background-color: rgb(65, 70, 76);
-				overflow: hidden;
-			}
-			#stockTip .item-info{
-				justify-content: space-between;
-				font-size: 12px;
-				/*line-height: 12px;*/
-				color: rgba(255,255,255,0.5);
-			}
-			
-			.loading-tip {
-				color: rgba(255, 255, 255, 0.5);
-				padding: 10px;
-				text-align: center;
+				font-size: 16px;
+				min-height: 60px;
 			}
 		</style>
 	</head>
@@ -143,7 +46,7 @@
 		<header class="mui-bar mui-bar-nav">
 			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
 			<h1 class="mui-title">加载中</h1>
-			<a id="refreshInfo" class="mui-icon mui-icon-refreshempty mui-pull-right" style="color: #ddd;"></a>
+			<a id="refreshInfo" class="mui-icon mui-icon-refreshempty mui-pull-right"></a>
 		</header>
 		<div class="mui-content">
 			<!--股票图像-->
@@ -151,19 +54,20 @@
 			<!--股票数据-->
 			<div class="bar-title">
 				股票详情
-				<a id="toggleConcern" class="mui-pull-right" style="color: #ddd;">+ 加入关注</a>
+				<a id="toggleConcern" class="mui-pull-right">+ 加入关注</a>
 			</div>
-			<div id="stockDetail" style="text-align: center;">
-				加载中...
+			<div id="stockDetail" class="loading-tip">加载中</div>
+			<!--千股千评-->
+			<div class="bar-title">
+				股票点评
 			</div>
+			<div id="stockEvaluate" class="loading-tip">加载中</div>
 			<!--形势变动-->
 			<div class="bar-title">
 				最新变动提醒
 				<a class="mui-icon mui-icon-more mui-pull-right"></a>
 			</div>
-			<div id="stockTip"  style="text-align: center; padding: 10px;">
-				加载中...
-			</div>
+			<div id="stockTip" class="loading-tip">加载中</div>
 		</div>
 
 		<script src="../../js/mui.min.js"></script>
@@ -174,7 +78,7 @@
 		<script src="../../js/stock.js"></script>
 		<script id="stockDetailTemplate" type="x-template">
 			<div id="stockDetail">
-				<div class="view-horizontal-split" v-if="tip.length === 0">
+				<div class="view-horizontal-split" v-if="stock.code.length > 0">
 					<div class="view-vertical-split" :style="{color: stock.diff > 0 ? 'red' : '#afa'}">
 						<span style="font-size: 40px;height: 60px;line-height: 60px;text-align: center;">{{stock.current}}</span>
 						<div class="view-horizontal-split" style="font-size: 20px;justify-content: space-around;">
@@ -203,65 +107,74 @@
 						</div>
 					</div>
 				</div>
-				<div class="loading-tip" v-else>{{tip}}</div>
+				<div class="loading-tip" v-else @click='update'>{{tip}}</div>
+			</div>
+		</script>
+		<script id="stockEvaluateTemplate" type="x-template">
+			<div id="stockEvaluate">
+				<span v-if="msg.length > 0">{{msg}}</span>
+				<div class="loading-tip" v-else @click="update">{{tip}}</div>
 			</div>
 		</script>
 		<script id="stockTipTemplate" type="x-template">
-			<div id="stockTip">
-				<ul class="mui-table-view" v-for="item in list">
-					<li class="mui-table-view-cell view-vertical-split"
-						:style="{backgroundColor: item.trend === 'down' ? '#afa':'red'}">
-						<div class="stockTip-content">
-							<span>{{item.text}}</span>
-							<div class="item-param">
-								<table>
-									<tr>
-										<th>均价</th>
-										<td>￥7.10</td>
-										<th>总手数</th>
-										<td>12826</td>
-									</tr>
-									<tr>
-										<th>总金额</th>
-										<td>949万</td>
-										<th>-</th>
-										<td>-</td>
-									</tr>
-								</table>
-							</div>
-							<div class="item-info view-horizontal-split">
-								<span>來自：{{item.from}}</span><span>{{item.date}}</span>
+			<div id="stockTip" class="stockTip">
+				<ul class="mui-table-view">
+					<li v-for="(item, itemIndex) in list" class="mui-table-view-cell view-vertical-split" :valuation="item.valuation">
+						<div class="stockTip-title">{{item.name}}({{item.code}})</div>
+						<div class="stockTip-content view-vertical-split">
+							<div class="stockTip-message">{{item.text}}</div>
+							<div class="stockTip-param" v-html="parseParamsHtml(item.params)"></div>
+							<div class="stockTip-info view-horizontal-split">
+								<span>來自：{{item.from}}</span>
+								<span @click="thumb('up', itemIndex)" :class="{thumbs:true, up: true, fill:item.thumb.isUp}"></span>
+								<span @click="thumb('down', itemIndex)" :class="{thumbs:true, down: true, fill:item.thumb.isDown}"></span>
+								<span>{{item.date.toISOString().replace(/(\d+)-(\d+)-(\d+)T(\d+):(\d+):.+/, '$1/$2/$3 $4:$5')}}</span>
 							</div>
 						</div>
-					</li>
-					<li class="mui-table-view-cell">
-						面板2
 					</li>
 				</ul>
 			</div>
 		</script>
 		<script type="text/javascript">
 			(function($, doc) {
-				$.init();
 				var _oldEvent = {};
 				var ADD_CONCERN = '+ 加入关注',
 					REMOVE_CONCERN = '- 取消关注';
 				var toggleConcern = document.getElementById("toggleConcern");
-				toggleConcern.addEventListener('tap', function(){
+				$.init();
+				var oldBack = $.back;
+				$.back = function() {
+					var isAdd = toggleConcern.innerHTML === ADD_CONCERN;
+					if(isAdd &&
+						_oldEvent.detail.stock &&
+						_oldEvent.detail.stock.name &&
+						_oldEvent.detail.stock.name.length > 0) {
+						$.confirm('是否将【' + _oldEvent.detail.stock.name + '】加入关注？', '加入关注提醒', ['加入关注', '下次再说'], function(event) {
+							if(event.index === 0) {
+								$.trigger(toggleConcern, 'tap');
+							} else {
+								oldBack();
+							}
+						});
+					} else {
+						oldBack();
+					}
+				}
+				toggleConcern.addEventListener('tap', function() {
 					var code = toggleConcern.getAttribute('stockCode');
-					if (code) {
+					if(code) {
 						var isAdd = toggleConcern.innerHTML === ADD_CONCERN;
-						var w = plus.nativeUI.showWaiting((isAdd? '加入':'取消') + '关注中',{
+						var w = plus.nativeUI.showWaiting((isAdd ? '加入' : '取消') + '关注中', {
 							back: 'none'
 						});
 						var url = 'concern/stock/' + (isAdd ? 'add' : 'remove');
 						Server.send(url, {
 							token: App.getToken(),
 							stockId: code
-						}, function(res){
+						}, function(res) {
 							w.close();
 							if(res.state === 'ok') {
-								toggleConcern.innerHTML = isAdd ? REMOVE_CONCERN: ADD_CONCERN;
+								toggleConcern.innerHTML = isAdd ? REMOVE_CONCERN : ADD_CONCERN;
 								$.toast((isAdd ? '加入' : '取消') + '关注成功');
 								var concern = App.getConcern();
 								concern.stockIds = res.data;
@@ -273,6 +186,7 @@
 						})
 					}
 				});
+
 				function loadStockInfo(event) {
 					_oldEvent = event;
 					var stock = event.detail.stock;
@@ -280,7 +194,7 @@
 					toggleConcern.setAttribute('stockCode', stock.code);
 					var concern = App.getConcern();
 					toggleConcern.innerHTML = concern.stockIds.indexOf(stock.code) < 0 ? ADD_CONCERN : REMOVE_CONCERN;
-					$('.mui-title')[0].innerHTML = stock.name
+					$('.mui-title')[0].innerHTML = stock.name + '(' + stock.code + ')'
 					$.plusReady(function() {
 						InitBroaderIndex($, doc.getElementById('broaderIndex'), [{
 							name: stock.name,
@@ -315,47 +229,136 @@
 								tip: '加载中'
 							},
 							mounted: function() {
-								var formatVal = function(val) {
-									if(typeof val === 'string') val = parseFloat(val);
-									return Math.round(val * 100) / 100;
-								};
-								var updateStockInfo = function(stockIds) {
-									Stock.realTime(stockIds, function(err, info) {
+								this.update(stock.code);
+								setInterval(this.update, 60000, stock.code);
+							},
+							methods: {
+								update: function(code) {
+									this.tip = '加载中';
+									Stock.realTime(code, function(err, info) {
 										if(err) {
-											console.error(err);
-											$.toast(err);
+											if(err === 'timeout') {
+												vmStockDetail.update(code);
+											} else {
+												console.error(err);
+												vmStockDetail.tip = '点击重试';
+											}
 											return;
 										}
 										if(info.stocks[stock.code]) {
 											var obj = info.stocks[stock.code];
-											obj.tradeCount = formatVal(obj.tradeCount / 1000000);
-											obj.tradePrice = formatVal(obj.tradePrice / 100000000);
+											obj.tradeCount = Stock.parsePrice(obj.tradeCount / 1000000);
+											obj.tradePrice = Stock.parsePrice(obj.tradePrice / 100000000);
 											console.log('stockDetail: ' + JSON.stringify(obj));
 											$.extend(true, vmStockDetail.stock, obj);
 											vmStockDetail.tip = '';
 										} else {
-											$.toast('更新股票详情失败');
+											vmStockDetail.tip = '点击重试';
 										}
 									});
 								}
-								updateStockInfo([stock.code]);
-								setInterval(updateStockInfo, 60000, [stock.code]);
 							}
 						});
+						var vmStockEvaluate = new Vue({
+							el: '#stockEvaluate',
+							template: '#stockEvaluateTemplate',
+							data: {
+								msg: '',
+								tip: '加载中'
+							},
+							mounted: function() {
+								this.update();
+							},
+							methods: {
+								update: function() {
+									this.tip = '加载中';
+									Stock.thousandEvaluate(stock.code, function(err, data) {
+										if(err) {
+											vmStockEvaluate.tip = '点击重试';
+										} else {
+											vmStockEvaluate.msg = data.msg + '(' + data.date + ')';
+										}
+									});
+								}
+							}
+						})
 						var vmStockTip = new Vue({
 							el: '#stockTip',
 							template: '#stockTipTemplate',
 							data: {
-								list: []
+								list: [
+									{
+										id: '2',
+										thumb: {
+											up: 99,
+											down: 2,
+											isUp: false,
+											isDown: false
+										},
+										name: '赤峰黄金',
+										code: 'sh600988',
+										text: '最新高价',
+										type: 'trun',
+										valuation: 'good',
+										params: {
+											'最高价': '12.16',
+											'涨幅': '+0.75%'
+										},
+										date: new Date(),
+										from: '价格提醒'
+									},
+									{
+										id: '3',
+										thumb: {
+											up: 99,
+											down: 2,
+											isUp: false,
+											isDown: true
+										},
+										name: '赤峰黄金',
+										code: 'sh600988',
+										text: '大单买入',
+										type: 'trend',
+										valuation: 'good',
+										params: {
+											'均价': '$12.11',
+											'数量': '162手'
+										},
+										date: new Date(),
+										from: '大单提醒'
+									}
+								]
 							},
-							mounted: function(){
-								
+							methods: {
+								parseParamsHtml: function(params) {
+									var innerHTML = '<table>';
+									var pLen = 0;
+									for(key in params) {
+										if(pLen % 2 == 0) innerHTML += '<tr>';
+										innerHTML += '<th>' + key + '</th><td>' + params[key] + '</td>';
+										if(++pLen % 2 == 0) innerHTML += '</tr>';
+									}
+									if(pLen % 2 != 0) {
+										innerHTML += '<th>-</th><td>-</td></tr>';
+									}
+									innerHTML += '</table>';
+									return innerHTML;
+								},
+								thumb: function(type, index) {
+									if(this.list[index]) {
+										if(type === 'up') {
+											this.list[index].thumb.isUp = !this.list[index].thumb.isUp;
+										} else if(type === 'down') {
+											this.list[index].thumb.isDown = !this.list[index].thumb.isDown;
+										}
+									}
+								}
 							}
 						})
 					})
 				}
 				window.addEventListener('loadStockInfo', loadStockInfo);
-				doc.getElementById('refreshInfo').addEventListener('tap', function(){
+				doc.getElementById('refreshInfo').addEventListener('tap', function() {
 					loadStockInfo(_oldEvent);
 				})
 			})(mui, document)

@@ -9,6 +9,7 @@ var Stock = null;
 var Log = require('../../utils/log')({
   file: 'api.concern.stock.log'
 });
+var Push = require('../../utils/push');
 
 // 检查User模型是否加载成功
 router.use((req, res, next) => {
@@ -48,16 +49,13 @@ function errMsg(err) {
  * @apiParam {String} stockId 股票代码
  */
 router.post('/add', (req, res) => {
-  User.findOne({
-    token: req.body.token,
-    state: 'online'
-  }, (err, user) => {
+  User.getUserByToken(req.body.token, (err, user) => {
     if (err) {
       Log.e(err, true);
       res.json({ state: 'fail', detail: err.message || err });
     } else if (user === null) {
       res.json({ state: 'logout', detail: '用户不存在或不在线' });
-    } else if (user.concern.stockIds.indexOf(req.body.stockId) >= 0) {
+    } else if ((user.concern.stockIds || []).indexOf(req.body.stockId) >= 0) {
       res.json({ state: 'fail', detail: '用户已关注股票:' + req.body.stockId })
     } else {
       Stock.findOne({
@@ -73,6 +71,15 @@ router.post('/add', (req, res) => {
               }).catch(err => {
                 Log.e(err, true);
                 res.json(errMsg(err));
+              })
+              Push.getClientTag(user.clientId, (err, res) => {
+                if (err) {
+                  return;
+                }
+                if ((res.tags || []).indexOf(req.body.stockId) < 0) {
+                  res.tags.push(req.body.stockId);
+                  Push.setClientTag(user.clientId, res.tags);
+                }
               })
             })
             .catch(err => {
@@ -110,20 +117,17 @@ router.post('/add', (req, res) => {
  * @apiParam {String} stockId 股票代码
  */
 router.post('/remove', (req, res) => {
-  User.findOne({
-    token: req.body.token,
-    state: 'online'
-  }, (err, user) => {
+  User.getUserByToken(req.body.token, (err, user) => {
     if (err) {
       Log.e(err, true);
       res.json({ state: 'fail', detail: err.message || err });
     } else if (user === null) {
       res.json({ state: 'logout', detail: '用户不存在或不在线' });
-    } else if (user.concern.stockIds.indexOf(req.body.stockId) < 0) {
+    } else if ((user.concern.stockIds || []).indexOf(req.body.stockId) < 0) {
       res.json({ state: 'fail', detail: '用户未关注股票:' + req.body.stockId })
     } else {
       var removeStockId = function(){
-        var index = user.concern.stockIds.indexOf(req.body.stockId);
+        var index = (user.concern.stockIds || []).indexOf(req.body.stockId);
         user.concern.stockIds.splice(index, 1);
         user.save()
           .then(doc => {
@@ -132,6 +136,16 @@ router.post('/remove', (req, res) => {
             Log.e(err, true);
             res.json({ state: 'fail', detail: err.message || err });
           });
+        Push.getClientTag(user.clientId, (err, res) => {
+          if (err) {
+            return;
+          }
+          var index = (res.tags || []).indexOf(req.body.stockId);
+          if (index >= 0) {
+            res.tags.splice(index, 1);
+            Push.setClientTag(user.clientId, res.tags);
+          }
+        })
       }
       Stock.findOne({
         code: req.body.stockId
@@ -140,7 +154,7 @@ router.post('/remove', (req, res) => {
           Log.e(err, true);
           res.json({ state: 'fail', detail: err.message || err });
         } else if (stock !== null) {
-          var index = stock.subscribers.indexOf(user._id);
+          var index = (stock.subscribers || []).indexOf(user._id);
           if (index >= 0) {
             stock.subscribers.splice(index, 1);
             stock.save()

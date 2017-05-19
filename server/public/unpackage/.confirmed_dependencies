@@ -100,7 +100,8 @@
 			"css/mui.min.css",
 			"html/main-sub-pages/home.html",
 			"html/main-sub-pages/message.html",
-			"html/main-sub-pages/concern.html"
+			"html/main-sub-pages/concern.html",
+			"css/common.css"
 		],
 		"refer": [
 			"html/main-sub-pages/setting.html",
@@ -119,7 +120,8 @@
 		],
 		"refer": [
 			"html/main.html",
-			"html/auth/reg.html"
+			"html/auth/reg.html",
+			"html/auth/forget_password.html"
 		]
 	},
 	"html/main-sub-pages/setting.html": {
@@ -137,7 +139,11 @@
 			"fonts/mui.ttf",
 			"js/mui.min.js",
 			"css/mui.min.css",
-			"libs/star/star.css"
+			"libs/star/star.css",
+			"js/setting.account.js",
+			"js/mui.enterfocus.js",
+			"js/setting.locker.js",
+			"js/mui.locker.js"
 		]
 	},
 	"html/main-sub-pages/home.html": {
@@ -150,7 +156,9 @@
 			"js/stock.js",
 			"js/vue.min.js",
 			"fonts/mui.ttf",
-			"js/vue.js"
+			"js/vue.js",
+			"css/common.css",
+			"css/stock-list.css"
 		],
 		"refer": [
 			"html/main-sub-pages/stock-detail.html"
@@ -165,7 +173,9 @@
 			"js/vue.js",
 			"js/app.js",
 			"js/lodash.min.js",
-			"js/stock.js"
+			"js/stock.js",
+			"css/common.css",
+			"css/stock-list.css"
 		],
 		"refer": [
 			"html/main-sub-pages/stock-detail.html"
@@ -180,7 +190,26 @@
 			"css/mui.min.css",
 			"js/broader-index.js",
 			"libs/echarts.js",
-			"js/vue.min.js"
+			"js/vue.min.js",
+			"css/stock-tip.css",
+			"css/common.css"
+		]
+	},
+	"html/main-sub-pages/message.html": {
+		"resources": [
+			"js/mui.min.js",
+			"css/common.css",
+			"fonts/mui.ttf",
+			"css/mui.min.css",
+			"images/img1.jpg",
+			"images/img2.jpg",
+			"css/stock-tip.css",
+			"js/vue.min.js",
+			"js/app.js",
+			"images/thumbs-down-fill.png",
+			"images/thumbs-down.png",
+			"images/thumbs-up.png",
+			"images/thumbs-up-fill.png"
 		]
 	}
 }
