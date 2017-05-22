@@ -67,16 +67,16 @@ function userInfo(user) {
  */
 router.post('/login', (req, res) => {
   User.findOne({ $or: [
-    {
+    { // 通过邮箱密码登录
       mail: req.body.mail,
       password: secret.createPassword(req.body.password)
     },
-    {
+    { // 通过令牌自动登录，要求开启自动登录
       state: { $ne: 'logout' },
       'settings.autoLogin': true,
       token: req.body.token
     },
-    {
+    { // 通过令牌登录，要求登录不过期
       state: { $ne: 'logout' },
       'settings.autoLogin': false,
       token: req.body.token,
@@ -234,10 +234,10 @@ router.post('/forget', (req, res) => {
           function(err, info) {
             if (err) {
               Log.e(err, true);
-              res.json({state: 'fail', detail: 'Send forget application mail fail'});
+              res.json({state: 'fail', detail: '发送验证码失败，请确认邮箱是否可用'});
             } else {
               Log.i(info);
-              res.json({state: 'ok', detail: 'Send forget application mail success'});
+              res.json({state: 'ok', detail: '验证码已经发送到您的邮箱，请查收'});
             }
           });
       }).catch(err => {
@@ -280,18 +280,18 @@ router.post('/password', (req, res) => {
       Log.e(err, true);
       res.json({state: 'fail', detail: err.message || err});
     } else if (user === null) {
-      res.json({state: 'fail', detail: 'Token or Mail not exist'});
+      res.json({state: 'fail', detail: '令牌或邮箱不存在'});
     } else {
       // 检查验证码
       if (req.body.verifiyCode && req.body.verifiyCode.length > 0) {
         if (!user.checkVerifiyCode(brief, req.body.verifiyCode)) {
-          res.json({state: 'fail', detail: 'Check VerifiyCode fail'});
+          res.json({state: 'fail', detail: '验证码错误'});
           return;
         }
       }
       // 检测新密码格式
       if (!req.body.newPassword || req.body.newPassword.length < 6) {
-        res.json({state: 'fail', detail: 'User validation failed', errors: {
+        res.json({state: 'fail', detail: '密码格式无效', errors: {
           password: 'Password Min-length is six'
         }});
         return;
@@ -300,13 +300,43 @@ router.post('/password', (req, res) => {
       user.password = secret.createPassword(req.body.newPassword);
       user.signLogout(false, true);
       user.save().then(doc => {
-        res.json({state: 'ok', detail: 'Change password success, please relogin.'});
+        res.json({state: 'ok', detail: '密码修改成功，请重新登录'});
       }).catch(err => {
         res.json(errMsg(err));
       })
     }
   })
 });
+
+/**
+ * @api {post} /api/user/nickname 用户修改密码
+ * @apiName UserResetNickname
+ * @apiGoup user
+ * 
+ * @apiParam {String} token 用户令牌
+ * @apiParam {String{2..}} nickname 用户新昵称，要求至少2个字符
+ */
+router.post('/nickname', (req, res) => {
+  // 检查参数
+  if (!req.body.nickname || req.body.nickname.length < 2) {
+    res.json({ state: 'fail', detail: '新昵称无效，要求至少2个字符' });
+    return;
+  }
+  // 修改昵称
+  User.getUserByToken(req.body.token, (err, user) => {
+    if (err) {
+      res.json(err);
+    } else {
+      user.nickname = req.body.nickname;
+      user.save().then(doc => {
+        res.json({state: 'ok', detail: '修改昵称成功', data: userInfo(doc)});
+      }).catch(err => {
+        Log.e(err, true);
+        res.json(errMsg(err));
+      })
+    }
+  })
+})
 
 module.exports = function(models) {
   User = models.User;

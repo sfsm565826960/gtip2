@@ -6,12 +6,17 @@ var Log = require('../utils/log')({
 });
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
   res.send('router /api test success');
 });
 
 // 连接数据库并加载模型
-require('../localdb/model/index').getModels((err, models) => {
+require('../localdb/model/index').getModels({
+  server: {
+    poolSize: 50,
+    auto_reconnect: true
+  }
+}, (err, models) => {
   if (err) {
     Log.e(err, true, true);
   } else {
@@ -27,7 +32,7 @@ require('../localdb/model/index').getModels((err, models) => {
 // 检查User模型是否加载成功
 router.use((req, res, next) => {
   if (!modelLoaded) {
-    res.json({state: 'fail', detail: 'Model is null'});
+    res.json({ state: 'fail', detail: 'Model is null' });
   } else {
     next();
   }

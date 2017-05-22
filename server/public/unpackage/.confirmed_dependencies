@@ -117,7 +117,10 @@
 			"js/mui.min.js",
 			"css/mui.min.css",
 			"css/style.css",
-			"js/mui.enterfocus.js"
+			"js/mui.enterfocus.js",
+			"fonts/mui.ttf",
+			"css/common.css",
+			"css/auth.css"
 		],
 		"refer": [
 			"html/main.html",
@@ -146,6 +149,9 @@
 			"js/setting.locker.js",
 			"js/mui.locker.js",
 			"js/vue.min.js"
+		],
+		"refer": [
+			"html/auth/login.html"
 		]
 	},
 	"html/main-sub-pages/home.html": {
@@ -177,7 +183,9 @@
 			"js/lodash.min.js",
 			"js/stock.js",
 			"css/common.css",
-			"css/stock-list.css"
+			"css/stock-list.css",
+			"js/mui.pullToRefresh.material.js",
+			"js/mui.pullToRefresh.js"
 		],
 		"refer": [
 			"html/main-sub-pages/stock-detail.html"
@@ -195,6 +203,9 @@
 			"js/vue.min.js",
 			"css/stock-tip.css",
 			"css/common.css"
+		],
+		"refer": [
+			"html/auth/login.html"
 		]
 	},
 	"html/main-sub-pages/message.html": {
@@ -211,9 +222,27 @@
 			"images/thumbs-down-fill.png",
 			"images/thumbs-down.png",
 			"images/thumbs-up.png",
-			"images/thumbs-up-fill.png"
+			"images/thumbs-up-fill.png",
+			"js/mui.pullToRefresh.js",
+			"js/mui.pullToRefresh.material.js",
+			"js/circle-refresh.js"
 		],
 		"refer": [
+			"html/auth/login.html"
+		]
+	},
+	"html/auth/forget_password.html": {
+		"resources": [
+			"html/auth/forget_password.html",
+			"js/app.js",
+			"js/mui.min.js",
+			"css/common.css",
+			"fonts/mui.ttf",
+			"css/mui.min.css",
+			"css/auth.css"
+		],
+		"refer": [
+			"html/auth/forget_password.html",
 			"html/auth/login.html"
 		]
 	}

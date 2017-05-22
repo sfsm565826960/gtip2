@@ -6,33 +6,8 @@
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<title></title>
 		<link href="../../css/mui.min.css" rel="stylesheet" />
-		<link href="../../css/style.css" rel="stylesheet" />
-		<style>
-			.area {
-				margin: 20px auto 0px auto;
-			}
-			.mui-input-group:first-child {
-				margin-top: 20px;
-			}
-			.mui-input-group label {
-				width: 22%;
-			}
-			.mui-input-row label~input,
-			.mui-input-row label~select,
-			.mui-input-row label~textarea {
-				width: 78%;
-			}
-			.mui-checkbox input[type=checkbox],
-			.mui-radio input[type=radio] {
-				top: 6px;
-			}
-			.mui-content-padded {
-				margin-top: 25px;
-			}
-			.mui-btn {
-				padding: 10px;
-			}
-		</style>
+		<link rel="stylesheet" type="text/css" href="../../css/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/auth.css"/>
 	</head>
 
 	<body>
@@ -81,7 +56,7 @@
 						"url": '../main.html'
 					});
 					var toMain = function() {
-						$.fire(mainPage, 'show', null);
+						$.fire(mainPage, 'resetUserInfo', null);
 						setTimeout(function() {
 							$.openWindow({
 								id: 'main',

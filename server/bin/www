@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 
 /**
+ * 环境设置
+ */
+process.env.UV_THREADPOOL_SIZE = 16; // 设置libuv线程池数，see:http://www.tuicool.com/articles/RzQvIj3
+process.env.PORT = '3305'; // 监听端口设置
+
+/**
  * Module dependencies.
  */
 
@@ -12,7 +18,7 @@ var http = require('http');
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3305');
+var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**

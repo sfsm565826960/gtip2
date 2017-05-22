@@ -6,74 +6,8 @@
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<title></title>
 		<link href="../../css/mui.min.css" rel="stylesheet" />
-		<link href="../../css/style.css" rel="stylesheet" />
-		<style>
-			/*html,
-			body,
-			.mui-content {
-				background-color: rgb(36, 37, 42);
-				color: #ddd;
-			}
-			.mui-bar {
-				background-color: rgb(45, 50, 56);
-			}
-			.mui-bar-nav{
-				-webkit-box-shadow: 0 1px 6px rgb(45, 50, 56);
-    			box-shadow: 0 1px 6px rgb(45, 50, 56);
-			}
-			.link-area a,
-			.mui-title {
-				color: #ccc;
-			}*/
-			
-			
-			
-			.area {
-				margin: 20px auto 0px auto;
-			}
-			
-			.mui-input-group {
-				margin-top: 10px;
-			}
-			
-			.mui-input-group:first-child {
-				margin-top: 20px;
-			}
-			
-			.mui-input-group label {
-				width: 22%;
-			}
-			
-			.mui-input-row label~input,
-			.mui-input-row label~select,
-			.mui-input-row label~textarea {
-				width: 78%;
-			}
-			
-			.mui-checkbox input[type=checkbox],
-			.mui-radio input[type=radio] {
-				top: 6px;
-			}
-			
-			.mui-content-padded {
-				margin-top: 25px;
-			}
-			
-			.mui-btn {
-				padding: 10px;
-			}
-			
-			.link-area {
-				display: block;
-				margin-top: 25px;
-				text-align: center;
-			}
-			
-			.spliter {
-				color: #bbb;
-				padding: 0px 8px;
-			}
-		</style>
+		<link rel="stylesheet" type="text/css" href="../../css/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/auth.css"/>
 	</head>
 
 	<body>
@@ -126,7 +60,7 @@
 						"url": '../main.html'
 					});
 					var toMain = function() {
-						$.fire(mainPage, 'show', null);
+						$.fire(mainPage, 'resetUserInfo', null);
 						setTimeout(function() {
 							$.openWindow({
 								id: 'main',
@@ -177,6 +111,9 @@
 					var autoLoginButton = doc.getElementById("autoLogin");
 					var regButton = doc.getElementById('reg');
 					var forgetButton = doc.getElementById('forgetPassword');
+					if (state.mail && state.mail.length > 0) {
+						mailBox.value = state.mail;
+					}
 					loginButton.addEventListener('tap', function(event) {
 						var w = plus.nativeUI.showWaiting('登录中', {
 							back: 'none'

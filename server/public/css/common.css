@@ -6,7 +6,7 @@ body,
 }
 
 .mui-title,
-.mui-icon {
+.mui-bar-nav .mui-icon {
 	color: #ddd;
 }
 

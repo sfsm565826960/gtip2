@@ -202,6 +202,7 @@ function StockSchema(mongoose) {
         } else if (process <= 0) {
           process = -1;
           if (options.save !== false) {
+            console.log(stock.name + ' update save');
             stock.save().then(doc => {
               callback(null, doc);
             }).catch(err => {

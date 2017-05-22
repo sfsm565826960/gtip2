@@ -54,6 +54,11 @@ function UserSchema (mongoose) {
   schema.index({mail: 1, password: 1});
   // 静态方法
   schema.statics.getUserByToken = function(token, sql, callback) {
+    // 检测参数
+    if (!token || token.length === 0) {
+      return callback({state: 'logout', detail: '令牌无效' });
+    }
+    // 允许配置sql参数
     if (typeof sql === 'function') {
       callback = sql;
       sql = {}
@@ -63,7 +68,17 @@ function UserSchema (mongoose) {
       state: 'online',
       loginExpired: {$gt: new Date()}
     }, sql);
-    this.findOne(opt, callback);
+    // 执行查询
+    this.findOne(opt, (err, user) => {
+      if (err) {
+        Log.e(err, true);
+        callback({state: 'fail', detail: err.message || err});
+      } else if (user === null) {
+        callback({state: 'logout', detail: '令牌无效'});
+      } else {
+        callback(null, user);
+      }
+    });
   }
   // 添加方法
   /**
@@ -82,7 +97,12 @@ function UserSchema (mongoose) {
   /**
    * 签署用户离线/注销状态
    * @param {Boolean} offline true离线模式;false注销
-   * @param {Boolean} isBackground true关闭程序;false进入后台。仅offline为true有效
+   * @param {Boolean} isExit true关闭程序;false进入后台。仅offline为true有效
+   * 
+   * 说明：
+   * 若offline为false，则退出用户，下次启动程序时要求用户使用账户密码登录；
+   * 若offline为true，且isExit为true，则退出程序，下次启动时取决autoLogin进行自动登录或账户密码登录
+   * 若offline为true，且isExit为false，则进入后台，下次启动时判断登录是否过期，不过期则正常使用，过期则取决于autoLogin
    */
   schema.methods.signLogout = function(offline, isExit) {
     var date = new Date();

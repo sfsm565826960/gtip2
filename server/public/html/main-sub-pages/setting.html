@@ -201,7 +201,7 @@
 			}
 			
 			.user-info {
-				height: 200px;
+				height: 180px;
 				margin: 0;
 				padding: 0;
 				display: flex;
@@ -209,6 +209,7 @@
 				justify-content: center;
 				align-items: center;
 				overflow: hidden;
+				/*margin-bottom: -20px;*/
 			}
 			
 			.user-headimg {
@@ -267,37 +268,33 @@
 			<!--页面主内容区开始-->
 			<div class="mui-page-content">
 				<div class="mui-scroll-wrapper">
-					<div class="mui-scroll">
-						<div id="userInfo" class="user-info"></div>
-						<ul class="mui-table-view mui-table-view-chevron table-list-icon">
-							<li class="mui-table-view-cell" style="background-image: url(../../images/setting.alarm.png);">
-								<a href="#notifications" class="mui-navigate-right">提醒设置</a>
-							</li>
-						</ul>
-						<ul class="mui-table-view mui-table-view-chevron table-list-icon">
-							<li class="mui-table-view-cell" style="background-image: url(../../images/setting.vip.png);">
-								<a href="#vip" class="mui-navigate-right">会员等级</a>
-							</li>
-							<li class="mui-table-view-cell" style="background-image: url(../../images/setting.bill.png);">
-								<a href="#bill" class="mui-navigate-right">消费账单</a>
-							</li>
-						</ul>
-						<ul class="mui-table-view mui-table-view-chevron table-list-icon">
-							<li class="mui-table-view-cell" style="background-image: url(../../images/setting.safe.png);">
-								<a href="#account" class="mui-navigate-right">账号安全</a>
-							</li>
-						</ul>
-						<ul class="mui-table-view mui-table-view-chevron table-list-icon">
-							<li class="mui-table-view-cell" style="background-image: url(../../images/setting.about.png);">
-								<a href="#about" class="mui-navigate-right">关于GTip <i class="mui-pull-right update">V1.0.0</i></a>
-							</li>
-						</ul>
-						<ul class="mui-table-view">
-							<li class="mui-table-view-cell" style="text-align: center;background-color: #ff8866;color: #000;">
-								<a href="#exitActionSheet">退出</a>
-							</li>
-						</ul>
-					</div>
+					<div id="userInfo" class="user-info"></div>
+					<ul class="mui-table-view mui-table-view-chevron table-list-icon">
+						<li class="mui-table-view-cell" style="background-image: url(../../images/setting.vip.png);">
+							<a href="#vip" class="mui-navigate-right">会员等级</a>
+						</li>
+						<li class="mui-table-view-cell" style="background-image: url(../../images/setting.bill.png);">
+							<a href="#bill" class="mui-navigate-right">消费账单</a>
+						</li>
+					</ul>
+					<ul class="mui-table-view mui-table-view-chevron table-list-icon">
+						<li class="mui-table-view-cell" style="background-image: url(../../images/setting.safe.png);">
+							<a href="#account" class="mui-navigate-right">账号安全</a>
+						</li>
+						<li class="mui-table-view-cell" style="background-image: url(../../images/setting.alarm.png);">
+							<a href="#notifications" class="mui-navigate-right">提醒设置</a>
+						</li>
+					</ul>
+					<ul class="mui-table-view mui-table-view-chevron table-list-icon">
+						<li class="mui-table-view-cell" style="background-image: url(../../images/setting.about.png);">
+							<a href="#about" class="mui-navigate-right">关于GTip <i class="mui-pull-right update">V1.0.0</i></a>
+						</li>
+					</ul>
+					<ul class="mui-table-view">
+						<li class="mui-table-view-cell" style="text-align: center;background-color: #ff8866;color: #000;">
+							<a href="#exitActionSheet">退出</a>
+						</li>
+					</ul>
 				</div>
 			</div>
 			<!--页面主内容区结束-->
@@ -367,12 +364,15 @@
 					<div class="mui-scroll">
 						<ul class="mui-table-view">
 							<li class="mui-table-view-cell">
-								<a href="#lock" class="mui-navigate-right">设置锁屏图案</a>
+								<a href="#changePwd" class="mui-navigate-right">更改密码</a>
+							</li>
+							<li class="mui-table-view-cell">
+								<a href="#bindPhone" class="mui-navigate-right">绑定手机</a>
 							</li>
 						</ul>
 						<ul class="mui-table-view">
 							<li class="mui-table-view-cell">
-								<a href="#changePwd" class="mui-navigate-right">更改密码</a>
+								<a href="#lock" class="mui-navigate-right">设置锁屏图案</a>
 							</li>
 						</ul>
 					</div>
@@ -510,52 +510,9 @@
 	</script>
 	<script>
 		mui.init();
-		//初始化单页view
+		//初始化单页view， 不可放入闭包的原因是在其他子页面的js文件需要用到
 		var viewApi = mui('#app').view({
 			defaultPage: '#setting'
-		});
-		vmUserInfo = new Vue({
-			el: '#userInfo',
-			template: '#userInfoTemplate',
-			data: {
-				nickname:'',
-				headimg: ''
-			},
-			mounted:function(){
-				this.update()
-			},
-			methods: {
-				update: function(){
-					var state = App.getState();
-					this.nickname = decodeURI(state.nickname || '未命名');
-					this.headimg = state.headimg || '../../images/headimg.jpg'
-				},
-				modifyNickname: function() {
-					plus.nativeUI.prompt('请输入新的昵称', function(event){
-						if (event.index === 0) {
-							vmUserInfo.nickname = event.value;
-							var state = App.getState();
-							state.nickname = encodeURI(event.value);
-							App.setState(state);
-						}
-					}, '修改昵称', '至少需要2个字符', ['确认', '取消']);
-				},
-				modifyHeadimg: function() {
-//					plus.gallery.pick(function(data){
-//						this.headimg = data;
-//					}, function(err){
-//						
-//					}, {
-//						filter: 'image',
-//						multiple: false,
-//						system: false
-//					})
-					mui.toast('暂时不支持修改头像')
-				}
-			}
-		});
-		mui.plusReady(function(){
-			plus.webview.currentWebview().addEventListener('show', vmUserInfo.update);
 		});
 		(function($) {
 			var navbar = $('.mui-navbar')[0];
@@ -596,6 +553,49 @@
 					oldBack();
 				}
 			};
+			
+			/**
+			 * 用户基本信息组件
+			 */
+			vmUserInfo = new Vue({
+				el: '#userInfo',
+				template: '#userInfoTemplate',
+				data: {
+					nickname: '未命名',
+					headimg: '../../images/headimg.jpg'
+				},
+				methods: {
+					update: function() {
+						var state = App.getState();
+						this.nickname = decodeURI(state.nickname || state.mail || '未命名');
+						this.headimg = state.headimg || '../../images/headimg.jpg'
+					},
+					modifyNickname: function() {
+						plus.nativeUI.prompt('请输入新的昵称', function(event) {
+							if(event.index === 0) {
+								vmUserInfo.nickname = event.value;
+								var state = App.getState();
+								state.nickname = encodeURI(event.value);
+								App.setState(state);
+							}
+						}, '修改昵称', '至少需要2个字符', ['确认', '取消']);
+					},
+					modifyHeadimg: function() {
+						//					plus.gallery.pick(function(data){
+						//						this.headimg = data;
+						//					}, function(err){
+						//						
+						//					}, {
+						//						filter: 'image',
+						//						multiple: false,
+						//						system: false
+						//					})
+						mui.toast('暂时不支持修改头像')
+					}
+				}
+			});
+			// 用户登录成功后刷新数据
+			window.addEventListener('resetUserInfo', vmUserInfo.update);
 		})(mui);
 	</script>
 	<!--新消息通知-->

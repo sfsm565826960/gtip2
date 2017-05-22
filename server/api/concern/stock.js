@@ -51,10 +51,7 @@ function errMsg(err) {
 router.post('/add', (req, res) => {
   User.getUserByToken(req.body.token, (err, user) => {
     if (err) {
-      Log.e(err, true);
-      res.json({ state: 'fail', detail: err.message || err });
-    } else if (user === null) {
-      res.json({ state: 'logout', detail: '用户不存在或不在线' });
+      res.json(err);
     } else if ((user.concern.stockIds || []).indexOf(req.body.stockId) >= 0) {
       res.json({ state: 'fail', detail: '用户已关注股票:' + req.body.stockId })
     } else {
@@ -122,10 +119,7 @@ router.post('/add', (req, res) => {
 router.post('/remove', (req, res) => {
   User.getUserByToken(req.body.token, (err, user) => {
     if (err) {
-      Log.e(err, true);
-      res.json({ state: 'fail', detail: err.message || err });
-    } else if (user === null) {
-      res.json({ state: 'logout', detail: '用户不存在或不在线' });
+      res.json(err);
     } else if ((user.concern.stockIds || []).indexOf(req.body.stockId) < 0) {
       res.json({ state: 'fail', detail: '用户未关注股票:' + req.body.stockId })
     } else {

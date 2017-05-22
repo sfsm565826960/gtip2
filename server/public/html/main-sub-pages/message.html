@@ -56,7 +56,7 @@
 		<!--千股千评-->
 		<div class="bar-title">
 			变动提醒
-			<a id="refreshBroaderIndex" class="mui-icon mui-icon mui-icon-refreshempty mui-pull-right"></a>
+			<!--<a id="refreshStockTip" class="mui-icon mui-icon mui-icon-refreshempty mui-pull-right"></a>-->
 		</div>
 
 		<!--下拉刷新容器-->
@@ -68,11 +68,12 @@
 
 		<script src="../../js/mui.min.js"></script>
 		<script src="../../js/vue.min.js"></script>
+		<script src="../../js/circle-refresh.js"></script>
 		<!--<script src="http://vuejs.org/js/vue.js" type="text/javascript" charset="utf-8"></script>-->
 		<script src="../../js/app.js"></script>
 		<script id="stockTipTemplate" type="x-template">
 			<div id="stockTip" class="stockTip">
-				<ul class="mui-table-view">
+				<ul class="mui-table-view" v-if='list.length > 0'>
 					<li v-for="(item, itemIndex) in list" class="mui-table-view-cell view-vertical-split" :valuation="item.valuation">
 						<div class="stockTip-title">{{item.name}}({{item.code}})</div>
 						<div class="stockTip-content view-vertical-split">
@@ -87,6 +88,11 @@
 						</div>
 					</li>
 				</ul>
+				<div class="loading-tip" v-else>暂无数据</div>
+				<div style="width: 100%;text-align: center;height: 30px;" v-show="inLoadmore">
+					<div class="mui-pull-loading mui-icon mui-spinner"></div>
+				</div>
+				<div class="loading-tip" v-show="noMore">没有更多数据</div>
 			</div>
 		</script>
 		<script type="text/javascript">
@@ -95,6 +101,26 @@
 				slider.slider({
 					interval: 5000 //自动轮播周期，若为0则不自动播放，默认为0；
 				});
+				
+				// 配置下拉刷新，刷新函数后面添加
+				var CR = new CircleRefresh({
+					offset: '230px',
+					height: '50px',
+					range: '50px',
+					color: '#FF0000'
+				});
+//				doc.getElementById('refreshStockTip').addEventListener('tap', function() {
+//					CR.doRefresh();
+//				});
+				doc.getElementById('refreshContainer').addEventListener('scroll', function(e) {
+					CR.setEnabled(e.detail.lastY >= 0);
+				});
+				$('.mui-scroll-wrapper').scroll({
+//					bounce: false,
+					indicators: true, //是否显示滚动条
+					deceleration: $.os.ios ? 0.003 : 0.0009
+				});
+				
 				var vmStockTip = new Vue({
 					el: '#stockTip',
 					template: '#stockTipTemplate',
@@ -103,8 +129,8 @@
 						pCount: 5,
 						inUpdate: false,
 						inLoadmore: false,
-						list: [
-							/*{
+						noMore: false,
+						list: [{
 								id: '2',
 								thumbsUp: 99,
 								thumbsDown: 2,
@@ -121,7 +147,79 @@
 								},
 								date: new Date(),
 								from: '价格提醒'
-							}*/
+							},
+							{
+								id: '2',
+								thumbsUp: 99,
+								thumbsDown: 2,
+								isThumbsUp: false,
+								isThumbsDown: false,
+								name: '赤峰黄金',
+								code: 'sh600988',
+								text: '最新高价',
+								type: 'trun',
+								valuation: 'good',
+								params: {
+									'最高价': '12.16',
+									'涨幅': '+0.75%'
+								},
+								date: new Date(),
+								from: '价格提醒'
+							},
+							{
+								id: '2',
+								thumbsUp: 99,
+								thumbsDown: 2,
+								isThumbsUp: false,
+								isThumbsDown: false,
+								name: '赤峰黄金',
+								code: 'sh600988',
+								text: '最新高价',
+								type: 'trun',
+								valuation: 'good',
+								params: {
+									'最高价': '12.16',
+									'涨幅': '+0.75%'
+								},
+								date: new Date(),
+								from: '价格提醒'
+							},
+							{
+								id: '2',
+								thumbsUp: 99,
+								thumbsDown: 2,
+								isThumbsUp: false,
+								isThumbsDown: false,
+								name: '赤峰黄金',
+								code: 'sh600988',
+								text: '最新高价',
+								type: 'trun',
+								valuation: 'good',
+								params: {
+									'最高价': '12.16',
+									'涨幅': '+0.75%'
+								},
+								date: new Date(),
+								from: '价格提醒'
+							},
+							{
+								id: '2',
+								thumbsUp: 99,
+								thumbsDown: 2,
+								isThumbsUp: false,
+								isThumbsDown: false,
+								name: '赤峰黄金',
+								code: 'sh600988',
+								text: '最新高价',
+								type: 'trun',
+								valuation: 'good',
+								params: {
+									'最高价': '12.16',
+									'涨幅': '+0.75%'
+								},
+								date: new Date(),
+								from: '价格提醒'
+							}
 						]
 					},
 					methods: {
@@ -149,7 +247,7 @@
 							}
 						},
 						update: function() {
-							if (vmStockTip.inUpdate) return;
+							if(vmStockTip.inUpdate || vmStockTip.inLoadmore) return;
 							vmStockTip.inUpdate = true;
 							Server.send('analysis/list', {
 								token: App.getToken(),
@@ -162,17 +260,22 @@
 									vmStockTip.pIndex = 0;
 									vmStockTip.list.splice(0);
 									vmStockTip.list.push.apply(vmStockTip.list, res.data);
-								} else if (res.state === 'timeout') {
+									if(res.data.length < vmStockTip.pCount) {
+										vmStockTip.noMore = false;
+									} else {
+										vmStockTip.noMore = true;
+									}
+								} else if(res.state === 'timeout') {
 									vmStockTip.update();
 									return;
 								} else {
 									$.toast(res.detail);
 								}
-								mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
+								CR.endRefresh();
 							})
 						},
-						loadmore: function(){
-							if (vmStockTip.inLoadmore) return;
+						loadmore: function() {
+							if(vmStockTip.inLoadmore || vmStockTip.noMore) return;
 							vmStockTip.inLoadmore = true;
 							Server.send('analysis/list', {
 								token: App.getToken(),
@@ -184,32 +287,31 @@
 								var isEnd = false;
 								if(res.state === 'ok') {
 									vmStockTip.list.push.apply(vmStockTip.list, res.data);
-									if (res.data.length < vmStockTip.pCount) isEnd = true;
-								} else if (res.state === 'timeout') {
+									if(res.data.length < vmStockTip.pCount) {
+										vmStockTip.noMore = true;
+									}
+								} else if(res.state === 'timeout') {
 									this.pIndex--;
 									vmStockTip.loadmore();
 									return;
 								} else {
 									$.toast(res.detail);
 								}
-								mui('#refreshContainer').pullRefresh().endPullupToRefresh(isEnd);
 							})
 						}
 					}
-				})
+				});
+				
+				// 设置下来刷新的执行函数
+				CR.onRefresh(vmStockTip.update);
+				
+				// 上拉刷新
+				doc.getElementById('refreshContainer').addEventListener('scrollbottom', function(){
+					vmStockTip.loadmore();
+				});
 
-				mui.init({
-					pullRefresh: {
-						container: '#refreshContainer',
-//						down: {
-//							callback: vmStockTip.update
-//						},
-						up: {
-							contentrefresh: '正在加载...',
-							callback: vmStockTip.loadmore
-						}
-					}
-				})
+				// 用户登录后执行下拉刷新
+				window.addEventListener('resetUserInfo', CR.doRefresh);
 
 				// 接收信息推送
 				window.addEventListener('receiveMsg', function(event) {

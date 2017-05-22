@@ -11,7 +11,7 @@ exports.SERVER_PATH = path.resolve(basePath);
 exports.APP = {
   name: 'gtip',
   key: 'gtip', // 加密KEY
-  logo: 'gtip.png'
+  logo: 'gtip.png',
 }
 
 exports.DB = {

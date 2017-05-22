@@ -294,7 +294,7 @@
 	 */
 	owner.logout = function(callback) {
 		callback = callback || function(err) {
-			$toast(err || '退出用户成功');
+			$.toast(err || '退出用户成功');
 		}
 		Server.send('user/logout', {
 			offline: false,
@@ -312,7 +312,7 @@
 	/**
 	 * 找回密码
 	 * @param {String} email
-	 * @param {Function} callback function(errmsg, okmsg){};
+	 * @param {Function} callback function(errmsg){};
 	 **/
 	owner.forgetPassword = function(email, callback) {
 		callback = callback || $.noop;
@@ -323,7 +323,7 @@
 			mail: email
 		}, function(res) {
 			if(res.state === 'ok') {
-				callback(null, '新的随机密码已经发送到您的邮箱，请查收邮件。');
+				callback(null);
 			} else {
 				callback(res.detail);
 			}

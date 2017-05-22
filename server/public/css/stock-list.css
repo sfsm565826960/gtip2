@@ -4,9 +4,16 @@ ul.mui-table-view.stock-list:after {
 }
 
 ul.mui-table-view.stock-list li.mui-table-view-cell {
-	font-size: 18px;
+	font-size: 16px;
 	display: flex;
 	justify-content: space-between;
+}
+
+ul.mui-table-view.stock-list li.mui-table-view-cell span:nth-child(odd) { /* 奇数列 */
+	/*background-color: rgb(36, 37, 42);*/
+}
+ul.mui-table-view.stock-list li.mui-table-view-cell span:nth-child(even) { /* 偶数列 */
+	/*background-color: rgb(46, 47, 52);*/
 }
 
 ul.mui-table-view.stock-list li.mui-table-view-cell:after {

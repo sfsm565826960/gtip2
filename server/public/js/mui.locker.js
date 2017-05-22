@@ -295,9 +295,7 @@
 	//自动处理 class='mui-locker' 的 dom
 	try {
 		$('.' + lockerClassName).locker();
-	} catch (ex) {
-		console.error(ex);
-	}
+	} catch (ex) {}
 	$.ready(function() {
 		$('.' + lockerClassName).locker();
 	});

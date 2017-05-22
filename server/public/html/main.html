@@ -7,18 +7,8 @@
 		<link href="../css/mui.min.css" rel="stylesheet" />
 		<link rel="stylesheet" type="text/css" href="../css/common.css" />
 		<style>
-			ul {
-				font-size: 14px;
-				color: #8f8f94;
-			}
-			
-			.mui-btn {
-				padding: 10px;
-			}
-			
-			.mui-bar {
-				background-color: rgb(39, 43, 54);
-				color: white;
+			.mui-bar-tab .mui-tab-item {
+				color: #bbb;
 			}
 		</style>
 	</head>
@@ -28,15 +18,15 @@
 		<nav class="mui-bar mui-bar-tab">
 			<a id="tabHome" wIndex="0" class="mui-tab-item mui-active" href="main-sub-pages/home.html">
 				<span class="mui-icon mui-icon-home"></span>
-				<span class="mui-tab-label">首页</span>
+				<span class="mui-tab-label">价格</span>
 			</a>
 			<a id="tabMessage" wIndex="1" class="mui-tab-item" href="main-sub-pages/message.html">
 				<span class="mui-icon mui-icon-email" id="msgBadge"><!--<span class="mui-badge">9</span>--></span>
-				<span class="mui-tab-label">消息</span>
+				<span class="mui-tab-label">提醒</span>
 			</a>
 			<a id="tabConcern" wIndex="2" class="mui-tab-item" href="main-sub-pages/concern.html">
 				<span class="mui-icon mui-icon-star"></span>
-				<span class="mui-tab-label">发现</span>
+				<span class="mui-tab-label">推荐</span>
 			</a>
 			<a id="tabSetting" wIndex="3" class="mui-tab-item" href="main-sub-pages/setting.html">
 				<span class="mui-icon mui-icon-gear"></span>
@@ -82,6 +72,10 @@
 					//更改当前活跃的选项卡
 					activeTab = targetTab;
 				});
+				
+				/**
+				 * 调用切换页面
+				 */
 				window.addEventListener('switchTab', function(event) {
 					var tabName = event.detail;
 					var tab = document.getElementById(tabName);
@@ -95,7 +89,21 @@
 					var current = document.querySelector(".mui-bar-tab>.mui-tab-item.mui-active");
 					current.classList.remove('mui-active');
 					tab.classList.add('mui-active');
-				})
+				});
+				
+				/**
+				 * 用户登录后刷新数据
+				 */
+				window.addEventListener('resetUserInfo', function(event) {
+					msgCount = 0;
+					msgBadge.innerHTML = '';
+					$.plusReady(function(){
+						var wv = plus.webview.currentWebview();
+						wv.children().forEach(function(child){
+							$.fire(child, 'resetUserInfo');
+						});
+					});
+				});
 
 				//创建子页面，首个选项卡页面显示，其它均隐藏；
 				$.plusReady(function() {

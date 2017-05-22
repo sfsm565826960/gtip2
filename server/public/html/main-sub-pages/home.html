@@ -6,8 +6,8 @@
 		<title></title>
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<link href="../../css/mui.min.css" rel="stylesheet" />
-		<link rel="stylesheet" type="text/css" href="../../css/common.css"/>
-		<link rel="stylesheet" type="text/css" href="../../css/stock-list.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/stock-list.css" />
 		<style type="text/css">
 			#stockQuotation ul {
 				background-color: rgb(36, 37, 42);
@@ -47,29 +47,34 @@
 			<div id="stockQuotation">
 				<ul class="mui-table-view stock-list" v-if="list.length > 0">
 					<li class="mui-table-view-cell list-title">
-						<span>名称</span>
-						<span>最新价</span>
-						<span>跌涨幅</span>
-						<span style="min-width: 200px;text-align: center;">千股千评</span>
+						<span style="width: 20%;text-align: center;">名称</span>
+						<span style="display: flex;width: 79.9%;justify-content: space-around;">
+							<span>最新价</span>
+							<span>昨收价</span>
+							<span>涨跌额</span>
+							<span>涨跌幅</span>
+						</span>
+						<!--<span style="min-width: 200px;text-align: center;">千股千评</span>-->
 					</li>
-					<li class="mui-table-view-cell"
-						v-for="item in list"
-						@click="viewDetail(item)"
-						:style="{color: item.rate > 0 ? 'red':'#ddd'}">
-						<span>{{item.name}}</span>
-						<span>{{item.price}}</span>
-						<span>
-							{{item.rate > 0 ? '+' + item.rate: item.rate}}%
-						</span>
-						<span style="min-width: 200px;text-align: center;" 
-							v-if="thousandEvaluate[item.code] && thousandEvaluate[item.code].length > 0" >
-							{{thousandEvaluate[item.code]}}
-						</span>
-						<span v-else 
-							style="min-width: 200px;text-align: center;"
-							@click.stop="getThousandEvaluate(item.code)">
-							点击获取
-						</span>
+					<li class="mui-table-view-cell view-vertical-split" v-for="item in list" @click="viewDetail(item)" :style="{color: item.rate > 0 ? 'red':'#ddd'}">
+						<div class="view-horizontal-split">
+							<span style="width: 22%;text-align: center;">{{item.name}}</span>
+							<span style="display: flex;width: 77.9%;justify-content: space-around;">
+								<span>{{item.price}}</span>
+								<span>{{item.close}}</span>
+								<span>{{item.diff > 0 ? '+' + item.diff : item.diff}}</span>
+								<span>{{item.rate > 0 ? '+' + item.rate: item.rate}}%</span>
+							</span>
+						</div>
+						<div class="view-horizontal-split" style="font-size: 14px;color: #aaa;">
+							<span style="width: 22%;text-align: center;">千股千评</span>
+							<span style="display: flex;width: 77.9%;justify-content: space-around;">
+								<span v-if="thousandEvaluate[item.code] && thousandEvaluate[item.code].length > 0" >
+									{{thousandEvaluate[item.code]}}
+								</span>
+								<span v-else @click.stop="getThousandEvaluate(item.code)">点击获取</span>
+							</span>
+						</div>
 					</li>
 				</ul>
 				<div class="loading-tip" v-else>{{tip}}</div>
@@ -78,7 +83,7 @@
 		<script type="text/javascript">
 			(function($, doc) {
 				$.init();
-				// 初始化我的关注
+				// 我的关注列表组件
 				var vmConcern = new Vue({
 					el: '#stockQuotation',
 					template: '#stockQuotationTemplate',
@@ -102,7 +107,7 @@
 							} else {
 								this.stocks = concern.stockIds;
 							}
-							for(var i = 0; i< this.stocks.length; i++) {
+							for(var i = 0; i < this.stocks.length; i++) {
 								this.getThousandEvaluate(this.stocks[i]);
 							}
 							this.update();
@@ -111,10 +116,10 @@
 						},
 						getThousandEvaluate: function(code) {
 							var msg = vmConcern.thousandEvaluate[code];
-							if (!msg || msg.length === 0) {
-								Vue.set(vmConcern.thousandEvaluate, code, '加载中');
-								Stock.thousandEvaluate(code, function(err, data){
-									if (err) {
+							if(!msg || msg.length === 0) {
+								Vue.set(vmConcern.thousandEvaluate, code, '加载点评中');
+								Stock.thousandEvaluate(code, function(err, data) {
+									if(err) {
 										Vue.set(vmConcern.thousandEvaluate, code, '');
 									} else {
 										Vue.set(vmConcern.thousandEvaluate, code, data.msg);
@@ -137,9 +142,15 @@
 										code: item.code,
 										name: item.name,
 										price: item.current,
-										rate: item.rate
+										rate: item.rate,
+										diff: item.diff,
+										open: item.open,
+										close: item.close
 									})
 								}
+								vmConcern.list.sort(function(a, b){ // 按rate从大到小排序
+									return b.rate - a.rate;
+								});
 							});
 						},
 						viewDetail: function(stock) {
@@ -183,15 +194,19 @@
 						]);
 					}
 					doc.getElementById('refreshBroaderIndex').addEventListener('tap', initBroaderIndex);
-					doc.getElementById('addStockConcern').addEventListener('tap', function(){
+					doc.getElementById('addStockConcern').addEventListener('tap', function() {
 						var main = plus.webview.getWebviewById('main');
 						$.fire(main, 'switchTab', 'tabConcern');
 					});
 					setTimeout(initBroaderIndex, 500);
-					// 加载我的关注
+				});
+				
+				/**
+				 * 用户登录后加载我的关注
+				 */
+				window.addEventListener('resetUserInfo', function(){
 					vmConcern.init();
-					plus.webview.currentWebview().addEventListener('show', vmConcern.init);
-				})
+				});
 
 			})(mui, document);
 		</script>

@@ -1,8 +1,9 @@
 /**
  * 此模块用于Http的Get和Post请求
  */
-
-var request = require('request');
+var request = require('request').defaults({
+  pool: { maxSockets: 50 },
+});
 var iconv = require('iconv-lite');
 
 /**
