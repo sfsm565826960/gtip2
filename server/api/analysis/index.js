@@ -100,13 +100,13 @@ function subprocess(stock, callback) {
             });
             // 处理分析结果，若分析结果为空则跳过
             if (result.list.length > 0) {
-                console.log(JSON.stringify(result));
+                Log.i(JSON.stringify(result));
                 // 存储分析结论
                 Tip.create(result.list, function (err, tips) {
                     if (err) {
                         Log.e(err, true);
                     } else {
-                        Log.i('存储分析结论成功');
+                        // Log.i('存储分析结论成功');
                         // 执行综合分析
                         // analysis(doc, result);
                         // 执行推送

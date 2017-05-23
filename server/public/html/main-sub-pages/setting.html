@@ -568,7 +568,7 @@
 					update: function() {
 						var state = App.getState();
 						this.nickname = decodeURI(state.nickname || state.mail || '未命名');
-						this.headimg = state.headimg || '../../images/headimg.jpg'
+						this.headimg = state.headimg || state.headimg || '../../images/headimg.jpg'
 					},
 					modifyNickname: function() {
 						plus.nativeUI.prompt('请输入新的昵称', function(event) {

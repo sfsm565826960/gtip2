@@ -9,6 +9,7 @@ function UserSchema (mongoose) {
       match: /^[A-Za-z0-9]+([-_.][A-Za-z0-9]+)*@([A-Za-z0-9]+[-.])+[A-Za-z]{2,5}$/
     },
     nickname: { type: Types.String, match: /.{2,}/, required: true },
+    headimg: { type: Types.String, default: '../../images/headimg.jpg' },
     password: { type: Types.String, match: /.{6,}/, required: true },
     token: { type: Types.String, unique: true },
     verifiyCode: { // 验证码

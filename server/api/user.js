@@ -48,6 +48,7 @@ function userInfo(user) {
     mail: user.mail,
     token: user.token,
     nickname: user.nickname,
+    headimg: user.headimg,
     settings: user.settings,
     concern: user.concern,
     authority: user.authority
@@ -336,7 +337,37 @@ router.post('/nickname', (req, res) => {
       })
     }
   })
-})
+});
+
+/**
+ * @api {post} /api/user/headimg 用户修改头像
+ * @apiName UserResetHeadimg
+ * @apiGoup user
+ * 
+ * @apiParam {String} token 用户令牌
+ * @apiParam {String} headimg 用户新头像URL地址
+ */
+router.post('/headimg', (req, res) => {
+  // 检查参数
+  if (!req.body.headimg || req.body.nickname.length === 0) {
+    res.json({ state: 'fail', detail: '新头像地址不能为空' });
+    return;
+  }
+  // 修改昵称
+  User.getUserByToken(req.body.token, (err, user) => {
+    if (err) {
+      res.json(err);
+    } else {
+      user.headimg = req.body.headimg;
+      user.save().then(doc => {
+        res.json({state: 'ok', detail: '修改头像成功', data: userInfo(doc)});
+      }).catch(err => {
+        Log.e(err, true);
+        res.json(errMsg(err));
+      })
+    }
+  })
+});
 
 module.exports = function(models) {
   User = models.User;

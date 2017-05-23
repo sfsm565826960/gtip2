@@ -115,7 +115,7 @@ module.exports = function (stock) {
       result.push({
         code: stock.code,
         name: stock.name,
-        text: '价格急速下跌：-' + priceChangeRate + '%',
+        text: '价格急速下跌：' + priceChangeRate + '%',
         type: 'none',
         valuation: 'bad',
         params: {
