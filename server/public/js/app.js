@@ -8,18 +8,27 @@
 	/**
 	 * 与服务器交换方法
 	 * @param {String} url 如果没有加http则会自动补上http://project.sfsm.me/gtip/
-	 * @param {Object} params 若没有参数token则自动追加该参数
+	 * @param {Object} params 发送的参数对象
 	 * @param {Function} callback function(res){}
 	 * @param {String} method
-	 * @param {String} resType json,xml,text,html,script
+	 * @param {String|Object} option resType|option:{ resType: json|xml|text|html|script, timeoutRetry: true, timeout: 10000 }
 	 */
-	Server.send = function(url, params, callback, method, resType) {
+	Server.send = function(url, params, callback, method, option) {
 		$.plusReady(function() {
 			if(typeof params === 'function') {
-				resType = method;
+				option = method;
 				method = callback;
 				callback = params;
 				params = {};
+			}
+			if (typeof method === 'object') {
+				option = method;
+				method = undefined;
+			}
+			if (typeof option === 'string') {
+				option = { resType: option };
+			} else if (typeof option !== 'object') {
+				option = {};	
 			}
 			var hasCB = typeof callback === 'function';
 			if(plus.networkinfo.getCurrentType() == plus.networkinfo.CONNECTION_NONE) {
@@ -49,9 +58,9 @@
 			method = method.toLowerCase();
 			$.ajax(url, {
 				data: params || {},
-				dataType: resType || 'json',
+				dataType: option.resType || 'json',
 				type: method,
-				timeout: 10000,
+				timeout: option.timeout || 10000,
 				crossDomain: true, // 强制跨域，要求5+
 				success: function(res) {
 //					console.log('Server return: ' + (typeof res === 'object'?JSON.stringify(res):res));
@@ -75,14 +84,18 @@
 					}
 				},
 				error: function(xhr, type, errorThrown) {
-					console.error('Server fail: ' + type + ',' + url);
-					if(hasCB) {
-						callback({
-							state: type,
-							detail: errorThrown
-						});
+					console.error('Server fail: ' + type + ',' + url + (type === 'timeout'?'[Retry]':''));
+					if (type === 'timeout') {
+						Server.send(url, params, callback, method, option);
 					} else {
-						$.toast(errorThrown)
+						if(hasCB) {
+							callback({
+								state: type,
+								detail: errorThrown
+							});
+						} else {
+							$.toast(errorThrown)
+						}
 					}
 				}
 			})

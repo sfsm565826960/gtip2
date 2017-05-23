@@ -87,21 +87,22 @@
 }
 
 .stockTip .stockTip-info .thumbs {
-	background-repeat: no-repeat;
-	background-size: 20px 20px;
 	width: 20px;
 	height: 20px;
+	background-repeat: no-repeat;
+	background-size: 20px 20px;
+	background-image: url(../images/thumbs-up.png)
+}
+
+.stockTip .stockTip-info .thumbs.fill {
+	background-image: url(../images/thumbs-up-fill.png)
 }
 
 .stockTip .stockTip-info .thumbs.up {
-	background-image: url(../images/thumbs-up.png)
+	/*background-image: url(../images/thumbs-up.png)*/
 }
-.stockTip .stockTip-info .thumbs.up.fill {
-	background-image: url(../images/thumbs-up-fill.png)
-}
+
 .stockTip .stockTip-info .thumbs.down {
-	background-image: url(../images/thumbs-down.png);
-}
-.stockTip .stockTip-info .thumbs.down.fill {
-	background-image: url(../images/thumbs-down-fill.png);
+	-webkit-transform: rotate(180deg);
+	transform: rotate(180deg);
 }

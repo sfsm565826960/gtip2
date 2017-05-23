@@ -81,9 +81,15 @@
 							<div class="stockTip-param" v-html="parseParamsHtml(item.params)"></div>
 							<div class="stockTip-info view-horizontal-split">
 								<span>來自：{{item.from}}</span>
-								<span @click="thumb('up', itemIndex)" :class="{thumbs:true, up: true, fill:item.isThumbsUp}"></span>
-								<span @click="thumb('down', itemIndex)" :class="{thumbs:true, down: true, fill:item.isThumbsDown}"></span>
-								<span>{{item.date.toISOString().replace(/(\d+)-(\d+)-(\d+)T(\d+):(\d+):.+/, '$1/$2/$3 $4:$5')}}</span>
+								<span class="view-horizontal-split">
+									<span @click="thumb('up', itemIndex)" :class="{thumbs:true, up: true, fill:item.isThumbsUp}"></span>
+									<span style="margin-left: 5px;">({{item.thumbsUp}})</span>
+								</span>
+								<span class="view-horizontal-split">
+									<span @click="thumb('down', itemIndex)" :class="{thumbs:true, down: true, fill:item.isThumbsDown}"></span>
+									<span style="margin-left: 5px;">({{item.thumbsDown}})</span>
+								</span>
+								<span>{{new Date(item.date).toISOString().replace(/(\d+)-(\d+)-(\d+)T(\d+):(\d+):.+/, '$1/$2/$3 $4:$5')}}</span>
 							</div>
 						</div>
 					</li>
@@ -101,7 +107,7 @@
 				slider.slider({
 					interval: 5000 //自动轮播周期，若为0则不自动播放，默认为0；
 				});
-				
+
 				// 配置下拉刷新，刷新函数后面添加
 				var CR = new CircleRefresh({
 					offset: '230px',
@@ -109,18 +115,18 @@
 					range: '50px',
 					color: '#FF0000'
 				});
-//				doc.getElementById('refreshStockTip').addEventListener('tap', function() {
-//					CR.doRefresh();
-//				});
+				//				doc.getElementById('refreshStockTip').addEventListener('tap', function() {
+				//					CR.doRefresh();
+				//				});
 				doc.getElementById('refreshContainer').addEventListener('scroll', function(e) {
 					CR.setEnabled(e.detail.lastY >= 0);
 				});
 				$('.mui-scroll-wrapper').scroll({
-//					bounce: false,
+					//					bounce: false,
 					indicators: true, //是否显示滚动条
 					deceleration: $.os.ios ? 0.003 : 0.0009
 				});
-				
+
 				var vmStockTip = new Vue({
 					el: '#stockTip',
 					template: '#stockTipTemplate',
@@ -130,7 +136,8 @@
 						inUpdate: false,
 						inLoadmore: false,
 						noMore: false,
-						list: [{
+						list: [
+							/*{
 								id: '2',
 								thumbsUp: 99,
 								thumbsDown: 2,
@@ -147,79 +154,7 @@
 								},
 								date: new Date(),
 								from: '价格提醒'
-							},
-							{
-								id: '2',
-								thumbsUp: 99,
-								thumbsDown: 2,
-								isThumbsUp: false,
-								isThumbsDown: false,
-								name: '赤峰黄金',
-								code: 'sh600988',
-								text: '最新高价',
-								type: 'trun',
-								valuation: 'good',
-								params: {
-									'最高价': '12.16',
-									'涨幅': '+0.75%'
-								},
-								date: new Date(),
-								from: '价格提醒'
-							},
-							{
-								id: '2',
-								thumbsUp: 99,
-								thumbsDown: 2,
-								isThumbsUp: false,
-								isThumbsDown: false,
-								name: '赤峰黄金',
-								code: 'sh600988',
-								text: '最新高价',
-								type: 'trun',
-								valuation: 'good',
-								params: {
-									'最高价': '12.16',
-									'涨幅': '+0.75%'
-								},
-								date: new Date(),
-								from: '价格提醒'
-							},
-							{
-								id: '2',
-								thumbsUp: 99,
-								thumbsDown: 2,
-								isThumbsUp: false,
-								isThumbsDown: false,
-								name: '赤峰黄金',
-								code: 'sh600988',
-								text: '最新高价',
-								type: 'trun',
-								valuation: 'good',
-								params: {
-									'最高价': '12.16',
-									'涨幅': '+0.75%'
-								},
-								date: new Date(),
-								from: '价格提醒'
-							},
-							{
-								id: '2',
-								thumbsUp: 99,
-								thumbsDown: 2,
-								isThumbsUp: false,
-								isThumbsDown: false,
-								name: '赤峰黄金',
-								code: 'sh600988',
-								text: '最新高价',
-								type: 'trun',
-								valuation: 'good',
-								params: {
-									'最高价': '12.16',
-									'涨幅': '+0.75%'
-								},
-								date: new Date(),
-								from: '价格提醒'
-							}
+							}*/
 						]
 					},
 					methods: {
@@ -239,11 +174,20 @@
 						},
 						thumb: function(type, index) {
 							if(this.list[index]) {
-								if(type === 'up') {
-									this.list[index].isThumbsUp = !this.list[index].isThumbsUp;
-								} else if(type === 'down') {
-									this.list[index].isThumbsDown = !this.list[index].isThumbsDown;
-								}
+								Server.send('analysis/worth', {
+									token: App.getToken(),
+									tipId: this.list[index].id,
+									worth: type
+								}, function(res) {
+									if(res.state === 'ok') {
+										vmStockTip.list[index].isThumbsDown = res.data.isThumbsDown;
+										vmStockTip.list[index].isThumbsUp = res.data.isThumbsUp;
+										vmStockTip.list[index].thumbsUp = res.data.thumbsUp;
+										vmStockTip.list[index].thumbsDown = res.data.thumbsDown;
+									} else {
+										$.toast(res.detail);
+									}
+								});
 							}
 						},
 						update: function() {
@@ -265,9 +209,6 @@
 									} else {
 										vmStockTip.noMore = true;
 									}
-								} else if(res.state === 'timeout') {
-									vmStockTip.update();
-									return;
 								} else {
 									$.toast(res.detail);
 								}
@@ -301,12 +242,12 @@
 						}
 					}
 				});
-				
+
 				// 设置下来刷新的执行函数
 				CR.onRefresh(vmStockTip.update);
-				
+
 				// 上拉刷新
-				doc.getElementById('refreshContainer').addEventListener('scrollbottom', function(){
+				doc.getElementById('refreshContainer').addEventListener('scrollbottom', function() {
 					vmStockTip.loadmore();
 				});
 

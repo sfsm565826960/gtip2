@@ -397,12 +397,8 @@
 										}
 										Stock.realTime(codes, function(err, data) {
 											if(err) {
-												if(err === 'timeout') {
-													vmHotStock.update();
-												} else {
-													console.log('HotStock update realtime fail: ' + err);
-													vmHotStock.tip = '点击重试';
-												}
+												console.log('HotStock update realtime fail: ' + err);
+												vmHotStock.tip = '点击重试';
 												return;
 											}
 											vmHotStock.list.splice(0);
@@ -492,12 +488,8 @@
 						update: function() {
 							Stock.realTime(this.codes, function(err, data) {
 								if(err) {
-									if(err === 'timeout') {
-										vmBurstStock.update.call(vmBurstStock);
-									} else {
-										console.error('BurstStock fetch realtime fail: ' + err);
-										vmBurstStock.tip = '点击重试';
-									}
+									console.error('BurstStock fetch realtime fail: ' + err);
+									vmBurstStock.tip = '点击重试';
 									return;
 								}
 								for(var i = 0; i < vmBurstStock.list.length; i++) {
@@ -586,12 +578,8 @@
 						update: function() {
 							Stock.realTime(this.codes, function(err, data) {
 								if(err) {
-									if(err === 'timeout') {
-										vmInstitutionConcern.update.call(vmInstitutionConcern);
-									} else {
-										console.error('InstitutionConcern fetch realtime fail: ' + err);
-										vmInstitutionConcern.tip = '点击重试';
-									}
+									console.error('InstitutionConcern fetch realtime fail: ' + err);
+									vmInstitutionConcern.tip = '点击重试';
 									return;
 								}
 								for(var i = 0; i < vmInstitutionConcern.list.length; i++) {

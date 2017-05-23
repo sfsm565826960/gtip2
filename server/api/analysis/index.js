@@ -202,15 +202,26 @@ router.get('/heartbeatcheck', (req, res) => {
 /**
  * 处理返回给用户的Tip数据
  * 屏蔽User._id，改点赞和反对为数字，判断用户是否参与点赞和反对
- * @param {Tip} tip 
+ * @param {Tip} tip
+ * @param {ObjectId} usersId
  */
 function parseTip(tip, userId) {
-    tip.isThumbsUp = (tip.thumbsUp || []).indexOf(userId) >= 0;
-    tip.thumbsUp = (tip.thumbsUp || []).length;
-    tip.isThumbsDown = (tip.thumbsDown || []).indexOf(userId) >= 0;
-    tip.thumbsDown = (tip.thumbsDown || []).length;
-    delete tip.receivers;
-    return tip
+    var ret = {
+        id: tip._id,
+        name: tip.name,
+        code: tip.code,
+        text: tip.text,
+        params: tip.params,
+        type: tip.type,
+        valuation: tip.valuation,
+        from: tip.from,
+        date: tip.date,
+        isThumbsUp: (tip.thumbsUp || []).indexOf(userId) >= 0,
+        thumbsUp: (tip.thumbsUp || []).length,
+        isThumbsDown: (tip.thumbsDown || []).indexOf(userId) >= 0,
+        thumbsDown: (tip.thumbsDown || []).length
+    };
+    return ret
 }
 
 /**
@@ -260,12 +271,64 @@ router.post('/list', (req, res) => {
                     res.json({ state: 'ok', detail: '提醒列表为空', data: [] });
                 } else {
                     // 处理数据
+                    var list = [];
                     for (var i = 0; i < tips.length; i++) {
-                        tips[i] = parseTip(tips[i], user._id);
+                        list.push(parseTip(tips[i], user._id));
                     }
-                    res.json({ state: 'ok', detail: '获取提醒列表成功', data: tips })
+                    res.json({ state: 'ok', detail: '获取提醒列表成功', data: list })
                 }
             });
+        }
+    })
+});
+
+
+/**
+ * @api {post} /api/anaylsis/worth 评价提醒
+ * @apiName setAnalysisWorth
+ * @apiGroup analysis
+ * 
+ * @apiparam {String} token 用户令牌
+ * @apiparam {String} tipId 提醒id
+ * @apiparam {String=up,down} worth 点赞/反对
+ */
+router.post('/worth', (req, res) => {
+    if (typeof req.body.worth !== 'string' || ['up', 'down'].indexOf(req.body.worth.toLowerCase()) < 0) {
+        res.json({ state: 'fail', detail: 'worth must be up or down' });
+        return;
+    }
+    User.getUserByToken(req.body.token, (err, user) => {
+        if (err) {
+            res.json(err)
+        } else {
+            Tip.findOne({
+                _id: req.body.tipId
+            }, (err, tip) => {
+                if (err) {
+                    Log.e(err, true);
+                    res.json({ state: 'fail', detail: err.message || err });
+                } else if (tip === null) {
+                    res.json({ state: 'fail', detail: '提醒Id无效' })
+                } else {
+                    var key = ['thumbsUp', 'thumbsDown'];
+                    if (req.body.worth.toLowerCase() === 'down') key.reverse();
+                    var index = tip[key[0]].indexOf(user._id);
+                    if (index < 0) {
+                        tip[key[0]].push(user._id);
+                        // 防止既点赞又反对
+                        index = tip[key[1]].indexOf(user._id);
+                        if (index >= 0) tip[key[1]].splice(index, 1);
+                    } else {
+                        tip[key[0]].splice(index, 1);
+                    }
+                    tip.save().then(doc => {
+                        res.json({ state: 'ok', detail: '评价成功', data: parseTip(doc, user._id) })
+                    }).catch(err => {
+                        Log.e(err, 'worth', true);
+                        res.json({ state: 'fail', detail: err.message || err });
+                    });
+                }
+            })
         }
     })
 })

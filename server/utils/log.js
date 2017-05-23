@@ -36,6 +36,9 @@ module.exports = function (config) {
         saveToFile = title;
         title = '';
       }
+      if (msg.track) {
+        msg.track += '\nCaller:\n' + arguments.callee.caller;
+      }
       var text = '\n[error] ' + this.t(msg);
       console.error(text);
       if (saveToFile) this.f(text);
@@ -57,6 +60,9 @@ module.exports = function (config) {
         sendToMail = saveToFile;
         saveToFile = title;
         title = '';
+      }
+      if (msg.track) {
+        msg.track += '\nCaller:\n' + arguments.callee.caller;
       }
       var text = '\n[warn] ' + this.t(msg);
       console.warn(text);
