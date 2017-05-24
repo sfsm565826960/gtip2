@@ -55,15 +55,16 @@ function UserSchema (mongoose) {
   schema.index({mail: 1, password: 1});
   // 静态方法
   schema.statics.getUserByToken = function(token, sql, callback) {
+    // 多态实现
+    if (typeof sql === 'function') {
+      callback = sql;
+      sql = {}
+    }
     // 检测参数
     if (!token || token.length === 0) {
       return callback({state: 'logout', detail: '令牌无效' });
     }
     // 允许配置sql参数
-    if (typeof sql === 'function') {
-      callback = sql;
-      sql = {}
-    }
     var opt = Object.assign({
       token: token,
       state: 'online',

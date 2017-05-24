@@ -349,7 +349,7 @@ router.post('/nickname', (req, res) => {
  */
 router.post('/headimg', (req, res) => {
   // 检查参数
-  if (!req.body.headimg || req.body.nickname.length === 0) {
+  if (!req.body.headimg || req.body.headimg.length === 0) {
     res.json({ state: 'fail', detail: '新头像地址不能为空' });
     return;
   }
