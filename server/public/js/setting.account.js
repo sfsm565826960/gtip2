@@ -2,7 +2,7 @@
 	view.addEventListener('pageShow', function(e) {
 		switch(e.detail.page.id) {
 			case 'account':
-				var state = App.getState();
+				var state = App.getInfo();
 				var nickBox = doc.getElementById('accountNick');
 				var mailBox = doc.getElementById('accountMail');
 				var levelBox = doc.getElementById('accountLevel');
@@ -27,9 +27,9 @@
 					}, function(res) {
 						if(res) {
 							if(res.state == 'ok') {
-								var state = App.getState();
+								var state = App.getInfo();
 								state.nick = decodeURI(res.nick);
-								App.setState(state);
+								App.setInfo(state);
 								var nickBox = doc.getElementById('accountNick');
 								nickBox.firstElementChild.innerHTML = state.nick;
 								mui.toast('修改成功');

@@ -60,16 +60,11 @@
 							});
 						}, 0);
 					};
-					var settings = App.getSettings();
+					var account = App.getSettings().account || {};
 					var forgetButton = doc.getElementById("forget");
 					var locker = doc.querySelector('.mui-locker');
 					var clearStateAndToLogin = function() {
-						settings.gestures = '';
-						settings.autoLogin = false;
-						App.setSettings(settings);
-						var state = App.getState();
-						state.token = '';
-						App.setState(state);
+						App.logout();
 						$.openWindow({
 							url: 'login.html',
 							id: 'login',
@@ -87,7 +82,7 @@
 					var tryNumber = 5;
 					locker.addEventListener('done', function(event) {
 						var rs = event.detail;
-						if (settings.gestures == rs.points.join('')) {
+						if (account.gestures == rs.points.join('')) {
 							toMain()
 							rs.sender.clear();
 						} else {

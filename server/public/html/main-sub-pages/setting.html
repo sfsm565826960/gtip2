@@ -566,17 +566,25 @@
 				},
 				methods: {
 					update: function() {
-						var state = App.getState();
-						this.nickname = decodeURI(state.nickname || state.mail || '未命名');
-						this.headimg = state.headimg || state.headimg || '../../images/headimg.jpg'
+						var info = App.getInfo();
+						this.nickname = info.nickname || info.mail || '未命名';
+						this.headimg = info.headimg || '../../images/headimg.jpg'
 					},
 					modifyNickname: function() {
 						plus.nativeUI.prompt('请输入新的昵称', function(event) {
 							if(event.index === 0) {
 								vmUserInfo.nickname = event.value;
-								var state = App.getState();
-								state.nickname = encodeURI(event.value);
-								App.setState(state);
+								Server.send('user/nickname', {
+									token: App.getToken(),
+									nickname: event.value
+								}, function(res) {
+									if (res.state === 'ok') {
+										App.createState(res.data, vmUserInfo.update);
+									} else {
+										console.error(res.detail);
+										$.toast(res.detail);
+									}
+								});
 							}
 						}, '修改昵称', '至少需要2个字符', ['确认', '取消']);
 					},

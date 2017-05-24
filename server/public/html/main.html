@@ -141,23 +141,24 @@
 					var backButtonPress = 0;
 					var timOutId = null;
 					$.back = function(event) {
-						var settings = App.getSettings();
-						if(settings.receiveNotify) {
-							App.pause();
-						} else {
-							backButtonPress++;
-							if(backButtonPress >= 2) {
-								clearTimeout(timOutId);
+						var notifications = App.getSettings().notifications || {};
+						var isNotify = notifications.receiveNotify === true
+						backButtonPress++;
+						if(backButtonPress >= 2) {
+							clearTimeout(timOutId);
+							if (isNotify) {
+								App.pause();
+							} else {
 								var w = plus.nativeUI.showWaiting('应用退出中', {
 									back: 'none'
 								});
 								App.quit();
-							} else {
-								plus.nativeUI.toast('再按一次退出应用');
-								timOutId = setTimeout(function() {
-									backButtonPress = 0;
-								}, 1600);
 							}
+						} else {
+							plus.nativeUI.toast('再按一次' + (isNotify ? '进入后台' : '退出应用'));
+							timOutId = setTimeout(function() {
+								backButtonPress = 0;
+							}, 1600);
 						}
 						return false;
 					};

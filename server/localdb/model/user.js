@@ -37,10 +37,16 @@ function UserSchema (mongoose) {
     loginExpired: Types.Date, // 登录过期时间
     firstLogin: { type: Types.Date, default: new Date() }, // 注册时间
     settings: { // 移动端设置
-      receiveNotifiy: { type: Types.Boolean, default: true }, // 若为true则向其推送通知
-      voiceBroadcast: { type: Types.Boolean, default: false }, // 若为true则收到通知后进行朗读
-      autoLogin: { type: Types.Boolean, default: false }, // 若为true，则登录的时候使用token即可
-      gestures: { type: Types.String, default: '' } // 用户手势密码，仅在autoLogin为true时有效
+      notifications: { // 提醒设置
+        receiveNotify: { type: Types.Boolean, default: true }, // 若为true则向其推送通知
+        voiceBroadcast: { type: Types.Boolean, default: false }, // 若为true则收到通知后进行朗读
+        arriveVibrate: { type: Types.Boolean, default: true }, // 若为true则收到通知后震动
+        arriveSound: {type: Types.Boolean, default: true }, // 若为true则收到通知后响铃
+      },
+      account: { // 账户设置
+        autoLogin: { type: Types.Boolean, default: false }, // 若为true，则登录的时候使用token即可
+        gestures: { type: Types.String, default: '' } // 用户手势密码，仅在autoLogin为true时有效
+      }
     },
     concern: { // 关注内容
       stockIds: [Types.String] // 用户关注的股票ID

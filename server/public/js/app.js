@@ -106,8 +106,9 @@
 	 * 清除所有用户数据
 	 */
 	owner.clear = function() {
-		owner.setState({});
+		owner.setInfo({});
 		owner.setSettings({});
+		owner.setConcern({});
 		// 清空系统消息中心所有的推送消息。
 		plus.push.clear();
 	}
@@ -132,7 +133,7 @@
 	/**
 	 * 获取当前状态
 	 **/
-	owner.getState = function() {
+	owner.getInfo = function() {
 		if(_temp.state && _temp.state._expired > new Date()) {
 			return _temp.state
 		} else {
@@ -146,7 +147,7 @@
 	/**
 	 * 设置当前状态
 	 **/
-	owner.setState = function(state) {
+	owner.setInfo = function(state) {
 		_temp.state = state || {}
 		_temp.state._expired = _temp.expired();
 		localStorage.setItem('$state', JSON.stringify(_temp.state));
@@ -156,7 +157,7 @@
 	 * 获取用户令牌
 	 */
 	owner.getToken = function() {
-		return owner.getState().token || '';
+		return owner.getInfo().token || '';
 	}
 
 	/**
@@ -206,28 +207,11 @@
 	 */
 	owner.createState = function(params, callback) {
 		// 创建状态
-		var state = owner.getState();
-		state.mail = params.mail;
-		state.nickname = encodeURI(params.nickname);
-		state.token = params.token;
-		owner.setState(state);
+		owner.setInfo(params.info);
 		// 创建关注
 		owner.setConcern(params.concern);
 		// 创建设置
-		var settings = owner.getSettings();
-		settings.receiveNotify = params.settings.receiveNotify;
-		settings.voiceBroadcast = params.settings.voiceBroadcast;
-		if(settings.voiceBroadcast === true) {
-			plus.device.setWakelock(true);
-			mui.toast('语音播报已开启');
-		}
-		settings.autoLogin = params.settings.autoLogin;
-		if(settings.autoLogin === true) {
-			settings.gestures = params.settings.gestures;
-		} else {
-			settings.gestures = '';
-		}
-		owner.setSettings(settings);
+		owner.setSettings(params.settings);
 		// 回调函数
 		return callback();
 	};

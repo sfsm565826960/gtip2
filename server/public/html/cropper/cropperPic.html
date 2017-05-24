@@ -132,11 +132,11 @@
 				}
 
 				function uploadImg() {
-//					var w = plus.nativeUI.showWaiting('上传中', {
-//						back: 'none',
-//						width: '100px',
-//						height: '100px'
-//					});
+					var w = plus.nativeUI.showWaiting('上传中', {
+						back: 'none',
+						width: '100px',
+						height: '100px'
+					});
 					var src = image.src;
 					var format = image.src.substring(image.src.lastIndexOf(".") + 1); // 图片格式
 					var dst = '_doc/headimg.' + format;
@@ -162,10 +162,11 @@
 								var json = JSON.parse(upload.responseText);
 								console.log('headimg: ' + json.linkurl);
 								Server.send('user/headimg', {
+									token: App.getToken(),
 									headimg: json.linkurl
 								}, function(res){
 									if (res.state === 'ok') {
-//										w.close();
+										w.close();
 										$.toast('更新头像成功！');
 										App.createState(res.data, function(){
 											$.fire(plus.webview.currentWebview().opener(), 'resetUserInfo');

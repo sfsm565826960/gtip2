@@ -26,6 +26,7 @@ require('../localdb/model/index').getModels({
     router.use('/user', require('./user')(models));
     router.use('/concern/stock', require('./concern/stock')(models));
     router.use('/analysis', require('./analysis')(models));
+    router.use('/settings', require('./settings')(models));
   }
 });
 

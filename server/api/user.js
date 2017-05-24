@@ -45,10 +45,12 @@ function errMsg(err) {
  */
 function userInfo(user) {
   return {
-    mail: user.mail,
-    token: user.token,
-    nickname: user.nickname,
-    headimg: user.headimg,
+    info: {
+      mail: user.mail,
+      token: user.token,
+      nickname: user.nickname,
+      headimg: user.headimg
+    },
     settings: user.settings,
     concern: user.concern,
     authority: user.authority

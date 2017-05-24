@@ -270,6 +270,11 @@
 				doc.getElementById('refreshContainer').addEventListener('scrollbottom', function() {
 					vmStockTip.loadmore();
 				});
+				
+//				if(params.settings.voiceBroadcast === true) {
+//			plus.device.setWakelock(true);
+//			mui.toast('语音播报已开启');
+//		}
 
 				// 用户登录后执行下拉刷新
 				window.addEventListener('resetUserInfo', CR.doRefresh);

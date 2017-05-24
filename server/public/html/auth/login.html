@@ -53,8 +53,8 @@
 				});
 				$.plusReady(function() {
 					plus.screen.lockOrientation("portrait-primary");
-					var settings = App.getSettings();
-					var state = App.getState();
+					var account = App.getSettings().account || {};
+					var state = App.getInfo();
 					var mainPage = $.preload({
 						"id": 'main',
 						"url": '../main.html'
@@ -75,7 +75,7 @@
 						setTimeout(plus.webview.currentWebview().close, 1000);
 					};
 					//检查 "登录状态/锁屏状态" 开始
-					if(settings.autoLogin && state.token && settings.gestures) {
+					if(account.autoLogin && state.token && account.gestures) {
 						$.openWindow({
 							url: 'unlock.html',
 							id: 'unlock',
@@ -86,7 +86,7 @@
 								autoShow: false
 							}
 						});
-					} else if(settings.autoLogin && state.token) {
+					} else if(account.autoLogin && state.token) {
 						var w = plus.nativeUI.showWaiting('自动登录中', {
 							back: 'none',
 							width: '100px',
@@ -138,7 +138,7 @@
 					$.enterfocus('#login-form input', function() {
 						$.trigger(loginButton, 'tap');
 					});
-					autoLoginButton.classList[settings.autoLogin ? 'add' : 'remove']('mui-active');
+					autoLoginButton.classList[account.autoLogin ? 'add' : 'remove']('mui-active');
 					regButton.addEventListener('tap', function(event) {
 						$.openWindow({
 							url: 'reg.html',
