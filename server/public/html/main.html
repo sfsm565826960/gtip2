@@ -146,16 +146,18 @@
 						backButtonPress++;
 						if(backButtonPress >= 2) {
 							clearTimeout(timOutId);
-							if (isNotify) {
-								App.pause();
-							} else {
+							backButtonPress = 0;
+//							if (isNotify) {
+//								App.pause();
+//							} else {
 								var w = plus.nativeUI.showWaiting('应用退出中', {
 									back: 'none'
 								});
 								App.quit();
-							}
+//							}
 						} else {
-							plus.nativeUI.toast('再按一次' + (isNotify ? '进入后台' : '退出应用'));
+//							plus.nativeUI.toast('再按一次' + (isNotify ? '进入后台' : '退出应用'));
+							plus.nativeUI.toast('再按一次退出应用');
 							timOutId = setTimeout(function() {
 								backButtonPress = 0;
 							}, 1600);

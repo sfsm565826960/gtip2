@@ -539,6 +539,9 @@
 						App.logout();
 						break;
 					case '#exitApp':
+						plus.nativeUI.showWaiting('应用退出中', {
+							back: 'none'
+						});
 						App.quit();
 						break;
 				}
@@ -553,7 +556,7 @@
 					oldBack();
 				}
 			};
-			
+
 			/**
 			 * 用户基本信息组件
 			 */
@@ -578,7 +581,7 @@
 									token: App.getToken(),
 									nickname: event.value
 								}, function(res) {
-									if (res.state === 'ok') {
+									if(res.state === 'ok') {
 										App.createState(res.data, vmUserInfo.update);
 									} else {
 										console.error(res.detail);
