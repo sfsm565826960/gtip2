@@ -353,7 +353,7 @@ router.post('/headimg', (req, res) => {
     res.json({ state: 'fail', detail: '新头像地址不能为空' });
     return;
   }
-  // 修改昵称
+  // 修改头像
   User.getUserByToken(req.body.token, (err, user) => {
     if (err) {
       res.json(err);

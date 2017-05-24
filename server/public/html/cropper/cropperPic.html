@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" href="cropper.min.css" />
+		<link rel="stylesheet" href="../../css/mui.min.css" />
+		<link rel="stylesheet" href="../../css/common.css" />
+		<style>
+			#redo {
+				position: fixed;
+				bottom: 20px;
+				left: 20px;
+				font-size: 30px;
+			}
+			
+			#undo {
+				position: fixed;
+				bottom: 20px;
+				right: 20px;
+				font-size: 30px;
+			}
+			
+			.cropper {
+				position: relative;
+				left: 20%;
+				width: 60%;
+				margin-bottom: 20px;
+			}
+			
+			.cropper-control {
+				margin-top: 50px;
+				margin-bottom: 100px;
+			}
+			
+			.cropper-panel button {
+				width: 45%;
+				height: 40px;
+				font-size: 16px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav blueBackground">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">设置头像</h1>
+		</header>
+		<div style="" class="mui-content">
+			<div class="cropper"> <img style="width: 98%;" id="image" src="" /> </div>
+			<div class="cropper-control">
+				<div class="mui-input-row mui-input-range">
+					<label>缩放: <span id="zoomLabel">100</span>%</label>
+					<input id="zoom" type="range" min="0" max="500" value="100">
+				</div>
+				<div class="mui-input-row mui-input-range">
+					<label>旋转: <span id="rotateLabel">0</span>°</label>
+					<input id="rotate" type="range" min="-180" max="180" value="0">
+				</div>
+			</div>
+			<div class="cropper-panel view-horizontal-split" style="justify-content: space-around;">
+				<button type="button" id="selectImg" class="mui-btn mui-btn-blue">更换头像</button>
+				<button type="button" id="uploadImg" class="mui-btn mui-btn-red">上传头像</button>
+			</div>
+
+		</div>
+		<script type="text/javascript" src="../../js/mui.min.js"></script>
+		<script src="../../js/app.js"></script>
+		<script type="text/javascript" src="cropper.min.js"></script>
+		<script>
+			(function($, doc) {
+				var image = doc.getElementById('image');
+				var zoom = doc.getElementById("zoom");
+				var zoomLabel = doc.getElementById("zoomLabel");
+				var rotate = doc.getElementById("rotate");
+				var rotateLabel = doc.getElementById("rotateLabel");
+				var cropper = null;
+				var resImg = null;
+				var minSize = 120;
+				//在选择或者拍摄完成后跳出裁剪页面并把图片路径传递到此页面
+				//image.src = plus.webview.currentWebview().imgSrc;
+				image.src = "../../images/iconfont-tianjia.png";
+				image.addEventListener('zoom', function(e) {
+					console.log(e);
+					zoomLabel.innerHTML = e.detail.ratio;
+				});
+				initCropper();
+				//			doc.getElementById("save").addEventListener("tap", getImg);
+				function initCropper() {
+					cropper = new Cropper(image, {
+						viewMode: 1,
+						autoCropArea: 0.5,
+						dragMode: 'move',
+						rotatable: true,
+						cropBoxMovable: false,
+						cropBoxResizable: false,
+						toggleDragModeOnDblclick: false,
+						minCropBoxWidth: minSize,
+						minCropBoxHeight: minSize,
+						minCanvasWidth: minSize,
+						minCanvasHeight: minSize,
+						minContainerWidth: minSize,
+						minContainerHeight: minSize,
+					});
+					cropper.setCropBoxData({
+						left: 0,
+						top: 0,
+						width: minSize,
+						height: minSize
+					});
+				}
+				zoom.addEventListener('input', function(e) {
+					zoomLabel.innerHTML = this.value;
+					cropper.zoomTo(this.value / 100);
+				});
+				rotate.addEventListener('input', function(e) {
+					rotateLabel.innerHTML = this.value;
+					cropper.rotateTo(this.value);
+				});
+
+				function pickImg() {
+					plus.gallery.pick(function(path) {
+						console.log(path);
+						cropper.replace(path);
+					}, function(err) {
+						//					mui.toast('暂无图片')
+					}, {
+						multiple: false
+					})
+				}
+
+				function uploadImg() {
+//					var w = plus.nativeUI.showWaiting('上传中', {
+//						back: 'none',
+//						width: '100px',
+//						height: '100px'
+//					});
+					var src = image.src;
+					var format = image.src.substring(image.src.lastIndexOf(".") + 1); // 图片格式
+					var dst = '_doc/headimg.' + format;
+					var cropdata = cropper.getData();
+					plus.zip.compressImage({
+						src: src,
+						dst: dst,
+						overwrite: true,
+						rotate: cropdata.rotate >= 0 ? cropdata.rotate : cropdata.rotate + 360,
+						clip: {
+							top: cropdata.y,
+							left: cropdata.x,
+							width: cropdata.width,
+							height: cropdata.height
+						}
+					}, function(event) {
+						console.log(event.target);
+						var uploader = plus.uploader.createUpload('http://up.imgapi.com/', {
+							retryInterval: 1,
+							priority: 1
+						}, function(upload, status) {
+							try {
+								var json = JSON.parse(upload.responseText);
+								console.log('headimg: ' + json.linkurl);
+								Server.send('user/headimg', {
+									headimg: json.linkurl
+								}, function(res){
+									if (res.state === 'ok') {
+//										w.close();
+										$.toast('更新头像成功！');
+										App.createState(res.data, function(){
+											$.fire(plus.webview.currentWebview().opener(), 'resetUserInfo');
+											setTimeout($.back, 1000);
+										});
+									} else {
+										console.warn(res.detail);
+										$.toast(res.detail);
+									}
+								})
+							} catch(err) {
+								console.error(err);
+							}
+						});
+						uploader.addFile(event.target, {
+							key: 'file'
+						});
+						uploader.addData('Token', '102d60fc1f5117148511f1099554a78b0ef5352c:8WWDofoPd21LhSFpnfaN2WWK0dc=:eyJkZWFkbGluZSI6MTQ5NTYxMDg1MywiYWN0aW9uIjoiZ2V0IiwidWlkIjoiNTk1MjU4IiwiYWlkIjoiMTMwOTc5NSIsImZyb20iOiJmaWxlIn0=');
+						uploader.start();
+					}, function(err) {
+						$.toast(err);
+					})
+				}
+				doc.getElementById("selectImg").addEventListener('tap', pickImg);
+				doc.getElementById("uploadImg").addEventListener('tap', uploadImg);
+				$.plusReady(function() {
+					// 防止进入后台
+					//				doc.addEventListener('pause',function(){});
+					//				doc.addEventListener('resume',function(){});
+					// 加载图片
+					pickImg();
+				})
+			})(mui, document);
+		</script>
+	</body>
+
+</html>

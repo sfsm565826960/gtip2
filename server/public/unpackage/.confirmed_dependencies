@@ -125,7 +125,9 @@
 		"refer": [
 			"html/main.html",
 			"html/auth/reg.html",
-			"html/auth/forget_password.html"
+			"html/auth/forget_password.html",
+			"html/auth/login.html",
+			"html/auth/unlock.html"
 		]
 	},
 	"html/main-sub-pages/setting.html": {
@@ -151,7 +153,8 @@
 			"js/vue.min.js"
 		],
 		"refer": [
-			"html/auth/login.html"
+			"html/auth/login.html",
+			"html/cropper/cropperPic.html"
 		]
 	},
 	"html/main-sub-pages/home.html": {
@@ -202,7 +205,9 @@
 			"libs/echarts.js",
 			"js/vue.min.js",
 			"css/stock-tip.css",
-			"css/common.css"
+			"css/common.css",
+			"js/circle-refresh.js",
+			"images/thumbs-up.png"
 		],
 		"refer": [
 			"html/auth/login.html"
@@ -228,7 +233,8 @@
 			"js/circle-refresh.js"
 		],
 		"refer": [
-			"html/auth/login.html"
+			"html/auth/login.html",
+			"html/main-sub-pages/stock-detail.html"
 		]
 	},
 	"html/auth/forget_password.html": {
@@ -244,6 +250,47 @@
 		"refer": [
 			"html/auth/forget_password.html",
 			"html/auth/login.html"
+		]
+	},
+	"html/auth/unlock.html": {
+		"href": "html/auth/unlock.html",
+		"resources": [
+			"css/mui.min.css",
+			"js/mui.min.js",
+			"js/mui.locker.js",
+			"js/app.js"
+		],
+		"refer": [
+			"html/auth/login.html",
+			"html/main.html"
+		],
+		"priority": 0
+	},
+	"html/auth/reg.html": {
+		"href": "html/auth/reg.html",
+		"resources": [
+			"css/mui.min.css",
+			"css/common.css",
+			"css/auth.css",
+			"js/mui.min.js",
+			"js/app.js",
+			"fonts/mui.ttf"
+		],
+		"refer": [
+			"html/main.html"
+		],
+		"priority": 0
+	},
+	"html/cropper/cropperPic.html": {
+		"resources": [
+			"html/cropper/cropper.min.js",
+			"html/cropper/cropper.min.css",
+			"images/iconfont-tianjia.png",
+			"js/mui.min.js",
+			"css/common.css",
+			"fonts/mui.ttf",
+			"css/mui.min.css",
+			"js/app.js"
 		]
 	}
 }

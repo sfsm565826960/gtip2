@@ -88,7 +88,9 @@
 						});
 					} else if(settings.autoLogin && state.token) {
 						var w = plus.nativeUI.showWaiting('自动登录中', {
-							back: 'none'
+							back: 'none',
+							width: '100px',
+							height: '100px'
 						});
 						App.login(null, function(err) {
 							w.close();
@@ -116,6 +118,8 @@
 					}
 					loginButton.addEventListener('tap', function(event) {
 						var w = plus.nativeUI.showWaiting('登录中', {
+							width: '100px',
+							height: '100px',
 							back: 'none'
 						});
 						App.login({

@@ -10,6 +10,24 @@
 			.mui-bar-tab .mui-tab-item {
 				color: #bbb;
 			}
+			.mui-bar-tab .mui-tab-item.mui-active{
+				color: #f00;
+			}
+			.mui-bar-tab .mui-tab-item.mui-active .mui-icon-home:before {
+				content: '\e530';
+			}
+			.mui-bar-tab .mui-tab-item.mui-active .mui-icon-email:before {
+				content: '\e231';
+			}
+			.mui-bar-tab .mui-tab-item.mui-active .mui-icon-email:before {
+				content: '\e231';
+			}
+			.mui-bar-tab .mui-tab-item.mui-active .mui-icon-star:before {
+				content: '\e438';
+			}
+			.mui-bar-tab .mui-tab-item.mui-active .mui-icon-gear:before {
+				content: '\e532';
+			}
 		</style>
 	</head>
 
@@ -144,8 +162,8 @@
 						return false;
 					};
 					//设置前台和后台事件
-					doc.addEventListener("pause", App.pause, false);
-					doc.addEventListener("resume", App.resume, false);
+//					doc.addEventListener("pause", App.pause, false);
+//					doc.addEventListener("resume", App.resume, false);
 				});
 
 				// 接收Push数据

@@ -74,7 +74,10 @@
 		<script id="stockTipTemplate" type="x-template">
 			<div id="stockTip" class="stockTip">
 				<ul class="mui-table-view" v-if='list.length > 0'>
-					<li v-for="(item, itemIndex) in list" class="mui-table-view-cell view-vertical-split" :valuation="item.valuation">
+					<li class="mui-table-view-cell view-vertical-split"
+						v-for="(item, itemIndex) in list"
+						:valuation="item.valuation"
+						@click="viewDetail(item)">
 						<div class="stockTip-title">{{item.name}}({{item.code}})</div>
 						<div class="stockTip-content view-vertical-split">
 							<div class="stockTip-message">{{item.text}}</div>
@@ -82,11 +85,11 @@
 							<div class="stockTip-info view-horizontal-split">
 								<span>來自：{{item.from}}</span>
 								<span class="view-horizontal-split">
-									<span @click="thumb('up', itemIndex)" :class="{thumbs:true, up: true, fill:item.isThumbsUp}"></span>
+									<span @click.stop="thumb('up', itemIndex)" :class="{thumbs:true, up: true, fill:item.isThumbsUp}"></span>
 									<span style="margin-left: 5px;">({{item.thumbsUp}})</span>
 								</span>
 								<span class="view-horizontal-split">
-									<span @click="thumb('down', itemIndex)" :class="{thumbs:true, down: true, fill:item.isThumbsDown}"></span>
+									<span @click.stop="thumb('down', itemIndex)" :class="{thumbs:true, down: true, fill:item.isThumbsDown}"></span>
 									<span style="margin-left: 5px;">({{item.thumbsDown}})</span>
 								</span>
 								<span>{{new Date(item.date).toISOString().replace(/(\d+)-(\d+)-(\d+)T(\d+):(\d+):.+/, '$1/$2/$3 $4:$5')}}</span>
@@ -94,7 +97,6 @@
 						</div>
 					</li>
 				</ul>
-				<div class="loading-tip" v-else>暂无数据</div>
 				<div style="width: 100%;text-align: center;height: 30px;" v-show="inLoadmore">
 					<div class="mui-pull-loading mui-icon mui-spinner"></div>
 				</div>
@@ -115,14 +117,10 @@
 					range: '50px',
 					color: '#FF0000'
 				});
-				//				doc.getElementById('refreshStockTip').addEventListener('tap', function() {
-				//					CR.doRefresh();
-				//				});
 				doc.getElementById('refreshContainer').addEventListener('scroll', function(e) {
 					CR.setEnabled(e.detail.lastY >= 0);
 				});
 				$('.mui-scroll-wrapper').scroll({
-					//					bounce: false,
 					indicators: true, //是否显示滚动条
 					deceleration: $.os.ios ? 0.003 : 0.0009
 				});
@@ -135,7 +133,7 @@
 						pCount: 5,
 						inUpdate: false,
 						inLoadmore: false,
-						noMore: false,
+						noMore: true,
 						list: [
 							/*{
 								id: '2',
@@ -204,11 +202,8 @@
 									vmStockTip.pIndex = 0;
 									vmStockTip.list.splice(0);
 									vmStockTip.list.push.apply(vmStockTip.list, res.data);
-									if(res.data.length < vmStockTip.pCount) {
-										vmStockTip.noMore = false;
-									} else {
-										vmStockTip.noMore = true;
-									}
+									vmStockTip.noMore = res.data.length < vmStockTip.pCount;
+									console.log('noMore' + vmStockTip.noMore);
 								} else {
 									$.toast(res.detail);
 								}
@@ -238,6 +233,31 @@
 								} else {
 									$.toast(res.detail);
 								}
+							})
+						},
+						viewDetail: function(tip) {
+							var wv = $.openWindow({
+								url: 'stock-detail.html',
+								id: 'stockDetail',
+								styles: {
+									hardwareAccelerated: true, // 启动硬件加速
+									bounce: 'vertical' // 下拉回弹
+								},
+								show: {
+									event: 'loaded',
+									duration: 300
+								},
+								waiting: {
+									autoShow: false
+								}
+							});
+							wv.addEventListener('loaded', function() {
+								$.fire(wv, 'loadStockInfo', {
+									stock: {
+										code: tip.code,
+										name: tip.name
+									}
+								})
 							})
 						}
 					}

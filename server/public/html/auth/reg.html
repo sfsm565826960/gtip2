@@ -82,7 +82,13 @@
 							plus.nativeUI.toast('密码两次输入不一致');
 							return;
 						}
+						var w = plus.nativeUI.showWaiting('注册中', {
+							back: 'none',
+							width: '100px',
+							height: '100px'
+						});
 						App.register(regInfo, function(err) {
+							w.close();
 							if (err) {
 								plus.nativeUI.toast(err,{
 									duration: 'short'

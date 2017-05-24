@@ -6,7 +6,7 @@
  */
 function InitBroaderIndex($, dom, stocks) {
 	var broaderIndex = echarts.init(dom);
-	var textColor = 'rgba(255,255,255,0.5)';
+	var textColor = 'rgba(255,255,255,0.6)';
 	var splitLineColor = 'rgba(255,255,255,0.2)';
 	var dataLineStyle = {
 		normal: {
@@ -63,7 +63,7 @@ function InitBroaderIndex($, dom, stocks) {
 				textStyle: {
 					color: '#f00'
 				},
-				inactiveColor: '#777'
+				inactiveColor: '#aaa'
 			},
 			xAxis: {
 				data: [],
@@ -222,6 +222,11 @@ function InitBroaderIndex($, dom, stocks) {
 		return cMacd;
 	}
 
+	/**
+	 * 计算新KDJ值
+	 * @param {Object} price
+	 * @param {Object} oKdj
+	 */
 	function calcKdj(price, oKdj) {
 		var cKdj = {};
 		var getMinMax = function(arr) {

@@ -581,16 +581,17 @@
 						}, '修改昵称', '至少需要2个字符', ['确认', '取消']);
 					},
 					modifyHeadimg: function() {
-						//					plus.gallery.pick(function(data){
-						//						this.headimg = data;
-						//					}, function(err){
-						//						
-						//					}, {
-						//						filter: 'image',
-						//						multiple: false,
-						//						system: false
-						//					})
-						mui.toast('暂时不支持修改头像')
+						var wv = $.openWindow({
+							url: '../cropper/cropperPic.html',
+							id: 'cropper',
+							show: {
+								event: 'loaded',
+								duration: 300
+							},
+							waiting: {
+								autoShow: true
+							}
+						});
 					}
 				}
 			});

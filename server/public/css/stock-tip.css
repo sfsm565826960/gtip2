@@ -6,6 +6,9 @@
 .stockTip .mui-table-view-cell.mui-collapse.mui-active {
 	margin-top: 0;
 }
+.stockTip .mui-table-view-cell.mui-active {
+	background-color: transparent;
+}
 
 .stockTip .mui-table-view:before,
 .stockTip .mui-table-view:after,
@@ -31,15 +34,15 @@
 	color: #ddd;
 }
 .stockTip ul li[valuation=good] .stockTip-title {
-	background-color: #f66;
+	background-color: #f44;
 	color: #666;
 }
 .stockTip ul li[valuation=bad] .stockTip-title {
-	background-color: #6f6;
+	background-color: #4f4;
 	color: #666;
 }
 .stockTip ul li[valuation=important] .stockTip-title {
-	background-color: #66f;
+	background-color: #44f;
 	color: #ddd;
 }
 

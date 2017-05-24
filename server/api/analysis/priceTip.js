@@ -101,7 +101,7 @@ module.exports = function (stock) {
         valuation: 'good',
         params: {
           '现价': hq.current,
-          '涨额': '+' + (hq.current - data.price),
+          '涨额': '+' + Math.round((hq.current - data.price) * 100) / 100,
           '旧价': data.price,
           '涨幅': '+' + priceChangeRate + '%',
           '总涨额': hq.diff > 0 ? '+' + hq.diff : hq.diff,
@@ -120,7 +120,7 @@ module.exports = function (stock) {
         valuation: 'bad',
         params: {
           '现价': hq.current,
-          '涨额': hq.current - data.price,
+          '涨额': Math.round((hq.current - data.price) * 100) / 100,
           '旧价': data.price,
           '涨幅': priceChangeRate + '%',
           '总涨额': hq.diff > 0 ? '+' + hq.diff : hq.diff,

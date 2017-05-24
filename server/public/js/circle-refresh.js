@@ -32,7 +32,7 @@ function CircleRefresh(option, onRefresh) {
 		enabled = enable;
 		mui.plusReady(function() {
 			option.support = enable;
-			console.log((enable ? '开启' : '关闭') + '下拉');
+//			console.log((enable ? '开启' : '关闭') + '下拉');
 			option.style = 'circle';
 			plus.webview.currentWebview().setPullToRefresh(option, function() {
 				loadding = true;

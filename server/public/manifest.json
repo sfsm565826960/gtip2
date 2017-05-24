@@ -180,9 +180,9 @@
 				"android": {
 					"mdpi": "", /*普通屏启动图片，分辨率：240x282*/
 					"ldpi": "", /*大屏启动图片，分辨率：320x442*/
-					"hdpi": "", /*高分屏启动图片，分辨率：480x762*/
-					"xhdpi": "", /*720P高分屏启动图片，分辨率：720x1242*/
-					"xxhdpi": ""
+					"hdpi": "unpackage/res/beginimage/图层 1.png", /*高分屏启动图片，分辨率：480x762*/
+					"xhdpi": "unpackage/res/beginimage/图层 2.png", /*720P高分屏启动图片，分辨率：720x1242*/
+					"xxhdpi": "unpackage/res/beginimage/图层 3.png"
 				}
 			}
 		}
@@ -298,7 +298,10 @@
 				],
 				"refer": [
 					"html/main-sub-pages/setting.html",
-					"html/auth/login.html"
+					"html/auth/login.html",
+					"html/main-sub-pages/home.html",
+					"html/main-sub-pages/message.html",
+					"html/main-sub-pages/concern.html"
 				],
 				"priority": 0
 			},
@@ -316,7 +319,9 @@
 				"refer": [
 					"html/main.html",
 					"html/auth/reg.html",
-					"html/auth/forget_password.html"
+					"html/auth/forget_password.html",
+					"html/auth/login.html",
+					"html/auth/unlock.html"
 				],
 				"priority": 0
 			},
@@ -343,7 +348,8 @@
 					"js/vue.min.js"
 				],
 				"refer": [
-					"html/auth/login.html"
+					"html/auth/login.html",
+					"html/cropper/cropperPic.html"
 				],
 				"priority": 0
 			},
@@ -397,7 +403,10 @@
 					"libs/echarts.js",
 					"js/vue.min.js",
 					"css/stock-tip.css",
-					"css/common.css"
+					"css/common.css",
+					"js/circle-refresh.js",
+					"images/thumbs-up.png",
+					"images/thumbs-up-fill.png"
 				],
 				"refer": [
 					"html/auth/login.html"
@@ -424,7 +433,8 @@
 					"js/circle-refresh.js"
 				],
 				"refer": [
-					"html/auth/login.html"
+					"html/auth/login.html",
+					"html/main-sub-pages/stock-detail.html"
 				],
 				"priority": 0
 			},
@@ -442,17 +452,59 @@
 					"html/auth/login.html"
 				],
 				"priority": 0
+			},
+			"html/auth/unlock.html": {
+				"href": "html/auth/unlock.html",
+				"resources": [
+					"css/mui.min.css",
+					"fonts/mui.ttf",
+					"js/mui.min.js",
+					"js/mui.locker.js",
+					"js/app.js"
+				],
+				"refer": [
+					"html/auth/login.html",
+					"html/main.html"
+				],
+				"priority": 2
+			},
+			"html/auth/reg.html": {
+				"href": "html/auth/reg.html",
+				"resources": [
+					"css/mui.min.css",
+					"fonts/mui.ttf",
+					"css/common.css",
+					"css/auth.css",
+					"js/mui.min.js",
+					"js/app.js"
+				],
+				"refer": [
+					"html/main.html"
+				],
+				"priority": 4
+			},
+			"html/cropper/cropperPic.html": {
+				"resources": [
+					"html/cropper/cropper.min.js",
+					"html/cropper/cropper.min.css",
+					"images/iconfont-tianjia.png",
+					"js/mui.min.js",
+					"css/common.css",
+					"fonts/mui.ttf",
+					"css/mui.min.css",
+					"js/app.js"
+				],
+				"refer": [],
+				"priority": 0
 			}
 		},
 		"idle": {
 			"resources": [
 				"index.html",
-				"js/service.js",
-				"images/sinaweibo.png",
-				"libs/easymob-webim-sdk/quickstart.md",
+				"images/gtip2.png",
 				"favicon.ico",
-				"images/weixin.png",
-				"images/qq.png",
+				"libs/echarts.min.js",
+				"images/setting.tip.png",
 				"images/user-photo.png",
 				"images/gtip.png",
 				"README.md"

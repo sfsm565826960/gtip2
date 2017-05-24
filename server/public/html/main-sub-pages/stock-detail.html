@@ -67,15 +67,13 @@
 				最新变动提醒
 				<a class="mui-icon mui-icon-more mui-pull-right"></a>
 			</div>
-			<div id="stockTip" class="loading-tip">加载中</div>
+			<!--下拉刷新容器-->
+			<div id="refreshContainer" class="mui-content mui-scroll-wrapper" style="top:495px">
+				<div class="mui-scroll">
+					<div id="stockTip" class="loading-tip">加载中</div>
+				</div>
+			</div>
 		</div>
-
-		<script src="../../js/mui.min.js"></script>
-		<script src="../../js/vue.min.js"></script>
-		<script src="../../libs/echarts.js"></script>
-		<script src="../../js/app.js"></script>
-		<script src="../../js/broader-index.js"></script>
-		<script src="../../js/stock.js"></script>
 		<script id="stockDetailTemplate" type="x-template">
 			<div id="stockDetail">
 				<div class="view-horizontal-split" v-if="stock.code.length > 0">
@@ -92,7 +90,7 @@
 							<span>{{stock.open}}</span>
 							<span>昨收</span>
 							<span>{{stock.close}}</span>
-							
+
 						</div>
 						<div class="view-vertical-split">
 							<span>成交额</span>
@@ -119,23 +117,41 @@
 		</script>
 		<script id="stockTipTemplate" type="x-template">
 			<div id="stockTip" class="stockTip">
-				<ul class="mui-table-view">
-					<li v-for="(item, itemIndex) in list" class="mui-table-view-cell view-vertical-split" :valuation="item.valuation">
+				<ul class="mui-table-view" v-if='list.length > 0'>
+					<li class="mui-table-view-cell view-vertical-split" v-for="(item, itemIndex) in list" :valuation="item.valuation" @click="viewDetail(item)">
 						<div class="stockTip-title">{{item.name}}({{item.code}})</div>
 						<div class="stockTip-content view-vertical-split">
 							<div class="stockTip-message">{{item.text}}</div>
 							<div class="stockTip-param" v-html="parseParamsHtml(item.params)"></div>
 							<div class="stockTip-info view-horizontal-split">
 								<span>來自：{{item.from}}</span>
-								<span @click="thumb('up', itemIndex)" :class="{thumbs:true, up: true, fill:item.isThumbsUp}"></span>
-								<span @click="thumb('down', itemIndex)" :class="{thumbs:true, down: true, fill:item.isThumbsDown}"></span>
-								<span>{{item.date.toISOString().replace(/(\d+)-(\d+)-(\d+)T(\d+):(\d+):.+/, '$1/$2/$3 $4:$5')}}</span>
+								<span class="view-horizontal-split">
+									<span @click.stop="thumb('up', itemIndex)" :class="{thumbs:true, up: true, fill:item.isThumbsUp}"></span>
+								<span style="margin-left: 5px;">({{item.thumbsUp}})</span>
+								</span>
+								<span class="view-horizontal-split">
+									<span @click.stop="thumb('down', itemIndex)" :class="{thumbs:true, down: true, fill:item.isThumbsDown}"></span>
+								<span style="margin-left: 5px;">({{item.thumbsDown}})</span>
+								</span>
+								<span>{{new Date(item.date).toISOString().replace(/(\d+)-(\d+)-(\d+)T(\d+):(\d+):.+/, '$1/$2/$3 $4:$5')}}</span>
 							</div>
 						</div>
 					</li>
 				</ul>
+				<div class="loading-tip" v-if="list.length === 0 && !noMore">暂无数据</div>
+				<div style="width: 100%;text-align: center;height: 30px;" v-show="inLoadmore">
+					<div class="mui-pull-loading mui-icon mui-spinner"></div>
+				</div>
+				<div class="loading-tip" v-show="noMore">没有更多数据</div>
 			</div>
 		</script>
+		<script src="../../js/mui.min.js"></script>
+		<script src="../../js/vue.min.js"></script>
+		<script src="../../libs/echarts.js"></script>
+		<script src="../../js/app.js"></script>
+		<script src="../../js/broader-index.js"></script>
+		<script src="../../js/stock.js"></script>
+		<script src="../../js/circle-refresh.js"></script>
 		<script type="text/javascript">
 			(function($, doc) {
 				var _oldEvent = {};
@@ -283,30 +299,34 @@
 								}
 							}
 						})
+						// 配置下拉刷新，刷新函数后面添加
+						var CR = new CircleRefresh({
+							offset: '495px',
+							height: '50px',
+							range: '50px',
+							color: '#FF0000'
+						});
+						doc.getElementById('refreshContainer').addEventListener('scroll', function(e) {
+							CR.setEnabled(e.detail.lastY >= 0);
+						});
+						$('.mui-scroll-wrapper').scroll({
+							indicators: true, //是否显示滚动条
+							deceleration: $.os.ios ? 0.003 : 0.0009
+						});
 						var vmStockTip = new Vue({
 							el: '#stockTip',
 							template: '#stockTipTemplate',
 							data: {
-								list: [
-									/*{
-										id: '2',
-										thumbsUp: 99,
-										thumbsDown: 2,
-										isThumbsUp: false,
-										isThumbsDown: false,
-										name: '赤峰黄金',
-										code: 'sh600988',
-										text: '最新高价',
-										type: 'trun',
-										valuation: 'good',
-										params: {
-											'最高价': '12.16',
-											'涨幅': '+0.75%'
-										},
-										date: new Date(),
-										from: '价格提醒'
-									}*/
-								]
+								code: '',
+								pIndex: 0,
+								pCount: 3,
+								inUpdate: false,
+								inLoadmore: false,
+								noMore: false,
+								list: []
+							},
+							mounted: function() {
+								this.update();
 							},
 							methods: {
 								parseParamsHtml: function(params) {
@@ -325,15 +345,79 @@
 								},
 								thumb: function(type, index) {
 									if(this.list[index]) {
-										if(type === 'up') {
-											this.list[index].isThumbsUp = !this.list[index].isThumbsUp;
-										} else if(type === 'down') {
-											this.list[index].isThumbsDown = !this.list[index].isThumbsDown;
-										}
+										Server.send('analysis/worth', {
+											token: App.getToken(),
+											tipId: this.list[index].id,
+											worth: type
+										}, function(res) {
+											if(res.state === 'ok') {
+												vmStockTip.list[index].isThumbsDown = res.data.isThumbsDown;
+												vmStockTip.list[index].isThumbsUp = res.data.isThumbsUp;
+												vmStockTip.list[index].thumbsUp = res.data.thumbsUp;
+												vmStockTip.list[index].thumbsDown = res.data.thumbsDown;
+											} else {
+												$.toast(res.detail);
+											}
+										});
 									}
+								},
+								update: function() {
+									if(this.inUpdate || this.inLoadmore) return;
+									this.inUpdate = true;
+									Server.send('analysis/list', {
+										token: App.getToken(),
+										range: stock.code,
+										count: this.pCount,
+										index: 0
+									}, function(res) {
+										vmStockTip.inUpdate = false;
+										if(res.state === 'ok') {
+											vmStockTip.pIndex = 0;
+											vmStockTip.list.splice(0);
+											vmStockTip.list.push.apply(vmStockTip.list, res.data);
+											vmStockTip.noMore = res.data.length < vmStockTip.pCount;
+											console.log('noMore' + vmStockTip.noMore);
+										} else {
+											$.toast(res.detail);
+										}
+										CR.endRefresh();
+									})
+								},
+								loadmore: function() {
+									if(this.inLoadmore || this.noMore) return;
+									this.inLoadmore = true;
+									Server.send('analysis/list', {
+										token: App.getToken(),
+										range: stock.code,
+										count: this.pCount,
+										index: ++this.pIndex
+									}, function(res) {
+										vmStockTip.inLoadmore = false;
+										var isEnd = false;
+										if(res.state === 'ok') {
+											vmStockTip.list.push.apply(vmStockTip.list, res.data);
+											if(res.data.length < vmStockTip.pCount) {
+												vmStockTip.noMore = true;
+											}
+										} else if(res.state === 'timeout') {
+											this.pIndex--;
+											vmStockTip.loadmore();
+											return;
+										} else {
+											$.toast(res.detail);
+										}
+									})
 								}
 							}
-						})
+						});
+
+						// 设置下来刷新的执行函数
+						CR.onRefresh(vmStockTip.update);
+
+						// 上拉刷新
+						doc.getElementById('refreshContainer').addEventListener('scrollbottom', function() {
+							vmStockTip.loadmore();
+						});
 					})
 				}
 				window.addEventListener('loadStockInfo', loadStockInfo);
