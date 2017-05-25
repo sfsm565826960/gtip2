@@ -301,9 +301,9 @@ router.post('/password', (req, res) => {
       }
       // 修改密码
       user.password = secret.createPassword(req.body.newPassword);
-      user.signLogout(false, true);
+      user.signLogin()
       user.save().then(doc => {
-        res.json({state: 'ok', detail: '密码修改成功，请重新登录'});
+        res.json({state: 'ok', detail: '密码修改成功', data: userInfo(doc)});
       }).catch(err => {
         res.json(errMsg(err));
       })

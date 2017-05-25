@@ -112,7 +112,7 @@
 							}
 							this.update();
 							if(this.timer) clearTimeout(this.timer);
-							setInterval(this.update, 60000);
+							this.timer = setInterval(this.update, 60000);
 						},
 						getThousandEvaluate: function(code) {
 							var msg = vmConcern.thousandEvaluate[code];

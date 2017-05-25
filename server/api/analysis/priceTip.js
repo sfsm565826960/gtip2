@@ -7,15 +7,20 @@ module.exports = function (stock) {
   // 存放分析结果
   var result = [];
   var hq = stock.quotation;
+  var now = new Date();
   // 开始分析
-  if (!stock.temp || !stock.temp.priceTip) { // 第一次分析
+  if (!stock.temp || !stock.temp.priceTip || stock.temp.priceTip.expiredDate < now) { // 当日开市第一次分析
     if (!stock.temp) stock.temp = {};
+    var expired = new Date();
+    expired.setHours(9, 29, 0);
+    expired.setTime(expired.getTime() + 86400000);
     stock.temp.priceTip = {
       min: hq.min, // 旧最低价
       max: hq.max, // 旧最高价
       price: hq.current, // 旧价格
       limitUp: hq.current >= hq.MAX, // 涨停
-      limitDown: hq.current <= hq.MIN // 跌停
+      limitDown: hq.current <= hq.MIN, // 跌停
+      expiredDate: expired // 过期时间      
     }
   } else { // 继续分析
     var data = stock.temp.priceTip;
@@ -33,7 +38,7 @@ module.exports = function (stock) {
           '开盘': hq.open,
           '涨幅': hq.rate > 0 ? '+' + hq.rate : hq.rate
         },
-        date: new Date(),
+        createDate: now,
         from: '价格提醒',
         receivers: stock.subscribers
       });
@@ -51,7 +56,7 @@ module.exports = function (stock) {
           '开盘': hq.open,
           '涨幅': hq.rate > 0 ? '+' + hq.rate : hq.rate
         },
-        date: new Date(),
+        createDate: now,
         from: '价格提醒',
         receivers: stock.subscribers
       });
@@ -67,7 +72,7 @@ module.exports = function (stock) {
           '现价': hq.current,
           '涨停价': hq.MAX
         },
-        date: new Date(),
+        createDate: now,
         from: '价格提醒',
         receivers: stock.subscribers
       });
@@ -83,7 +88,7 @@ module.exports = function (stock) {
           '现价': hq.current,
           '跌停价': hq.MIN
         },
-        date: new Date(),
+        createDate: now,
         from: '价格提醒',
         receivers: stock.subscribers
       });
@@ -107,7 +112,7 @@ module.exports = function (stock) {
           '总涨额': hq.diff > 0 ? '+' + hq.diff : hq.diff,
           '总涨幅': hq.rate > 0 ? '+' + hq.rate : hq.rate
         },
-        date: new Date(),
+        createDate: now,
         from: '价格提醒',
         receivers: stock.subscribers
       });
@@ -126,7 +131,7 @@ module.exports = function (stock) {
           '总涨额': hq.diff > 0 ? '+' + hq.diff : hq.diff,
           '总涨幅': hq.rate > 0 ? '+' + hq.rate : hq.rate
         },
-        date: new Date(),
+        createDate: now,
         from: '价格提醒',
         receivers: stock.subscribers
       });
@@ -147,7 +152,7 @@ module.exports = function (stock) {
           '最高价': hq.max,
           '涨停价': hq.MAX
         },
-        date: new Date(),
+        createDate: now,
         from: '价格提醒',
         receivers: stock.subscribers
       });
@@ -166,7 +171,7 @@ module.exports = function (stock) {
           '最低价': hq.min,
           '跌停价': hq.MIN
         },
-        date: new Date(),
+        createDate: now,
         from: '价格提醒',
         receivers: stock.subscribers
       });
@@ -191,7 +196,7 @@ module.exports = function (stock) {
       type: result[0].type,
       valuation: result[0].valuation,
       params: Object.assign.apply({}, params),
-      date: new Date(),
+      createDate: now,
       from: '价格提醒',
       receivers: stock.subscribers
     }

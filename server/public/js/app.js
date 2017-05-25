@@ -2,7 +2,7 @@
 	var API_HOST = 'http://gtip.sfsm.me:3305/api/';
 	var _temp = {};
 	_temp.expired = function(keep) {
-		if(!keep) keep = 3000;
+		if(!keep) keep = 1000;
 		return new Date(new Date().getTime() + keep);
 	}
 	/**
@@ -336,8 +336,7 @@
 		callback = callback || $.noop;
 		Server.send('user/password', pwdInfo, function(res) {
 			if(res.state === 'ok') {
-				owner.reLogin();
-				callback(null, '密码修改成功，请重新登录！');
+				owner.createState(res.data, callback)
 			} else {
 				callback(res.detail);
 			}

@@ -493,6 +493,7 @@
 		</div>
 	</body>
 	<script src="../../js/mui.min.js"></script>
+	<script src="../../js/mui.enterfocus.js"></script>
 	<script src="../../js/mui.view.js"></script>
 	<script src="../../js/vue.min.js"></script>
 	<script src="../../js/app.js"></script>
@@ -536,7 +537,13 @@
 			$('#exitActionSheet').on('tap', 'a', function() {
 				switch(this.getAttribute('href')) {
 					case '#switchUser':
-						App.logout();
+						var w = plus.nativeUI.showWaiting('退出用户中', {
+							back: 'none'
+						});
+						App.logout(function(err){
+							w.close();
+							if (err) App.reLogin(); // 即使退出失败也进入登录界面
+						});
 						break;
 					case '#exitApp':
 						plus.nativeUI.showWaiting('应用退出中', {
@@ -613,8 +620,7 @@
 	<!--新消息通知-->
 	<script src="../../js/setting.notifications.js"></script>
 	<!--账户与安全界面-->
-	<script src="../../js/mui.enterfocus.js"></script>
-	<!--<script src="../../js/setting.account.js"></script>-->
+	<script src="../../js/setting.account.js"></script>
 	<script src="../../js/mui.locker.js"></script>
 	<script src="../../js/setting.locker.js"></script>
 

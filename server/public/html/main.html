@@ -94,8 +94,7 @@
 				/**
 				 * 调用切换页面
 				 */
-				window.addEventListener('switchTab', function(event) {
-					var tabName = event.detail;
+				function switchTab(tabName) {
 					var tab = document.getElementById(tabName);
 					if(!tab) {
 						console.warn('switchTab: ' + tabName + ' not exist');
@@ -107,7 +106,11 @@
 					var current = document.querySelector(".mui-bar-tab>.mui-tab-item.mui-active");
 					current.classList.remove('mui-active');
 					tab.classList.add('mui-active');
+				}
+				window.addEventListener('switchTab', function(event) {
+					switchTab(event.detail);
 				});
+				
 				
 				/**
 				 * 用户登录后刷新数据
@@ -120,6 +123,7 @@
 						wv.children().forEach(function(child){
 							$.fire(child, 'resetUserInfo');
 						});
+						switchTab('tabHome');
 					});
 				});
 

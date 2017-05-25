@@ -477,7 +477,7 @@
 										})
 									}
 									vmBurstStock.update();
-									setInterval(vmBurstStock.update, 60000);
+									vmBurstStock.timer = setInterval(vmBurstStock.update, 60000);
 								} else {
 									console.log('BurstStock match list fail');
 									vmBurstStock.tip = '点击重试';
@@ -562,7 +562,7 @@
 											})
 										}
 										vmInstitutionConcern.update();
-										setInterval(vmInstitutionConcern.update, 60000);
+										vmInstitutionConcern.timer = setInterval(vmInstitutionConcern.update, 60000);
 									} else {
 										console.log('InstitutionConcern match list fail: ' + body[0]);
 										vmInstitutionConcern.tip = '点击重试';

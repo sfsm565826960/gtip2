@@ -92,7 +92,7 @@
 									<span @click.stop="thumb('down', itemIndex)" :class="{thumbs:true, down: true, fill:item.isThumbsDown}"></span>
 									<span style="margin-left: 5px;">({{item.thumbsDown}})</span>
 								</span>
-								<span>{{new Date(item.date).toISOString().replace(/(\d+)-(\d+)-(\d+)T(\d+):(\d+):.+/, '$1/$2/$3 $4:$5')}}</span>
+								<span>{{new Date(item.createDate).toISOString().replace(/(\d+)-(\d+)-(\d+)T(\d+):(\d+):.+/, '$1/$2/$3 $4:$5')}}</span>
 							</div>
 						</div>
 					</li>
@@ -203,7 +203,6 @@
 									vmStockTip.list.splice(0);
 									vmStockTip.list.push.apply(vmStockTip.list, res.data);
 									vmStockTip.noMore = res.data.length < vmStockTip.pCount;
-									console.log('noMore' + vmStockTip.noMore);
 								} else {
 									$.toast(res.detail);
 								}
@@ -277,7 +276,7 @@
 //		}
 
 				// 用户登录后执行下拉刷新
-				window.addEventListener('resetUserInfo', CR.doRefresh);
+				window.addEventListener('resetUserInfo', vmStockTip.update);
 
 				// 接收信息推送
 				window.addEventListener('receiveMsg', function(event) {

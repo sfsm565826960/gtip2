@@ -4,7 +4,7 @@
 	var lockStateButton = doc.getElementById("lockState");
 	var locker = doc.querySelector('.mui-locker');
 	function saveGestures(gestures) {
-		var settings = App.getSetting();
+		var settings = App.getSettings();
 		var account = settings.account || {};
 		account.gestures = gestures;
 		settings.account = account;

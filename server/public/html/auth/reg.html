@@ -16,7 +16,7 @@
 			<h1 class="mui-title">注册</h1>
 		</header>
 		<div class="mui-content">
-			<form class="mui-input-group">
+			<form id='register-form' class="mui-input-group">
 				<div class="mui-input-row">
 					<label>邮箱</label>
 					<input id='mail' type="email" class="mui-input-clear mui-input" placeholder="请输入邮箱">
@@ -39,6 +39,7 @@
 			</div>
 		</div>
 		<script src="../../js/mui.min.js"></script>
+		<script src="../../js/mui.enterfocus.js"></script>
 		<script src="../../js/app.js"></script>
 		<script>
 			(function($, doc) {
@@ -69,7 +70,6 @@
 						}, 0);
 						setTimeout(plus.webview.currentWebview().close, 1000);
 					};
-					
 					regButton.addEventListener('tap', function(event) {
 						var regInfo = {
 							mail: mailBox.value,
@@ -97,6 +97,9 @@
 							plus.nativeUI.toast('注册成功');
 							toMain();
 						});
+					});
+					$.enterfocus('#register-form input', function() {
+						$.trigger(regButton, 'tap');
 					});
 				});
 			}(mui, document));
