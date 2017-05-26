@@ -94,11 +94,11 @@ router.post('/login', (req, res) => {
     } else {
       switch(req.body.autoLogin) { // 可选
         case 'true':
-          user.settings.autoLogin = true;
+          user.settings.account.autoLogin = true;
           break;
         case 'false':
-          user.settings.autoLogin = false;
-          user.settings.gestures = ''; // 手势密码仅在autoLogin为true时可用
+          user.settings.account.autoLogin = false;
+          user.settings.account.gestures = ''; // 手势密码仅在autoLogin为true时可用
           break;
       }
       if (req.body.clientId &&
