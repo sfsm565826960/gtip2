@@ -101,9 +101,7 @@ router.post('/login', (req, res) => {
           user.settings.account.gestures = ''; // 手势密码仅在autoLogin为true时可用
           break;
       }
-      if (req.body.clientId &&
-          req.body.clientId.length > 0 &&
-          user.clientId !== req.body.clientId) {
+      if (req.body.clientId && user.clientId !== req.body.clientId) {
         user.clientId = req.body.clientId;
       }
       user.signLogin();

@@ -1,5 +1,6 @@
 var Quotation = require('../../utils/stock/quotation');
 var Timeline = require('../../utils/stock/timeline');
+var TradeList = require('../../utils/stock/tradelist');
 function StockSchema(mongoose) {
   var Types = mongoose.Schema.Types;
   var timelineSchema = new mongoose.Schema({
@@ -24,6 +25,15 @@ function StockSchema(mongoose) {
     count: Types.Number,
     price: Types.Number
   });
+  var tradeItemSchame = new mongoose.Schema({
+    date: Types.Date,
+    price: Types.Number,
+    count: Types.Number,
+    type: {
+      type: Types.String,
+      enum: ['sale', 'buy']
+    }
+  });
   var schema = new mongoose.Schema({
     code: { type: Types.String, unique: true, required: true },
     name: Types.String,
@@ -47,6 +57,7 @@ function StockSchema(mongoose) {
       sale: [billSchema]
     },
     timeline: [timelineSchema], // 实时数据
+    tradeList: [tradeItemSchame], // 交易列表，可分析大单交易
     temp: { // 有关该股票的相关临时数据，主要存放Analysis相关数据
       type: Types.Mixed
     },
@@ -77,7 +88,9 @@ function StockSchema(mongoose) {
           name: hq.name
         });
         stock.update({
-          quotation: hq
+          cache: {
+            quotation: hq
+          }
         }, callback);
       }
     })
@@ -174,13 +187,52 @@ function StockSchema(mongoose) {
       })
     }
   }
+
+  /**
+   * 更新tradeList数据
+   * @param {Stock} stock 
+   * @param {Function} done
+   * @param {Number|Object} data // 当为数字的时候为fetchTradeNum，需联网获取数据；当为对象时为cache的trade
+   */
+  function fetchTradeList(stock, done, data) {
+    var todo = (tradeList) => {
+      stock.tradeList.splice(0);
+      for (var i = 0; i < tradeList.list.length; i++) {
+        stock.tradeList.push({
+          date: tradeList.list[i].date,
+          count: tradeList.list[i].count,
+          price: tradeList.list[i].price,
+          type: tradeList.list[i].type
+        });
+      }
+      done(null, stock);
+    }
+    if (typeof data === 'object') {
+      todo(data);
+    } else if (typeof data === 'number' && data > 0) {
+      TradeList(stock.code, data, (err, data) => {
+        if (done()) return;
+        if (err || !data.list) {
+          done(err || 'fetch ' + stock.code + ' tradeList fail.');
+        } else {
+          todo(data);
+        }
+      })
+    } else {
+      todo({ list:[] })
+    }
+  }
+
   /**
    * 更新数据
    * @param {Object} options 配置:
-   *    quotation 盘口数据,null则自动联网获取
-   *    timeline 当日实时数据，null则自动联网获取
-   *    daybar 历史每日数据，null则自动联网获取
    *    save 更新后保存，默认为true
+   *    fetchTradeNum 获取大单交易数目，默认0不获取
+   *    cache 缓存数据，非null则从缓存中读取，null则联网获取，可以配置以下缓存
+   *      quotation 盘口数据,null则自动联网获取
+   *      timeline 当日实时数据，null则自动联网获取
+   *      daybar 历史每日数据，null则自动联网获取
+   *      trade 当日交易详情，null则自动联网获取
    * @param {Function} callback function(err, stock){}
    */
   schema.methods.update = function (options, callback) {
@@ -191,7 +243,8 @@ function StockSchema(mongoose) {
     if (typeof callback !== 'function') {
       callback = function () { }
     }
-    var process = 2; // 当process <= 0 时,调用callback。若process===-1则已经调用过callback
+    if (typeof options.cache !== 'object') options.cache = {};
+    var process = 3; // 当process <= 0 时,调用callback。若process===-1则已经调用过callback
     var done = function (err, stock) { // 判断进程是否结束
       if (!err && !stock) return process <= 0;
       if (process-- > 0) {
@@ -217,8 +270,9 @@ function StockSchema(mongoose) {
       }
       return true;
     }
-    updateQuotation(this, done, options.quotation);
-    updateTimeline(this, done, options.timeline);
+    updateQuotation(this, done, options.cache.quotation);
+    updateTimeline(this, done, options.cache.timeline);
+    fetchTradeList(this, done, options.fetchTradeNum || options.cache.trade);
   }
   return schema;
 }

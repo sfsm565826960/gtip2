@@ -15,7 +15,8 @@ var heartBeat = { // 心跳检测对象
     limitInterval: 120000
 }
 var analysisList = { // 分析工具
-    priceTip: require('./priceTip')
+    priceTip: require('./priceTip'),
+    bigTrade: require('./bigTrade')
 };
 var User = {}; // 用户数据库对象
 var Tip = {}; // 提示数据库对象
@@ -69,8 +70,9 @@ function main() {
  * @param {Function} callback 当stock.update完成后调用，用于async.mapLimit
  */
 function subprocess(stock, callback) {
-    // 更新股票数据
+    // 更新股票数据，源数据不要进行四舍五入，在输出的时候再格式化
     stock.update({
+        fetchTradeNum: 100, // 获取100条交易数据
         save: false // 更新股票数据后暂不存到数据库
     }, (err, _stock) => {
         typeof callback === 'function' && callback(); // update请求结束，告知async更新下一个股票数据
@@ -80,39 +82,45 @@ function subprocess(stock, callback) {
             return;
         } else {
             var result = { list: [] }; // 分析结果对象
+            var process = Object.keys(analysisList).length;
+            var done = (key, result) => {
+                 // 若无分析结论则忽略，有则推入数组并建立哈希索引
+                if (result) result[key] = result.list.push(result);
+                // 判断是否分析结束，是则进行后续处理
+                if (--process <= 0) {
+                    // 将分析工具的临时数据存入数据库
+                    stock.markModified('temp');
+                    stock.save().then(doc => {
+                        // Log.i(doc.name + ' temp data save ok');
+                    }).catch(err => {
+                        Log.e(err, true);
+                    });
+                    // 处理分析结果，若分析结果为空则跳过
+                    if (result.list.length > 0) {
+                        Log.i(JSON.stringify(result));
+                        // 存储分析结论
+                        Tip.create(result.list, function (err, tips) {
+                            if (err) {
+                                Log.e(err, true);
+                            } else {
+                                // Log.i('存储分析结论成功');
+                                // 执行综合分析
+                                // analysis(doc, result);
+                                // 执行推送
+                                // pushAnalysis(stock, result);
+                            }
+                        });
+                    }
+                }
+            }
             // 调用分析模块
             for (key in analysisList) {
                 try {
                     // 要求每个分析工具最多返回一个分析结果
-                    var ret = analysisList[key](stock);
-                    // 若无分析结论则忽略，有则推入数组并建立哈希索引
-                    if (ret) result[key] = result.list.push(ret);
+                    analysisList[key](stock, key, done);
                 } catch (error) {
                     Log.e(error, true);
                 }
-            }
-            // 将分析工具的临时数据存入数据库
-            stock.markModified('temp');
-            stock.save().then(doc => {
-                // Log.i(doc.name + ' temp data save ok');
-            }).catch(err => {
-                Log.e(err, true);
-            });
-            // 处理分析结果，若分析结果为空则跳过
-            if (result.list.length > 0) {
-                Log.i(JSON.stringify(result));
-                // 存储分析结论
-                Tip.create(result.list, function (err, tips) {
-                    if (err) {
-                        Log.e(err, true);
-                    } else {
-                        // Log.i('存储分析结论成功');
-                        // 执行综合分析
-                        // analysis(doc, result);
-                        // 执行推送
-                        // pushAnalysis(stock, result);
-                    }
-                });
             }
         }
     })
@@ -236,7 +244,7 @@ function parseTip(tip, userId) {
  */
 router.post('/list', (req, res) => {
     heartBeatCheck();// 心跳检测
-    if (!req.body.range || req.body.range.length === 0) req.body.range = 'my';
+    if (!req.body.rang) req.body.range = 'my';
     User.getUserByToken(req.body.token, (err, user) => {
         if (err) {
             res.json(err);
@@ -251,7 +259,7 @@ router.post('/list', (req, res) => {
                 default:
                     sql.code = req.body.range;
             }
-            var query = Tip.find(sql).sort({_id: -1});
+            var query = Tip.find(sql).sort({ _id: -1 });
             // 限制显示数目
             var pCount = parseInt(req.body.count);
             if (pCount > 0) {

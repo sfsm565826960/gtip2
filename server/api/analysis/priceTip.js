@@ -105,12 +105,12 @@ module.exports = function (stock) {
         type: 'none',
         valuation: 'good',
         params: {
+          '总涨额': hq.diff > 0 ? '+' + hq.diff : hq.diff,
+          '总涨幅': hq.rate > 0 ? '+' + hq.rate : hq.rate,
           '现价': hq.current,
           '涨额': '+' + Math.round((hq.current - data.price) * 100) / 100,
           '旧价': data.price,
-          '涨幅': '+' + priceChangeRate + '%',
-          '总涨额': hq.diff > 0 ? '+' + hq.diff : hq.diff,
-          '总涨幅': hq.rate > 0 ? '+' + hq.rate : hq.rate
+          '涨幅': '+' + priceChangeRate + '%'
         },
         createDate: now,
         from: '价格提醒',
@@ -124,12 +124,12 @@ module.exports = function (stock) {
         type: 'none',
         valuation: 'bad',
         params: {
+          '总涨额': hq.diff > 0 ? '+' + hq.diff : hq.diff,
+          '总涨幅': hq.rate > 0 ? '+' + hq.rate : hq.rate,
           '现价': hq.current,
           '涨额': Math.round((hq.current - data.price) * 100) / 100,
           '旧价': data.price,
-          '涨幅': priceChangeRate + '%',
-          '总涨额': hq.diff > 0 ? '+' + hq.diff : hq.diff,
-          '总涨幅': hq.rate > 0 ? '+' + hq.rate : hq.rate
+          '涨幅': priceChangeRate + '%'
         },
         createDate: now,
         from: '价格提醒',
