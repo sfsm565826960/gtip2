@@ -118,14 +118,25 @@
 				window.addEventListener('resetUserInfo', function(event) {
 					msgCount = 0;
 					msgBadge.innerHTML = '';
+					switchTab('tabHome');
+					fireChildEvent({
+						detail: 'resetUserInfo'
+					});
+				});
+				
+				/**
+				 * 推送事件给子页面
+				 */
+				function fireChildEvent(event){
+					if (typeof event.detail === 'string') event.detail = { name: event.detail };
 					$.plusReady(function(){
 						var wv = plus.webview.currentWebview();
 						wv.children().forEach(function(child){
-							$.fire(child, 'resetUserInfo');
+							$.fire(child, event.detail.name, event.detail.params);
 						});
-						switchTab('tabHome');
 					});
-				});
+				}
+				window.addEventListener('fireChildEvent', fireChildEvent);
 
 				//创建子页面，首个选项卡页面显示，其它均隐藏；
 				$.plusReady(function() {

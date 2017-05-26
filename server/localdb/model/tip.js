@@ -15,7 +15,7 @@ function TipSchema (mongoose) {
       enum: ['good', 'bad', 'important', 'none']
     },
     params: Types.Mixed,
-    date: Types.Date, // 创建日期
+    createDate: Types.Date, // 创建日期
     from: Types.String, // 消息来源
     thumbsUp: [{type: Types.ObjectId, ref: 'User'}], // 点赞者
     thumbsDown: [{type: Types.ObjectId, ref: 'User'}], // 反对者

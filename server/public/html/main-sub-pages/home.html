@@ -207,6 +207,10 @@
 				window.addEventListener('resetUserInfo', function(){
 					vmConcern.init();
 				});
+				/**
+				 * 关注列表更新后加载我的关注
+				 */
+				window.addEventListener('concernUpdated', vmConcern.init);
 
 			})(mui, document);
 		</script>

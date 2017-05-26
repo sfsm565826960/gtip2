@@ -54,6 +54,7 @@
 				$.plusReady(function() {
 					plus.screen.lockOrientation("portrait-primary");
 					var account = App.getSettings().account || {};
+					console.log(JSON.stringify(account));
 					var state = App.getInfo();
 					var mainPage = $.preload({
 						"id": 'main',

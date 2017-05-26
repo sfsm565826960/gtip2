@@ -196,6 +196,13 @@
 								var concern = App.getConcern();
 								concern.stockIds = res.data;
 								App.setConcern(concern);
+								var main = plus.webview.getWebviewById('main');
+								$.fire(main, 'fireChildEvent', {
+									name: 'concernUpdated',
+									params: {
+										stockIds:concern.stockIds
+									}
+								})
 							} else {
 								console.error(res.detail);
 								$.toast(res.detail);

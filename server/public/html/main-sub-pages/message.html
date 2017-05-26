@@ -277,6 +277,8 @@
 
 				// 用户登录后执行下拉刷新
 				window.addEventListener('resetUserInfo', vmStockTip.update);
+				// 关注列表更新后执行下拉刷新
+				window.addEventListener('concernUpdated', vmStockTip.update);
 
 				// 接收信息推送
 				window.addEventListener('receiveMsg', function(event) {

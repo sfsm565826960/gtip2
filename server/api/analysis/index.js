@@ -215,7 +215,7 @@ function parseTip(tip, userId) {
         type: tip.type,
         valuation: tip.valuation,
         from: tip.from,
-        date: tip.date,
+        createDate: tip.createDate,
         isThumbsUp: (tip.thumbsUp || []).indexOf(userId) >= 0,
         thumbsUp: (tip.thumbsUp || []).length,
         isThumbsDown: (tip.thumbsDown || []).indexOf(userId) >= 0,
