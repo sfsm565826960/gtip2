@@ -69,7 +69,7 @@ router.post('/add', (req, res) => {
                 Log.e(err, true);
                 res.json(errMsg(err));
               })
-              if (user.clientId && user.clientId.length > 0) {
+              if (user.clientId) {
                 Push.getClientTag(user.clientId, (err, res) => {
                   if (err) {
                     return;
@@ -132,7 +132,7 @@ router.post('/remove', (req, res) => {
           Log.e(err, true);
           res.json({ state: 'fail', detail: err.message || err });
         });
-        if (user.clientId && user.clientId.length > 0) {
+        if (user.clientId) {
           Push.getClientTag(user.clientId, (err, res) => {
             if (err) {
               return;

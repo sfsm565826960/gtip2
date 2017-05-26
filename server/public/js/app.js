@@ -21,14 +21,16 @@
 				callback = params;
 				params = {};
 			}
-			if (typeof method === 'object') {
+			if(typeof method === 'object') {
 				option = method;
 				method = undefined;
 			}
-			if (typeof option === 'string') {
-				option = { resType: option };
-			} else if (typeof option !== 'object') {
-				option = {};	
+			if(typeof option === 'string') {
+				option = {
+					resType: option
+				};
+			} else if(typeof option !== 'object') {
+				option = {};
 			}
 			var hasCB = typeof callback === 'function';
 			if(plus.networkinfo.getCurrentType() == plus.networkinfo.CONNECTION_NONE) {
@@ -42,7 +44,7 @@
 				}
 				return null;
 			}
-			if(!url || url.length == 0) {
+			if(!url) {
 				if(hasCB) {
 					callback({
 						state: 'fail',
@@ -63,16 +65,34 @@
 				timeout: option.timeout || 10000,
 				crossDomain: true, // 强制跨域，要求5+
 				success: function(res) {
-//					console.log('Server return: ' + (typeof res === 'object'?JSON.stringify(res):res));
+					//	console.log('Server return: ' + (typeof res === 'object'?JSON.stringify(res):res));
 					if(res && res.state == 'logout') {
-						owner.reLogin();
-						if(hasCB) {
+						var token = owner.getToken();
+						var account = owner.getSettings().account || {};
+						var reLogin = function() {
+							owner.reLogin();
+							if(hasCB) {
 							callback(res || {
-								'state': 'logout',
-								'detail': '登录令牌失效，请重新登录'
-							});
+									'state': 'logout',
+									'detail': '登录令牌失效，请重新登录'
+								});
+							} else {
+								$.toast('登录失效，请重新登录');
+							}
+						}
+						// 尝试重新登录
+						if(account.autoLogin && token && !account.gestures) {
+							console.log('登录失效，尝试重新登录');
+							owner.login(null, function(err) {
+								if(err) {
+									reLogin();
+								} else {
+									if (params.token) params.token = owner.getToken();
+									Server.send(url, params, callback, method, option);
+								}
+							})
 						} else {
-							$.toast('登录失效，请重新登录');
+							reLogin();
 						}
 					} else {
 						if(hasCB) {
@@ -84,8 +104,8 @@
 					}
 				},
 				error: function(xhr, type, errorThrown) {
-					console.error('Server fail: ' + type + ',' + url + (type === 'timeout'?'[Retry]':''));
-					if (type === 'timeout') {
+					console.error('Server fail: ' + type + ',' + url + (type === 'timeout' ? '[Retry]' : ''));
+					if(type === 'timeout') {
 						Server.send(url, params, callback, method, option);
 					} else {
 						if(hasCB) {
@@ -117,7 +137,6 @@
 	 * 要求用户重新登录
 	 */
 	owner.reLogin = function() {
-		owner.clear();
 		mui.openWindow({
 			url: '/html/auth/login.html',
 			id: 'login',
@@ -182,9 +201,9 @@
 			return _temp.settings;
 		}
 	}
-	
+
 	owner.getConcern = function() {
-		if (_temp.concern && _temp.concern._expired > new Date()) {
+		if(_temp.concern && _temp.concern._expired > new Date()) {
 			return _temp.concern;
 		} else {
 			var concernText = localStorage.getItem('$concern') || '{}';
@@ -193,8 +212,8 @@
 			return _temp.concern;
 		}
 	}
-	
-	owner.setConcern = function (concern) {
+
+	owner.setConcern = function(concern) {
 		_temp.concern = concern || {};
 		_temp.concern._expired = _temp.expired();
 		localStorage.setItem('$concern', JSON.stringify(_temp.concern));

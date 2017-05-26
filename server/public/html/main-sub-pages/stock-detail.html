@@ -112,7 +112,7 @@
 		<script id="stockEvaluateTemplate" type="x-template">
 			<div id="stockEvaluate">
 				<span v-if="msg.length > 0">{{msg}}</span>
-				<div class="loading-tip" v-else @click="update">{{tip}}</div>
+				<div class="loading-tip" v-else @click="update(stock.code)">{{tip}}</div>
 			</div>
 		</script>
 		<script id="stockTipTemplate" type="x-template">
@@ -163,6 +163,7 @@
 				$.back = function() {
 					var isAdd = toggleConcern.innerHTML === ADD_CONCERN;
 					if(isAdd &&
+						_oldEvent.detail &&
 						_oldEvent.detail.stock &&
 						_oldEvent.detail.stock.name &&
 						_oldEvent.detail.stock.name.length > 0) {
@@ -214,7 +215,6 @@
 				function loadStockInfo(event) {
 					_oldEvent = event;
 					var stock = event.detail.stock;
-					console.log('loadStockInfo: ' + stock.name);
 					toggleConcern.setAttribute('stockCode', stock.code);
 					var concern = App.getConcern();
 					toggleConcern.innerHTML = concern.stockIds.indexOf(stock.code) < 0 ? ADD_CONCERN : REMOVE_CONCERN;
@@ -253,16 +253,16 @@
 								tip: '加载中'
 							},
 							mounted: function() {
-								this.update(stock.code);
-								setInterval(this.update, 60000, stock.code);
+								this.update();
+								setInterval(this.update, 60000);
 							},
 							methods: {
-								update: function(code) {
+								update: function() {
 									this.tip = '加载中';
-									Stock.realTime(code, function(err, info) {
+									Stock.realTime(stock.code, function(err, info) {
 										if(err) {
 											if(err === 'timeout') {
-												vmStockDetail.update(code);
+												vmStockDetail.update();
 											} else {
 												console.error(err);
 												vmStockDetail.tip = '点击重试';
@@ -383,7 +383,6 @@
 											vmStockTip.list.splice(0);
 											vmStockTip.list.push.apply(vmStockTip.list, res.data);
 											vmStockTip.noMore = res.data.length < vmStockTip.pCount;
-											console.log('noMore' + vmStockTip.noMore);
 										} else {
 											$.toast(res.detail);
 										}

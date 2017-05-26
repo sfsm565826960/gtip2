@@ -29,9 +29,7 @@
 			if (record[0] == record[1]) {
 				$.toast('解锁手势设定成功，以后用户只需使用手势解锁而无需输入密码登录。');
 				saveGestures(record[0])
-				setTimeout(function() {
-					$.back();
-				}, 200);
+				setTimeout($.back, 200);
 			} else {
 				$.toast('两次手势不一致,请重新设定');
 			}

@@ -54,7 +54,6 @@
 				$.plusReady(function() {
 					plus.screen.lockOrientation("portrait-primary");
 					var account = App.getSettings().account || {};
-					console.log(JSON.stringify(account));
 					var state = App.getInfo();
 					var mainPage = $.preload({
 						"id": 'main',
@@ -114,7 +113,7 @@
 					var autoLoginButton = doc.getElementById("autoLogin");
 					var regButton = doc.getElementById('reg');
 					var forgetButton = doc.getElementById('forgetPassword');
-					if (state.mail && state.mail.length > 0) {
+					if (state.mail) {
 						mailBox.value = state.mail;
 					}
 					loginButton.addEventListener('tap', function(event) {

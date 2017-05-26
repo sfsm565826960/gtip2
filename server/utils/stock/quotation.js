@@ -14,7 +14,7 @@ function parsePrice(val) {
 
 function parseItem(code, detailStr) {
   var detail = detailStr.split(',');
-  if (detail.length < 32) {
+  if (!detail || detail.length < 32) {
     Log.w('Invaild Quotation: ' + detailStr, true);
     return null;
   } else {

@@ -116,7 +116,7 @@ exports.pushMessageToSingle = function(template, clientId, options, callback) {
  * @param {Function} callback function(err, res){}
  */
 exports.pushMessageToList = function(template, clientList, options, callback) {
-  if (!template || !clientList || clientList.length === 0) return;
+  if (!template || !clientList) return;
   if (typeof options === 'function') {
     callback = options;
     options = {};

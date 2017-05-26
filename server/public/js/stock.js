@@ -46,11 +46,13 @@
 						date: info[2]
 					})
 				} else {
-					console.error('ThousandEvaluate match info fail: ' + msg[0]);
+					console.error('ThousandEvaluate match info fail');
+//					console.log(msg[0]);
 					callback('ThousandEvaluate match info fail');
 				}
 			} else {
-				console.error('ThousandEvaluate match msg fail: ' + html);
+				console.error('ThousandEvaluate match msg fail');
+//				console.log(html);
 				callback('ThousandEvaluate match msg fail');
 			}
 		}, 'get', 'text');
@@ -62,10 +64,9 @@
 	 */
 	Stock.realTime = function(list, callback) {
 		var url = 'http://hq.sinajs.cn/list=' + (typeof list === 'string' ? list : list.join(','));
-
 		function parseItem(code, detailStr) {
 			var detail = detailStr.split(',');
-			if(detail.length < 32) {
+			if(!detail || detail.length < 32) {
 				console.warn('Invaild Quotation: ' + detailStr, true);
 				return null;
 			} else {

@@ -13,7 +13,7 @@ var iconv = require('iconv-lite');
 var getCharset = function (response) {
   var contentType = (response.headers || {})['content-type'];
   // console.log(contentType);
-  if (!contentType || contentType.length === 0) {
+  if (!contentType) {
     return 'UTF8';
   } else {
     var charset = contentType.replace(/ /g, '').match(/charset=([\w-\d]+)/i);
@@ -37,8 +37,12 @@ var get = function(url, callback) {
     timeout: 15000
   }, function(error, response, body) {
     if (error) {
-      console.error(error);
-      callback(error, body, response);
+      if (error.code === 'ETIMEOUT') {
+        console.warn('request ' + url + ' Timeout. Retry ...');
+        get(url, callback);
+      } else {
+        callback(error, body, response);
+      }
     } else {
       callback(null, iconv.decode(body, getCharset(response)));
     }
@@ -59,8 +63,12 @@ var post = function(url, data, callback) {
     timeout: 15000
   }, function(error, response, body) {
     if (error) {
-      console.error(error);
-      callback(error, body, response);
+      if (error.code === 'ETIMEOUT') {
+        console.warn('request ' + url + ' Timeout. Retry ...');
+        get(url, callback);
+      } else {
+        callback(error, body, response);
+      }
     } else {
       callback(null, iconv.decode(body, getCharset(response)));
     }

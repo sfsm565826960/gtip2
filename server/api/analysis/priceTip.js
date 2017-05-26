@@ -3,18 +3,26 @@
  * 价格新高、新低，急速上升、下降，涨停、跌停，涨停打开、跌停打开
  */
 
-module.exports = function (stock) {
+// 价格急速波动阀值
+const CHANGE_RATE = 1.8;
+
+// 输出价格或比例要求保留两位小数
+function parsePrice(price) {
+  return Math.round(price * 100) / 100;
+}
+
+module.exports = function (stock, key, done) {
   // 存放分析结果
   var result = [];
   var hq = stock.quotation;
   var now = new Date();
   // 开始分析
-  if (!stock.temp || !stock.temp.priceTip || stock.temp.priceTip.expiredDate < now) { // 当日开市第一次分析
+  if (!stock.temp || !stock.temp[key] || stock.temp[key].expiredDate < now) { // 当日开市第一次分析
     if (!stock.temp) stock.temp = {};
     var expired = new Date();
     expired.setHours(9, 29, 0);
     expired.setTime(expired.getTime() + 86400000);
-    stock.temp.priceTip = {
+    stock.temp[key] = {
       min: hq.min, // 旧最低价
       max: hq.max, // 旧最高价
       price: hq.current, // 旧价格
@@ -23,7 +31,7 @@ module.exports = function (stock) {
       expiredDate: expired // 过期时间      
     }
   } else { // 继续分析
-    var data = stock.temp.priceTip;
+    var data = stock.temp[key];
     // 进入涨跌停
     if (hq.current >= hq.MAX && !data.limitUp) { // 涨停
       result.push({
@@ -94,8 +102,6 @@ module.exports = function (stock) {
       });
       data.limitDown = false;
     }
-    // 价格急速波动
-    var CHANGE_RATE = 1.8;
     var priceChangeRate = Math.round((hq.current - data.price) / data.price * 10000) / 100;
     if (priceChangeRate > CHANGE_RATE) { // 急速上升
       result.push({
@@ -200,9 +206,9 @@ module.exports = function (stock) {
       from: '价格提醒',
       receivers: stock.subscribers
     }
-  } else if (result.length === 0) {
+  } else {
     result = null;
   }
   // 返回结果
-  return result;
+  done(key, result);
 }
