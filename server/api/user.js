@@ -76,12 +76,12 @@ router.post('/login', (req, res) => {
     },
     { // 通过令牌自动登录，要求开启自动登录
       state: { $ne: 'logout' },
-      'settings.autoLogin': true,
+      'settings.account.autoLogin': true,
       token: req.body.token
     },
     { // 通过令牌登录，要求登录不过期
       state: { $ne: 'logout' },
-      'settings.autoLogin': false,
+      'settings.account.autoLogin': false,
       token: req.body.token,
       loginExpired: { $gt: new Date() }
     }
