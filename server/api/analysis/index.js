@@ -81,11 +81,26 @@ function subprocess(stock, callback) {
             setTimeout(subprocess, 10, stock); // 若更新失败，记录错误信息后重试
             return;
         } else {
-            var result = { list: [] }; // 分析结果对象
+            var resultData = { list: [], keys: {} }; // 分析结果对象
+            /**
+             * 添加分析结果
+             * @param {String} key 分析工具名
+             * @param {Object|Array} result 分析结果，单结果或结果数组
+             */
+            resultData.add = function(key, result){
+                if (!this.keys[key]) {
+                    this.keys[key] = [];
+                }
+                if (result instanceof Array) {
+                    result.forEach(item => {
+                        this.keys[key].push(this.list.push(item));
+                    })
+                } else {
+                    this.keys[key].push(this.list.push(result));
+                }
+            }
             var process = Object.keys(analysisList).length;
-            var done = (key, result) => {
-                 // 若无分析结论则忽略，有则推入数组并建立哈希索引
-                if (result) result[key] = result.list.push(result);
+            var done = (key) => {
                 // 判断是否分析结束，是则进行后续处理
                 if (--process <= 0) {
                     // 将分析工具的临时数据存入数据库
@@ -96,10 +111,10 @@ function subprocess(stock, callback) {
                         Log.e(err, true);
                     });
                     // 处理分析结果，若分析结果为空则跳过
-                    if (result.list.length > 0) {
-                        Log.i(JSON.stringify(result));
+                    if (resultData.list.length > 0) {
+                        Log.i(JSON.stringify(resultData));
                         // 存储分析结论
-                        Tip.create(result.list, function (err, tips) {
+                        Tip.create(resultData.list, function (err, tips) {
                             if (err) {
                                 Log.e(err, true);
                             } else {
@@ -117,7 +132,7 @@ function subprocess(stock, callback) {
             for (key in analysisList) {
                 try {
                     // 要求每个分析工具最多返回一个分析结果
-                    analysisList[key](stock, key, done);
+                    analysisList[key](stock, key, resultData, done);
                 } catch (error) {
                     Log.e(error, true);
                 }

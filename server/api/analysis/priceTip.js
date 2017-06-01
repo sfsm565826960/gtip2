@@ -11,7 +11,7 @@ function parsePrice(price) {
   return Math.round(price * 100) / 100;
 }
 
-module.exports = function (stock, key, done) {
+module.exports = function (stock, key, resultData, done) {
   // 存放分析结果
   var result = [];
   var hq = stock.quotation;
@@ -195,7 +195,7 @@ module.exports = function (stock, key, done) {
       texts.push(result[i].text);
       params.push(result[i].params);
     }
-    result = {
+    resultData.add(key, {
       code: stock.code,
       name: stock.name,
       text: texts.join(','),
@@ -205,10 +205,8 @@ module.exports = function (stock, key, done) {
       createDate: now,
       from: '价格提醒',
       receivers: stock.subscribers
-    }
-  } else {
-    result = null;
+    })
   }
   // 返回结果
-  done(key, result);
+  done(key);
 }

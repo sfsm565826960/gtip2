@@ -17,7 +17,7 @@ module.exports = function (config) {
         + dNum(date.getMinutes()) + ":"
         + dNum(date.getSeconds());
       var text = msg.stack || msg;
-      return '[' + dateStr + '] ' + (title || '') + '\n' + text + "\n";
+      return '[' + dateStr + '] ' + (title || this.FILE) + '\n' + text + "\n";
     },
     d: function (msg, title, saveToFile, sendToMail) {
       if (typeof title === 'boolean') {

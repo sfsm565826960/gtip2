@@ -258,7 +258,8 @@
 			"css/mui.min.css",
 			"js/mui.min.js",
 			"js/mui.locker.js",
-			"js/app.js"
+			"js/app.js",
+			"css/common.css"
 		],
 		"refer": [
 			"html/auth/login.html",

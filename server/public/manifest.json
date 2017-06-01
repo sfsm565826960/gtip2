@@ -298,10 +298,7 @@
 				],
 				"refer": [
 					"html/main-sub-pages/setting.html",
-					"html/auth/login.html",
-					"html/main-sub-pages/home.html",
-					"html/main-sub-pages/message.html",
-					"html/main-sub-pages/concern.html"
+					"html/auth/login.html"
 				],
 				"priority": 0
 			},
@@ -460,7 +457,8 @@
 					"fonts/mui.ttf",
 					"js/mui.min.js",
 					"js/mui.locker.js",
-					"js/app.js"
+					"js/app.js",
+					"css/common.css"
 				],
 				"refer": [
 					"html/auth/login.html",
