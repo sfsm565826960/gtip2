@@ -121,6 +121,29 @@ router.post('/login', (req, res) => {
 });
 
 /**
+ * @api {post} /api/user/online 保持用户在线
+ * @apiName UserOnline
+ * @apiGroup user
+ * 
+ * @apiParam {String} token 用户令牌
+ */
+router.post('/online', (req, res) => {
+  User.getUserByToken(req.body.token, (err, user) => {
+    if (err) {
+      res.json(err);
+    } else {
+      user.signLogin();
+      user.save().then(doc => {
+        res.json({ state: 'ok', detail: 'Keep Online Success', data: userInfo(doc) });
+      }).catch(err => {
+        Log.e(err, true);
+        res.json(errMsg(err))
+      })
+    }
+  })
+});
+
+/**
  * @api {post} /api/user/register 用户注册
  * @apiName UserRegister
  * @apiGroup user

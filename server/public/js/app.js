@@ -5,6 +5,7 @@
 		if(!keep) keep = 1000;
 		return new Date(new Date().getTime() + keep);
 	}
+	var keepUserOnlineTimer = null; // 用于保持用户在线
 	/**
 	 * 与服务器交换方法
 	 * @param {String} url 如果没有加http则会自动补上http://project.sfsm.me/gtip/
@@ -225,6 +226,7 @@
 	 * @param {Object} callback
 	 */
 	owner.createState = function(params, callback) {
+		if(!callback) callback = function(){};
 		// 创建状态
 		owner.setInfo(params.info);
 		// 创建关注
@@ -239,6 +241,23 @@
 		email = email || '';
 		return(email.length > 3 && email.indexOf('@') > -1);
 	};
+	
+	function keepUserOnline(){
+		clearInterval(keepUserOnlineTimer);
+		keepUserOnlineTimer = setInterval(function(){
+			Server.send('user/online', {
+				token: owner.getToken()
+			}, function(res){
+				if(res.state === 'ok') {
+					owner.createState(res.data)
+				} else {
+					if (mui.toast) {
+						mui.toast(res.detail);
+					}
+				}
+			})
+		}, 300000);
+	}
 
 	/**
 	 * 用户登录
@@ -269,11 +288,13 @@
 		Server.send('user/login', loginInfo, function(res) {
 			if(res.state === 'ok') {
 				owner.createState(res.data, callback);
+				keepUserOnline()
 			} else {
 				callback(res.detail);
 			}
 		});
 	};
+	
 
 	/**
 	 * 新用户注册
@@ -298,6 +319,7 @@
 		Server.send('user/register', regInfo, function(res) {
 			if(res.state === 'ok') {
 				owner.createState(res.data, callback);
+				keepUserOnline()
 			} else {
 				callback(res.detail);
 			}
@@ -312,6 +334,7 @@
 		callback = callback || function(err) {
 			$.toast(err || '退出用户成功');
 		}
+		clearInterval(keepUserOnlineTimer);
 		Server.send('user/logout', {
 			offline: false,
 			token: owner.getToken()
@@ -363,6 +386,7 @@
 	}
 
 	owner.quit = function() {
+		clearInterval(keepUserOnlineTimer);
 		Server.send("user/logout", {
 			offline: true,
 			isExit: true,

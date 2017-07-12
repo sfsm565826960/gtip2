@@ -60,6 +60,16 @@ function UserSchema (mongoose) {
   schema.index({token: 1}, {unique: true});
   schema.index({mail: 1, password: 1});
   // 静态方法
+  /**
+   * 使用令牌获取用户，eg:
+   * User.getUserByToken(req.body.token, (err, user) = >{
+   *    if(err){
+   *      res.json(err);
+   *    }else{
+   *      // user.xxx
+   *    }
+   * })
+   */
   schema.statics.getUserByToken = function(token, sql, callback) {
     // 多态实现
     if (typeof sql === 'function') {
