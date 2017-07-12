@@ -1,8 +1,17 @@
 /**
  * 此模块用于Http的Get和Post请求
  */
+var config = require('../config.js');
+var objValues = function(obj) {
+  var v = [];
+  for(k in obj){v.push(obj[k])}
+  return v;
+}
+var poolCount = objValues(config.STOCK_POOL).reduce((prev, curr) => {
+  return prev + curr;
+}, 0) || 50;
 var request = require('request').defaults({
-  pool: { maxSockets: 50 },
+  pool: { maxSockets: poolCount },
 });
 var iconv = require('iconv-lite');
 

@@ -38,3 +38,10 @@ exports.PUSH = {
   appKey: 'a2tjYW6pLQ8QZh8I2PXwZ3', // 'aQYm3ENv8WAHHuN5nVqtd5',
   masterSecret: 'XeYdAikOXvAJyYAcWPJbB7' // 'ilP1eCl1RD8BLcfsC7JBfA'
 }
+
+exports.STOCK_POOL = {
+  common: 5, // 保留连接数
+  analysis: 20, // 用于分析请求的连接数
+  analysis_bigTrade: 20, // 用于分析大单交易的连接数【与analysis的值一致】
+  filter: 5 // 用于筛选优质股票
+}

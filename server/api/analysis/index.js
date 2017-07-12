@@ -9,6 +9,7 @@ var serverPath = '../..';
 var Log = require(serverPath + '/utils/log.js')({
     file: 'analysis.log'
 });
+var config = require(serverPath + '/config.js');
 var heartBeat = { // 心跳检测对象
     lastCheck: 0,
     lastUpdate: 0,
@@ -53,7 +54,7 @@ function main() {
                 return;
             }
             console.time('Analysis Complate');
-            async.mapLimit(stocks, 20, subprocess, () => {
+            async.mapLimit(stocks, config.STOCK_POOL ? config.STOCK_POOL.analysis : 20, subprocess, () => {
                 console.timeEnd('Analysis Complate');
             });
         })
