@@ -4,19 +4,19 @@
  * @param {Object} oMacd
  */
 exports.calcMacd = function(price, oMacd) {
-  var cMacd = [];
+  var cMacd = {};
   if (oMacd) {
-    cMacd['ema12'] = (2 * price + 11 * oMacd['ema12']) / 13;
-    cMacd['ema26'] = (2 * price + 25 * oMacd['ema26']) / 27;
-    cMacd['diff'] = cMacd['ema12'] - cMacd['ema26'];
-    cMacd['dea'] = (2 * cMacd['diff'] + 8 * oMacd['dea']) / 10;
-    cMacd['macd'] = 2 * (cMacd['diff'] - cMacd['dea']);
+    cMacd.ema12 = (2 * price + 11 * oMacd.ema12) / 13;
+    cMacd.ema26 = (2 * price + 25 * oMacd.ema26) / 27;
+    cMacd.diff = cMacd.ema12 - cMacd.ema26;
+    cMacd.dea = (2 * cMacd.diff + 8 * oMacd.dea) / 10;
+    cMacd.macd = 2 * (cMacd.diff - cMacd.dea);
   } else {
-    cMacd['ema12'] = price;
-    cMacd['ema26'] = price;
-    cMacd['diff'] = 0;
-    cMacd['dea'] = 0;
-    cMacd['macd'] = 0;
+    cMacd.ema12 = price;
+    cMacd.ema26 = price;
+    cMacd.diff = 0;
+    cMacd.dea = 0;
+    cMacd.macd = 0;
   }
   return cMacd;
 }
