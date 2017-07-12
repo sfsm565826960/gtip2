@@ -169,7 +169,8 @@
 			"fonts/mui.ttf",
 			"js/vue.js",
 			"css/common.css",
-			"css/stock-list.css"
+			"css/stock-list.css",
+			"libs/echarts.min.js"
 		],
 		"refer": [
 			"html/main-sub-pages/stock-detail.html"

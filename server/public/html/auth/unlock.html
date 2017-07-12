@@ -64,16 +64,23 @@
 					var forgetButton = doc.getElementById("forget");
 					var locker = doc.querySelector('.mui-locker');
 					var clearStateAndToLogin = function() {
-						App.logout();
-						$.openWindow({
-							url: 'login.html',
-							id: 'login',
-							show: {
-								aniShow: 'pop-in'
-							},
-							waiting: {
-								autoShow: false
-							}
+						var w = plus.nativeUI.showWaiting('加载中', {
+							back: 'none',
+							width: '100px',
+							height: '100px'
+						});
+						App.logout(function(){
+							$.openWindow({
+								url: 'login.html',
+								id: 'login',
+								show: {
+									aniShow: 'pop-in'
+								},
+								waiting: {
+									autoShow: false
+								}
+							});
+							w.close();
 						});
 					};
 					forgetButton.addEventListener('tap', function(event) {

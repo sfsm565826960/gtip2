@@ -362,7 +362,8 @@
 					"fonts/mui.ttf",
 					"js/vue.js",
 					"css/common.css",
-					"css/stock-list.css"
+					"css/stock-list.css",
+					"libs/echarts.min.js"
 				],
 				"refer": [
 					"html/main-sub-pages/stock-detail.html"
@@ -501,7 +502,6 @@
 				"index.html",
 				"images/gtip2.png",
 				"favicon.ico",
-				"libs/echarts.min.js",
 				"images/setting.tip.png",
 				"images/user-photo.png",
 				"images/gtip.png",
