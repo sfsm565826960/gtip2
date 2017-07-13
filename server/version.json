@@ -2,7 +2,7 @@
     "state": "ok",
     "detail": "获取最新应用版本信息成功",
     "data": {
-        "lastest": "1.1.1",
+        "lastest": "1.1.0",
         "date": "2017-07-13",
         "oldest": "1.1.0",
         "abandons": [],
