@@ -2,11 +2,11 @@
     "state": "ok",
     "detail": "获取最新应用版本信息成功",
     "data": {
-        "lastest": "1.1.0",
-        "date": "2017-07-13 21:30:00",
+        "lastest": "1.1.1",
+        "date": "2017-07-13",
         "oldest": "1.1.0",
         "abandons": [],
-        "download": "https://bdpkg.aliyun.dcloud.net.cn/20170713/13be5da0-67d1-11e7-8a40-037b6c3ec827/Pandora.apk?OSSAccessKeyId=Zo5iOEuapwrloQIL&Expires=1499953588&Signature=e%2FBOM6ZKXrmM7%2Fz714ixhn9VcqI%3D",
-        "note": "新特性\n1、点击图像显示数据。\n2、增加应用更新功能。\n发布日期：2017-07-13"
+        "download": "http://oqetthc14.bkt.clouddn.com/gtip_v1.1.1.apk",
+        "note": "新特性\n1、点击图像显示数据。\n2、增加应用更新功能。"
     }
 }

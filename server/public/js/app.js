@@ -308,7 +308,7 @@
 		    });
 		}
 		var updateApp = function(version){
-			var w = plus.nativeUI.showWaiting("下载更新包中...", {
+			var w = plus.nativeUI.showWaiting("连接服务器中...", {
 				back: 'none'
 			});
 			var t = null;
@@ -323,7 +323,7 @@
 			});
 			d.start();
 			t = setInterval(function(){
-				w.setTitle('下载更新包（' + Math.round((d.downloadedSize / d.totalSize) * 100) + '%）')
+				if(d.state === 3) w.setTitle('下载更新包（' + Math.round((d.downloadedSize / d.totalSize) * 100) + '%）')
 			}, 500);
 		}
 		var checkVersion = function(version){
@@ -338,7 +338,7 @@
 				return false;
 			}
 			if (vCode(APP_VERSION) < vCode(version.oldest) || isAbandon(APP_VERSION, version.abandons)) {
-				mui.confirm('应用版本过低或不可使用，请更新！\n' + version.note,'版本检查',['升级', '退出'], function(event){
+				mui.confirm('应用版本过低或不可使用，请更新！\n' + version.note + '\n发布日期：' + version.date,'版本检查',['升级', '退出'], function(event){
 					if(event.index === 0) {
 						if(plus){
 							updateApp(version);
@@ -346,7 +346,7 @@
 					} else { owner.quit(); }
 				});
 			} else {
-				mui.confirm('发现新版本（V' + version.lastest + '），推荐升级！\n' + version.note,'版本检查',['升级', '下次提醒'], function(event){
+				mui.confirm('发现新版本（V' + version.lastest + '），推荐升级！\n' + version.note + '\n发布日期：' + version.date,'版本检查',['升级', '下次提醒'], function(event){
 					if(event.index === 0) updateApp(version);
 				});
 			}

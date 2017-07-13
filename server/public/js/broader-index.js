@@ -115,12 +115,13 @@ function InitBroaderIndex($, dom, stocks) {
 			},
 			tooltip: {
 		        trigger: 'axis',
+		        backgroundColor: 'rgb(50,50,50)',
 		        position: function (pos, params, dom, rect, size) {
-				    var obj = {top: '6%'};
+				    var obj = {top: '80%'};
 				    if(pos[0] < size.viewSize[0] / 2) {
-				    	obj.left = pos[0] + 20;
+				    	obj.left = Math.max(pos[0] - size.contentSize[0] / 2, 20);
 				    } else {
-				    	obj.right = size.viewSize[0] - pos[0] + 20;
+				    	obj.left = Math.min(pos[0] - size.contentSize[0] / 2, size.viewSize[0] - size.contentSize[0] - 20);
 				    }
 				    return obj;
 				},
