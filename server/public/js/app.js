@@ -122,6 +122,20 @@
 			})
 		})
 	}
+	
+	/**
+	 * 获取应用版本（要求plusReady）
+	 */
+	owner.getVersion = function(){
+		var version = plus.runtime.innerVersion.split('.');
+		if(version.length > 3) {
+			version.splice(3);
+		}
+		while(version.length < 3){
+			version.push(0)
+		}
+		return version.join('.');
+	}
 
 	/**
 	 * 清除所有用户数据
@@ -242,6 +256,9 @@
 		return(email.length > 3 && email.indexOf('@') > -1);
 	};
 	
+	/**
+	 * 保持用户在线
+	 */
 	function keepUserOnline(){
 		clearInterval(keepUserOnlineTimer);
 		keepUserOnlineTimer = setInterval(function(){
@@ -258,6 +275,103 @@
 			})
 		}, 300000);
 	}
+	
+	/**
+	 * 检查应用版本
+	 * @param {Function} callback function(err, data){}如果有callback则返回版本数据，否则默认处理
+	 */
+	owner.checkAppVersion = function(callback){
+		var APP_VERSION = owner.getVersion();
+		var vCode = function(version){
+			var code = 0;
+			version = version.split('.');
+			code = code * 100 + (version[0]||1);
+			code = code * 100 + (version[1]||1);
+			code = code * 100 + (version[2]||1);
+			return code;
+		}
+		// 更新应用资源
+		var installApp = function(path){
+		    plus.nativeUI.showWaiting("安装更新...", {
+		    	back: 'none'	
+		    });
+		    plus.runtime.install(path,{},function(){
+		        plus.nativeUI.closeWaiting();
+		        console.log("安装更新成功！");
+		        plus.nativeUI.alert("应用资源更新完成！",function(){
+		            plus.runtime.restart();
+		        });
+		    },function(e){
+		        plus.nativeUI.closeWaiting();
+		        console.log("安装更新失败["+e.code+"]："+e.message);
+		        plus.nativeUI.alert("安装更新失败["+e.code+"]："+e.message);
+		    });
+		}
+		var updateApp = function(version){
+			var w = plus.nativeUI.showWaiting("下载更新包中...", {
+				back: 'none'
+			});
+			var t = null;
+			var d = plus.downloader.createDownload(version.download, {}, function(downloader, status){
+				clearInterval(t);
+				plus.nativeUI.closeWaiting();
+				if(status === 200){
+					installApp(downloader.filename);
+				}else{
+					mui.alert('下载更新文件失败！', '错误提示', '退出', owner.quit);
+				}
+			});
+			d.start();
+			t = setInterval(function(){
+				w.setTitle('下载更新包（' + Math.round((d.downloadedSize / d.totalSize) * 100) + '%）')
+			}, 500);
+		}
+		var checkVersion = function(version){
+			if (vCode(APP_VERSION) === vCode(version.lastest)) return true;
+			var isAbandon = function(cVersion, abandon){
+				cVersion = vCode(cVersion);
+				for(var i = 0; i < abandon.length; i++){
+					if(cVersion === vCode(abandon[i])){
+						return true;
+					}
+				}
+				return false;
+			}
+			if (vCode(APP_VERSION) < vCode(version.oldest) || isAbandon(APP_VERSION, version.abandons)) {
+				mui.confirm('应用版本过低或不可使用，请更新！\n' + version.note,'版本检查',['升级', '退出'], function(event){
+					if(event.index === 0) {
+						if(plus){
+							updateApp(version);
+						} else {}
+					} else { owner.quit(); }
+				});
+			} else {
+				mui.confirm('发现新版本（V' + version.lastest + '），推荐升级！\n' + version.note,'版本检查',['升级', '下次提醒'], function(event){
+					if(event.index === 0) updateApp(version);
+				});
+			}
+		}
+		Server.send('app/version', function(res){
+			if(res.state === 'ok'){
+				if(callback){
+					callback(null, res.data);
+				} else {
+					if (mui && plus) {
+						checkVersion(res.data);
+					} else {
+						console.warn('mui.js需放在app.js前面！');
+					}
+				}
+			} else {
+				if(callback){
+					callback(res.error||res.detail);
+				} else {
+					console.log(res.error||res.detail);
+					if (mui.toast)mui.toast(res.detail);
+				}
+			}
+		}, 'get');
+	}
 
 	/**
 	 * 用户登录
@@ -270,6 +384,7 @@
 			loginInfo = loginInfo || {};
 			loginInfo.mail = loginInfo.mail || '';
 			loginInfo.password = loginInfo.password || '';
+			loginInfo.appVersion = plus.runtime.innerVersion;
 			if(typeof loginInfo.autoLogin !== 'boolean') loginInfo.autoLogin = false;
 			if(!checkEmail(loginInfo.mail)) {
 				return callback('邮箱地址不合法');

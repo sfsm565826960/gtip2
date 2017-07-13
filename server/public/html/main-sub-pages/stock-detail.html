@@ -274,7 +274,7 @@
 											var obj = info.stocks[stock.code];
 											obj.tradeCount = Stock.parsePrice(obj.tradeCount / 1000000);
 											obj.tradePrice = Stock.parsePrice(obj.tradePrice / 100000000);
-											console.log('stockDetail: ' + JSON.stringify(obj));
+//											console.log('stockDetail: ' + JSON.stringify(obj));
 											$.extend(true, vmStockDetail.stock, obj);
 											vmStockDetail.tip = '';
 										} else {

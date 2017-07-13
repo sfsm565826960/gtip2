@@ -208,7 +208,8 @@
       "css/stock-tip.css",
       "css/common.css",
       "js/circle-refresh.js",
-      "images/thumbs-up.png"
+      "images/thumbs-up.png",
+      "libs/echarts.min.js"
     ],
     "refer": [
       "html/auth/login.html"
@@ -293,6 +294,7 @@
       "fonts/mui.ttf",
       "css/mui.min.css",
       "js/app.js"
-    ]
+    ],
+    "refer": []
   }
 }

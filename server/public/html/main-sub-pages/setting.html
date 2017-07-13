@@ -287,7 +287,7 @@
 					</ul>
 					<ul class="mui-table-view mui-table-view-chevron table-list-icon">
 						<li class="mui-table-view-cell" style="background-image: url(../../images/setting.about.png);">
-							<a href="#about" class="mui-navigate-right">关于GTip <i class="mui-pull-right update">V1.0.0</i></a>
+							<a href="#about" class="mui-navigate-right">关于GTip <i id="appVersion" class="mui-pull-right update">V1.0.0</i></a>
 						</li>
 					</ul>
 					<ul class="mui-table-view">
@@ -563,7 +563,11 @@
 					oldBack();
 				}
 			};
-
+			
+			$.plusReady(function(){
+				// 显示应用版本
+				document.getElementById("appVersion").innerHTML = 'V' + App.getVersion();
+			})
 			/**
 			 * 用户基本信息组件
 			 */
