@@ -9,8 +9,13 @@ var Log = require('../utils/log')({
   file: 'api.settings.log'
 });
 
+// 检查路由是否畅通
+router.get('/', (req, res) => {
+  res.send('router /api/settings test success');
+});
+
 /**
- * @api {post} /api/setting/notifications 通知设置
+ * @api {post} /api/settings/notifications 通知设置
  * @apiName NotificationsSetting
  * @apiGoup setting
  * 

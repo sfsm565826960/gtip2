@@ -12,6 +12,13 @@ exports.APP = {
   name: 'gtip',
   key: 'gtip', // 加密KEY
   logo: 'gtip.png',
+  version: {
+    lastest: '1.0.1', // 最新版本。
+    date: '2017-07-13 15:00:00', // 发布日期
+    oldest: '1.0.1', // 最低兼容版本。比该版本还低的不再支持，需强制升级。
+    download: '', // 最新版下载地址
+    note: '' // 最新版新特性说明。
+  }
 }
 
 exports.DB = {
