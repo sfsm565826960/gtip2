@@ -127,7 +127,7 @@
 	 * 获取应用版本（要求plusReady）
 	 */
 	owner.getVersion = function(){
-		var version = plus.runtime.innerVersion.split('.');
+		var version = plus.runtime.version.split('.');
 		if(version.length > 3) {
 			version.splice(3);
 		}
