@@ -15,7 +15,7 @@ router.get('/', (req, res) => {
  * @apiGroup app
  */
 router.get('/app/version', (req, res) => {
-  fs.readFile('../version.json', (err, content) => {
+  fs.readFile(path.join(__dirname, '../version.json'), (err, content) => {
     if(err){
       Log.e(err, true);
       res.json({state: 'fail', detail: '获取最新版本信息失败', error: err});
