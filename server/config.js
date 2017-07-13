@@ -17,8 +17,8 @@ exports.APP = {
     date: '2017-07-13 15:00:00', // 发布日期
     oldest: '1.0.1', // 最低兼容版本。比该版本还低的不再支持，需强制升级。
     abandons: [], // 抛弃的版本。被标记抛弃的版本需要强制升级。
-    download: '', // 最新版下载地址
-    note: '' // 最新版新特性说明。
+    download: 'https://bdpkg.aliyun.dcloud.net.cn/20170711/e0830220-65e1-11e7-82ec-697fc61a6ac3/Pandora.apk?OSSAccessKeyId=Zo5iOEuapwrloQIL&Expires=1499948177&Signature=pPFQw%2B0DnofP42Rqp7aeQAZL%2Bwo%3D', // 最新版下载地址
+    note: '新特性\n1、点击图像显示数据。\n2、增加应用更新功能。' // 最新版新特性说明。
   }
 }
 
