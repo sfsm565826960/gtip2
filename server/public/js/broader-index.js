@@ -17,6 +17,12 @@ function InitBroaderIndex($, dom, stocks) {
 	var _currentTimeLineIndex = 0; // 当前时间轴显示的Index
 	var _currentLegendName = ''; // 当前显示的图像名
 	broaderIndex.showLoading();
+	/**
+	 * 四舍五入，精确到小数点后两位
+	 */
+	function parsePrice(price) {
+	  return Math.round(price * 100) / 100;
+	}
 	var option = {
 		baseOption: {
 			backgroundColor: 'rgb(36,37,42)',
@@ -107,11 +113,67 @@ function InitBroaderIndex($, dom, stocks) {
 					}
 				}
 			},
+			tooltip: {
+		        trigger: 'axis',
+		        position: function (pos, params, dom, rect, size) {
+				    var obj = {top: '6%'};
+				    if(pos[0] < size.viewSize[0] / 2) {
+				    	obj.left = pos[0] + 20;
+				    } else {
+				    	obj.right = size.viewSize[0] - pos[0] + 20;
+				    }
+				    return obj;
+				},
+		        formatter: function (params) {
+		        	switch (params[0].seriesName) {
+		        		case '实时':
+		        			return 	[
+		        				'实时行情',
+		        				'价格：' + parsePrice(params[0].value),
+		        				'时间：' + params[0].name
+		        			].join('<br />');
+		        		case '日K':
+		        			var diff = parsePrice(params[0].value[1] - params[0].value[0]);
+		        			var rate = parsePrice((params[0].value[1] - params[0].value[0]) / params[0].value[0] * 100);
+		        			return [
+		        				'日K线',
+		        				'<span style="color:' + (diff > 0 ? '#f44">涨额：+' : '#0f0">涨额：') + diff + '  |  涨幅：' + (diff > 0 ? '+' : '') + rate + '%</span>',
+		        				'开盘：' + parsePrice(params[0].value[0]) + '  |  收盘：' + parsePrice(params[0].value[1]),
+		        				'最低：' + parsePrice(params[0].value[2]) + '  |  最高：' + parsePrice(params[0].value[3]),
+		        				'<span style="color: #f44">MA5  ：' + parsePrice(params[1].value) + '</span>',
+		        				'<span style="color: #0f0">MA10：' + parsePrice(params[2].value) + '</span>',
+		        				'<span style="color: #0ff">MA20：' + parsePrice(params[3].value) + '</span>',
+		        				'日期：' + params[0].name
+		        			].join('<br />');
+		        		case 'MACD':
+		        			return [
+		        				'MACD指标',
+		        				'MACD：' + parsePrice(params[0].data.macd.macd),
+		        				'DIFF：' + parsePrice(params[0].data.macd.diff),
+		        				'DEA：' + parsePrice(params[0].data.macd.dea),
+		        				'日期：' + params[0].name
+		        			].join('<br />');
+		        		case 'KDJ':
+		        			return [
+		        				'KDJ指标',
+		        				'<span style="color: #f44">K值：' + parsePrice(params[0].value) + '</span>',
+		        				'<span style="color: #0f0">D值：' + parsePrice(params[1].value) + '</span>',
+		        				'<span style="color: #0ff">J值：' + parsePrice(params[2].value) + '</span>',
+		        				'日期：' + params[0].name
+		        			].join('<br />');
+		        	}
+		            params = params[0];
+		            
+		        },
+		        axisPointer: {
+		            animation: false
+		        }
+		    },
 			series: [{
 					name: '实时',
 					type: 'line',
 					data: [],
-					lineStyle: dataLineStyle
+					lineStyle: dataLineStyle,
 				},
 				{
 					name: '日K',
@@ -205,19 +267,19 @@ function InitBroaderIndex($, dom, stocks) {
 	 * @param {Object} oMacd
 	 */
 	function calcMacd(price, oMacd) {
-		var cMacd = [];
+		var cMacd = {};
 		if(oMacd) {
-			cMacd['ema12'] = (2 * price + 11 * oMacd['ema12']) / 13;
-			cMacd['ema26'] = (2 * price + 25 * oMacd['ema26']) / 27;
-			cMacd['diff'] = cMacd['ema12'] - cMacd['ema26'];
-			cMacd['dea'] = (2 * cMacd['diff'] + 8 * oMacd['dea']) / 10;
-			cMacd['macd'] = 2 * (cMacd['diff'] - cMacd['dea']);
+			cMacd.ema12 = (2 * price + 11 * oMacd.ema12) / 13;
+			cMacd.ema26 = (2 * price + 25 * oMacd.ema26) / 27;
+			cMacd.diff = cMacd.ema12 - cMacd.ema26;
+			cMacd.dea = (2 * cMacd.diff + 8 * oMacd.dea) / 10;
+			cMacd.macd = 2 * (cMacd.diff - cMacd.dea);
 		} else {
-			cMacd['ema12'] = price;
-			cMacd['ema26'] = price;
-			cMacd['diff'] = 0;
-			cMacd['dea'] = 0;
-			cMacd['macd'] = 0;
+			cMacd.ema12 = price;
+			cMacd.ema26 = price;
+			cMacd.diff = 0;
+			cMacd.dea = 0;
+			cMacd.macd = 0;
 		}
 		return cMacd;
 	}
@@ -270,6 +332,33 @@ function InitBroaderIndex($, dom, stocks) {
 		}
 		return cKdj;
 	}
+	
+	function calcMA(price, oMA){
+		var cMA = {};
+		var val = function(arr, len) {
+			var ret = 0;
+			var target = arr.slice(arr.length - len < 0 ? 0 : arr.length - len);
+			for(var i = 0;i < target.length; i++) {
+				ret += target[i]
+			}
+			return ret / target.length;
+		}
+		if (oMA) {
+			oMA.prices.push(price);
+			cMA.prices = oMA.prices.splice(-30);
+			cMA.ma5 = val(cMA.prices, 5);
+			cMA.ma10 = val(cMA.prices, 10);
+			cMA.ma20 = val(cMA.prices, 20);
+			cMA.ma30 = val(cMA.prices, 30);
+		} else {
+			cMA.ma5 = price;
+			cMA.ma10 = price;
+			cMA.ma20 = price;
+			cMA.ma30 = price;
+			cMA.prices = [price];
+		}
+		return cMA;
+	}
 
 	function loadDaybar(code, count, start, callback) {
 		if(typeof count === 'function') {
@@ -304,10 +393,17 @@ function InitBroaderIndex($, dom, stocks) {
 						k: [],
 						d: [],
 						j: []
+					},
+					ma: {
+						ma5: [],
+						ma10: [],
+						ma20: [],
+						ma30: []
 					}
 				}
 				var oMacd = null;
 				var oKdj = null;
+				var oMA = null;
 				// 载入数据
 				for(var index = 0; index < list.length; index++) {
 					data.date.push(list[index].date.toString().replace(/(\w{4})(\w{2})(\w{2})/, '$2/$3'));
@@ -317,6 +413,11 @@ function InitBroaderIndex($, dom, stocks) {
 						list[index].kline.low,
 						list[index].kline.high
 					]);
+					oMA = calcMA(list[index].kline.close, oMA);
+					data.ma.ma5.push(oMA.ma5);
+					data.ma.ma10.push(oMA.ma10);
+					data.ma.ma20.push(oMA.ma20);
+					data.ma.ma30.push(oMA.ma30);
 					oMacd = calcMacd(list[index].kline.close, oMacd);
 					if(oMacd.macd < 0) {
 						data.macd.push({
@@ -399,6 +500,48 @@ function InitBroaderIndex($, dom, stocks) {
 					xAxis: data.date
 				},
 				{
+					name: '日K',
+					type: 'line',
+					hoverAnimation: false,
+					smooth: true, // 平滑显示
+					data: data.ma.ma5,
+					lineStyle: {
+						normal: {
+							color: 'rgba(255,0,0,0.3)',
+							width: 2
+						}
+					},
+					xAxis: data.date
+				},
+				{
+					name: '日K',
+					type: 'line',
+					hoverAnimation: false,
+					smooth: true, // 平滑显示
+					data: data.ma.ma10,
+					lineStyle: {
+						normal: {
+							color: 'rgba(0,255,0,0.3)',
+							width: 2
+						}
+					},
+					xAxis: data.date
+				},
+				{
+					name: '日K',
+					type: 'line',
+					hoverAnimation: false,
+					smooth: true, // 平滑显示
+					data: data.ma.ma20,
+					lineStyle: {
+						normal: {
+							color: 'rgba(0,255,255,0.3)',
+							width: 2
+						}
+					},
+					xAxis: data.date
+				},
+				{
 					name: 'MACD',
 					data: data.macd,
 					xAxis: data.date,
@@ -411,6 +554,7 @@ function InitBroaderIndex($, dom, stocks) {
 				{
 					name: 'KDJ',
 					data: data.kdj.k,
+					hoverAnimation: false,
 					type: 'line',
 					lineStyle: {
 						normal: {
@@ -422,6 +566,7 @@ function InitBroaderIndex($, dom, stocks) {
 				},
 				{
 					name: 'KDJ',
+					hoverAnimation: false,
 					data: data.kdj.d,
 					type: 'line',
 					lineStyle: {
@@ -435,10 +580,11 @@ function InitBroaderIndex($, dom, stocks) {
 				{
 					name: 'KDJ',
 					data: data.kdj.j,
+					hoverAnimation: false,
 					type: 'line',
 					lineStyle: {
 						normal: {
-							color: 'rgba(100,100,250,0.3)',
+							color: '#0aa',
 							width: 2
 						}
 					},
