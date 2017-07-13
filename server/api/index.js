@@ -3,7 +3,9 @@ var router = express.Router();
 var modelLoaded = false;
 var Log = require('../utils/log')({
   file: 'api.log'
-});var fs = require('fs');
+});
+var fs = require('fs');
+var path = require('path');
 
 router.get('/', (req, res) => {
   res.send('router /api test success');
