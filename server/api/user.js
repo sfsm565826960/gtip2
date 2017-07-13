@@ -67,6 +67,7 @@ function userInfo(user) {
  * @apiParam {String} token 用户令牌（必填2）
  * @apiParam {String} clientId 推送ID
  * @apiParam {String="true","false"} autoLogin 自动登录（true|false），若无该参数则保持默认
+ * @apiParam {String} appVersion 应用版本
  */
 router.post('/login', (req, res) => {
   User.findOne({ $or: [
@@ -105,6 +106,10 @@ router.post('/login', (req, res) => {
         user.clientId = req.body.clientId;
       }
       user.signLogin();
+      user.addLoginHabit({
+        ip: req.ip,
+        appVersion: req.body.appVersion
+      });
       user.save().then(doc => {
         // 重新设置标签
         if (doc.clientId && doc.clientId.length > 0) {

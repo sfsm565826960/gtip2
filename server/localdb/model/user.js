@@ -1,6 +1,11 @@
 var secret = require('../../utils/secret');
 function UserSchema (mongoose) {
   var Types = mongoose.Schema.Types;
+  var habitLoginSchema = new mongoose.Schema({
+    date: Types.Date,
+    appVersion: Types.String,
+    ip: Types.String
+  });
   var schema = new mongoose.Schema({
     mail: {
       type: Types.String,
@@ -30,7 +35,7 @@ function UserSchema (mongoose) {
     //   unlockDate: { type: Types.Date, default: new Date() } // 解锁时间
     // },
     habit: { // 用户习惯
-      loginDate: [Types.Date],
+      login: [habitLoginSchema],
       logoutDate: [Types.Date]
     },
     lastLogin: Types.Date, // 最近一次登录时间
@@ -108,10 +113,20 @@ function UserSchema (mongoose) {
     this.token = token;
     this.lastLogin = date;
     this.loginExpired = new Date(date.getTime() + 1800000);
-    this.habit.loginDate.push(date);
     this.state = 'online';
     return token;
   };
+  /**
+   * 添加用户登录习惯
+   * @param {Object} loginHabit {ip,appVersion}
+   */
+  schema.methods.addLoginHabit = function(loginHabit) {
+    this.habit.login.push({
+      date: new Date(),
+      ip: loginHabit.ip || 'unknow',
+      appVersion: loginHabit.appVersion || 'unknow'
+    });
+  }
   /**
    * 签署用户离线/注销状态
    * @param {Boolean} offline true离线模式;false注销
