@@ -2,11 +2,11 @@
     "state": "ok",
     "detail": "获取最新应用版本信息成功",
     "data": {
-        "lastest": "1.1.0", // 最新版本。
-        "date": "2017-07-13 21:30:00", // 发布日期
-        "oldest": "1.1.0", // 最低兼容版本。比该版本还低的不再支持，需强制升级。
-        "abandons": [], // 抛弃的版本。被标记抛弃的版本需要强制升级。
-        "download": "https://bdpkg.aliyun.dcloud.net.cn/20170713/13be5da0-67d1-11e7-8a40-037b6c3ec827/Pandora.apk?OSSAccessKeyId=Zo5iOEuapwrloQIL&Expires=1499953588&Signature=e%2FBOM6ZKXrmM7%2Fz714ixhn9VcqI%3D", // 最新版下载地址
-        "note": "新特性\n1、点击图像显示数据。\n2、增加应用更新功能。\n发布日期：2017-07-13" // 最新版新特性说明。
+        "lastest": "1.1.0",
+        "date": "2017-07-13 21:30:00",
+        "oldest": "1.1.0",
+        "abandons": [],
+        "download": "https://bdpkg.aliyun.dcloud.net.cn/20170713/13be5da0-67d1-11e7-8a40-037b6c3ec827/Pandora.apk?OSSAccessKeyId=Zo5iOEuapwrloQIL&Expires=1499953588&Signature=e%2FBOM6ZKXrmM7%2Fz714ixhn9VcqI%3D",
+        "note": "新特性\n1、点击图像显示数据。\n2、增加应用更新功能。\n发布日期：2017-07-13"
     }
 }
