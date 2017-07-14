@@ -5,13 +5,22 @@
  * @param {Object} stocks 格式：{name:'',code:''}
  */
 function InitBroaderIndex($, dom, stocks) {
+	/* 颜色预设 */
+	var COLOR_RED = '#b33'; // 默认红色
+	var COLOR_GREEN = '#3b3'; // 默认绿色
+	var COLOR_BLUE = '#3bf'; // 默认蓝色
+	var COLOR_BACKGROUND = 'rgb(36,37,42)'; // 图像背景颜色
+	var COLOR_INACTIVE = '#aaa'; // 非活动颜色
+	var COLOR_SPLIT_LINE = 'rgba(255,255,255,0.2)'; // 分割线颜色
+	var COLOR_AXIS_TEXT = 'rgba(255,255,255,0.6)'; // 坐标字体颜色
+	var COLOR_AXIS = '#777'; // 坐标线颜色
+	var COLOR_TOOLTIP_BACKGROUND = '#444'; // 数据显示框背景
+	// 初始化股票走势
 	var broaderIndex = echarts.init(dom);
-	var textColor = 'rgba(255,255,255,0.6)';
-	var splitLineColor = 'rgba(255,255,255,0.2)';
 	var dataLineStyle = {
 		normal: {
 			width: 3,
-			color: 'red'
+			color: COLOR_RED
 		}
 	}
 	var _currentTimeLineIndex = 0; // 当前时间轴显示的Index
@@ -25,7 +34,7 @@ function InitBroaderIndex($, dom, stocks) {
 	}
 	var option = {
 		baseOption: {
-			backgroundColor: 'rgb(36,37,42)',
+			backgroundColor: COLOR_BACKGROUND,
 			timeline: {
 				show: stocks.length > 1,
 				axisType: 'category',
@@ -40,14 +49,14 @@ function InitBroaderIndex($, dom, stocks) {
 					showPlayBtn: false,
 					itemSize: 10,
 					normal: {
-						color: '#f00'
+						color: COLOR_RED
 					}
 				},
 				label: {
 					position: -8,
 					normal: {
 						textStyle: {
-							color: textColor
+							color: COLOR_AXIS_TEXT
 						}
 					}
 				}
@@ -67,15 +76,15 @@ function InitBroaderIndex($, dom, stocks) {
 				data: ['实时', '日K', 'MACD', 'KDJ'],
 				selectedMode: 'single',
 				textStyle: {
-					color: '#f00'
+					color: COLOR_RED
 				},
-				inactiveColor: '#aaa'
+				inactiveColor: COLOR_INACTIVE
 			},
 			xAxis: {
 				data: [],
 				axisLine: {
 					lineStyle: {
-						color: '#777'
+						color: COLOR_AXIS
 					}
 				},
 				axisTick: {
@@ -84,7 +93,7 @@ function InitBroaderIndex($, dom, stocks) {
 				axisLabel: {
 					margin: 15,
 					textStyle: {
-						color: textColor,
+						color: COLOR_AXIS_TEXT,
 						align: 'left'
 					}
 				}
@@ -94,13 +103,13 @@ function InitBroaderIndex($, dom, stocks) {
 				axisLabel: {
 					inside: true,
 					textStyle: {
-						color: textColor,
+						color: COLOR_AXIS_TEXT,
 						baseline: 'top'
 					}
 				},
 				axisLine: {
 					lineStyle: {
-						color: '#777'
+						color: COLOR_AXIS
 					}
 				},
 				axisTick: {
@@ -109,13 +118,13 @@ function InitBroaderIndex($, dom, stocks) {
 				splitLine: {
 					show: true,
 					lineStyle: {
-						color: splitLineColor
+						color: COLOR_SPLIT_LINE
 					}
 				}
 			},
 			tooltip: {
 		        trigger: 'axis',
-		        backgroundColor: 'rgb(50,50,50)',
+		        backgroundColor: COLOR_TOOLTIP_BACKGROUND,
 		        position: function (pos, params, dom, rect, size) {
 				    var obj = {top: '80%'};
 				    if(pos[0] < size.viewSize[0] / 2) {
@@ -138,12 +147,12 @@ function InitBroaderIndex($, dom, stocks) {
 		        			var rate = parsePrice((params[0].value[1] - params[0].value[0]) / params[0].value[0] * 100);
 		        			return [
 		        				'日K线',
-		        				'<span style="color:' + (diff > 0 ? '#f44">涨额：+' : '#0f0">涨额：') + diff + '  |  涨幅：' + (diff > 0 ? '+' : '') + rate + '%</span>',
+		        				'<span style="color:' + (diff > 0 ? COLOR_RED + '">涨额：+' : COLOR_GREEN + '">涨额：') + diff + '  |  涨幅：' + (diff > 0 ? '+' : '') + rate + '%</span>',
 		        				'开盘：' + parsePrice(params[0].value[0]) + '  |  收盘：' + parsePrice(params[0].value[1]),
 		        				'最低：' + parsePrice(params[0].value[2]) + '  |  最高：' + parsePrice(params[0].value[3]),
-		        				'<span style="color: #f44">MA5  ：' + parsePrice(params[1].value) + '</span>',
-		        				'<span style="color: #0f0">MA10：' + parsePrice(params[2].value) + '</span>',
-		        				'<span style="color: #0ff">MA20：' + parsePrice(params[3].value) + '</span>',
+		        				'<span style="color: ' + COLOR_RED + '">MA5  ：' + parsePrice(params[1].value) + '</span>',
+		        				'<span style="color: ' + COLOR_GREEN + '">MA10：' + parsePrice(params[2].value) + '</span>',
+		        				'<span style="color: ' + COLOR_BLUE + '">MA20：' + parsePrice(params[3].value) + '</span>',
 		        				'日期：' + params[0].name
 		        			].join('<br />');
 		        		case 'MACD':
@@ -157,9 +166,9 @@ function InitBroaderIndex($, dom, stocks) {
 		        		case 'KDJ':
 		        			return [
 		        				'KDJ指标',
-		        				'<span style="color: #f44">K值：' + parsePrice(params[0].value) + '</span>',
-		        				'<span style="color: #0f0">D值：' + parsePrice(params[1].value) + '</span>',
-		        				'<span style="color: #0ff">J值：' + parsePrice(params[2].value) + '</span>',
+		        				'<span style="color: ' + COLOR_RED + '">K值：' + parsePrice(params[0].value) + '</span>',
+		        				'<span style="color: ' + COLOR_GREEN + '">D值：' + parsePrice(params[1].value) + '</span>',
+		        				'<span style="color: ' + COLOR_BLUE + '">J值：' + parsePrice(params[2].value) + '</span>',
 		        				'日期：' + params[0].name
 		        			].join('<br />');
 		        	}
@@ -425,7 +434,7 @@ function InitBroaderIndex($, dom, stocks) {
 							value: oMacd.macd,
 							itemStyle: {
 								normal: {
-									color: '#0F0'
+									color: COLOR_GREEN
 								}
 							},
 							macd: JSON.parse(JSON.stringify(oMacd)) // 简易Clone
@@ -508,7 +517,7 @@ function InitBroaderIndex($, dom, stocks) {
 					data: data.ma.ma5,
 					lineStyle: {
 						normal: {
-							color: 'rgba(255,0,0,0.3)',
+							color: 'rgba(205,56,56,0.3)',
 							width: 2
 						}
 					},
@@ -522,7 +531,7 @@ function InitBroaderIndex($, dom, stocks) {
 					data: data.ma.ma10,
 					lineStyle: {
 						normal: {
-							color: 'rgba(0,255,0,0.3)',
+							color: 'rgba(56,205,56,0.3)',
 							width: 2
 						}
 					},
@@ -536,7 +545,7 @@ function InitBroaderIndex($, dom, stocks) {
 					data: data.ma.ma20,
 					lineStyle: {
 						normal: {
-							color: 'rgba(0,255,255,0.3)',
+							color: 'rgba(56,205,255,0.3)',
 							width: 2
 						}
 					},
@@ -548,7 +557,7 @@ function InitBroaderIndex($, dom, stocks) {
 					xAxis: data.date,
 					itemStyle: {
 						normal: {
-							color: 'red'
+							color: COLOR_RED
 						}
 					}
 				},
@@ -559,7 +568,7 @@ function InitBroaderIndex($, dom, stocks) {
 					type: 'line',
 					lineStyle: {
 						normal: {
-							color: '#f00',
+							color: COLOR_RED,
 							width: 2
 						}
 					},
@@ -572,7 +581,7 @@ function InitBroaderIndex($, dom, stocks) {
 					type: 'line',
 					lineStyle: {
 						normal: {
-							color: '#0f0',
+							color: COLOR_GREEN,
 							width: 2
 						}
 					},
@@ -585,7 +594,7 @@ function InitBroaderIndex($, dom, stocks) {
 					type: 'line',
 					lineStyle: {
 						normal: {
-							color: '#0aa',
+							color: COLOR_BLUE,
 							width: 2
 						}
 					},
