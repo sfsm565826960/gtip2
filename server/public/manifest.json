@@ -7,7 +7,7 @@
 	"id": "H5BB2B6B7",/*应用的标识，创建应用时自动生成，勿手动修改*/
 	"name": "gtip2",/*应用名称，程序桌面图标名称*/
 	"version": {
-		"name": "1.1.0",/*应用版本名称*/
+		"name": "1.1.1",/*应用版本名称*/
 		"code": "83"
 	},
 	"description": "",/*应用描述信息*/
@@ -363,7 +363,8 @@
 					"js/vue.js",
 					"css/common.css",
 					"css/stock-list.css",
-					"libs/echarts.min.js"
+					"libs/echarts.min.js",
+					null
 				],
 				"refer": [
 					"html/main-sub-pages/stock-detail.html"
