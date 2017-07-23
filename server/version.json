@@ -2,11 +2,11 @@
     "state": "ok",
     "detail": "获取最新应用版本信息成功",
     "data": {
-        "lastest": "1.1.0",
-        "date": "2017-07-13",
+        "lastest": "1.1.1",
+        "date": "2017-07-23",
         "oldest": "1.1.0",
         "abandons": [],
         "download": "http://oqetthc14.bkt.clouddn.com/gtip_v1.1.1.apk",
-        "note": "新特性\n1、点击图像显示数据。\n2、增加应用更新功能。"
+        "note": "新特性\n1、KDJ图像添加推荐操作提示。"
     }
 }
