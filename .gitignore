@@ -16,3 +16,4 @@ server/logs/*
 !server/logs/README.md
 server/api/doc/*
 server/public/unpackage/release/
+server/api/filter/output/*
