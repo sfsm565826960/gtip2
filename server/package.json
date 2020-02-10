@@ -21,7 +21,7 @@
     "nodemailer": "^4.0.1",
     "serve-favicon": "~2.3.2",
     "crypto": "0.0.3",
-    "protobufjs": "^3.8.2",
+    "protobufjs": "^6.8.8",
     "request": "^2.51.0",
     "util": "^0.10.3"
   },
